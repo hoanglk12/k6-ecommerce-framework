@@ -1,0 +1,69 @@
+{
+  "environment": "production",
+  "isProduction": true,
+  "dryRun": false,
+  "debug": false,
+  "timeout": 30000,
+  "maxRetries": 1,
+  "thinkTime": {
+    "min": 3,
+    "max": 8
+  },
+  "sites": {
+    "platypus-au": {
+      "baseUrl": "https://www.platypusshoes.com.au",
+      "graphqlEndpoint": "https://www.platypusshoes.com.au/graphql",
+      "storeCode": "default"
+    },
+    "platypus-nz": {
+      "baseUrl": "https://www.platypusshoes.co.nz",
+      "graphqlEndpoint": "https://www.platypusshoes.co.nz/graphql",
+      "storeCode": "default"
+    },
+    "skechers-au": {
+      "baseUrl": "https://www.skechers.com.au",
+      "graphqlEndpoint": "https://www.skechers.com.au/graphql",
+      "storeCode": "default"
+    },
+    "skechers-nz": {
+      "baseUrl": "https://www.skechers.co.nz",
+      "graphqlEndpoint": "https://www.skechers.co.nz/graphql",
+      "storeCode": "default"
+    },
+    "drmartens-au": {
+      "baseUrl": "https://www.drmartens.com.au",
+      "graphqlEndpoint": "https://www.drmartens.com.au/graphql",
+      "storeCode": "default"
+    },
+    "drmartens-nz": {
+      "baseUrl": "https://www.drmartens.co.nz",
+      "graphqlEndpoint": "https://www.drmartens.co.nz/graphql",
+      "storeCode": "default"
+    },
+    "vans-au": {
+      "baseUrl": "https://www.vans.com.au",
+      "graphqlEndpoint": "https://www.vans.com.au/graphql",
+      "storeCode": "default"
+    },
+    "vans-nz": {
+      "baseUrl": "https://www.vans.co.nz",
+      "graphqlEndpoint": "https://www.vans.co.nz/graphql",
+      "storeCode": "default"
+    }
+  },
+  "thresholds": {
+    "http_req_duration_p95": 800,
+    "http_req_duration_p99": 2000,
+    "http_req_failed_rate": 0.01,
+    "http_req_waiting_p95": 200
+  },
+  "features": {
+    "enableLogin": true,
+    "enablePDP": true,
+    "enableAddToCart": true,
+    "enableCheckout": false,
+    "enablePlaceOrder": false
+  },
+  "safetyWarning": "⚠️ PRODUCTION ENVIRONMENT - Place order is DISABLED by default. Do NOT enable without explicit authorization.",
+  "notes": "Production environment. Only non-destructive operations are allowed by default."
+}

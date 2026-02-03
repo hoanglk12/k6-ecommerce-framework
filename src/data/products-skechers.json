@@ -1,0 +1,111 @@
+{
+  "description": "Sample products for Skechers Australia load testing",
+  "site": "skechers",
+  "note": "Replace SKUs with actual product SKUs from the Skechers catalog",
+  "data": [
+    {
+      "id": "prod-001",
+      "sku": "SKECHERS-GO-WALK-6",
+      "urlKey": "go-walk-6",
+      "name": "Skechers GO WALK 6",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/walking",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 100,
+        "max": 160
+      }
+    },
+    {
+      "id": "prod-002",
+      "sku": "SKECHERS-MAX-CUSHION",
+      "urlKey": "max-cushioning-elite",
+      "name": "Skechers Max Cushioning Elite",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/running",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 140,
+        "max": 200
+      }
+    },
+    {
+      "id": "prod-003",
+      "sku": "SKECHERS-ARCH-FIT",
+      "urlKey": "arch-fit",
+      "name": "Skechers Arch Fit",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/comfort",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 120,
+        "max": 180
+      }
+    },
+    {
+      "id": "prod-004",
+      "sku": "SKECHERS-D-LITES",
+      "urlKey": "d-lites",
+      "name": "Skechers D'Lites",
+      "productType": "configurable",
+      "categoryPath": "shoes/women/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 90,
+        "max": 150
+      }
+    },
+    {
+      "id": "prod-005",
+      "sku": "SKECHERS-UNO",
+      "urlKey": "uno-stand-on-air",
+      "name": "Skechers Uno - Stand on Air",
+      "productType": "configurable",
+      "categoryPath": "shoes/unisex/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 100,
+        "max": 160
+      }
+    },
+    {
+      "id": "prod-006",
+      "sku": "SKECHERS-SUMMITS",
+      "urlKey": "summits",
+      "name": "Skechers Summits",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/athletic",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 80,
+        "max": 130
+      }
+    },
+    {
+      "id": "prod-007",
+      "sku": "SKECHERS-SLIP-INS",
+      "urlKey": "slip-ins",
+      "name": "Skechers Slip-ins",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/comfort",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 110,
+        "max": 170
+      }
+    },
+    {
+      "id": "prod-008",
+      "sku": "SKECHERS-WORK",
+      "urlKey": "work-relaxed-fit",
+      "name": "Skechers Work Relaxed Fit",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/work",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 100,
+        "max": 160
+      }
+    }
+  ]
+}

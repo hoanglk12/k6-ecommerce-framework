@@ -1,0 +1,51 @@
+{
+  "description": "Test users for k6 load testing - DO NOT use production credentials",
+  "warning": "Replace these with actual test account credentials before running",
+  "data": [
+    {
+      "id": "user-001",
+      "email": "testuser1@example.com",
+      "password": "TestPassword123!",
+      "firstName": "Test",
+      "lastName": "User One",
+      "userType": "registered",
+      "customerGroup": "General"
+    },
+    {
+      "id": "user-002",
+      "email": "testuser2@example.com",
+      "password": "TestPassword123!",
+      "firstName": "Test",
+      "lastName": "User Two",
+      "userType": "registered",
+      "customerGroup": "General"
+    },
+    {
+      "id": "user-003",
+      "email": "vipuser@example.com",
+      "password": "VIPPassword123!",
+      "firstName": "VIP",
+      "lastName": "Customer",
+      "userType": "vip",
+      "customerGroup": "VIP"
+    },
+    {
+      "id": "user-004",
+      "email": "wholesale@example.com",
+      "password": "WholesalePass123!",
+      "firstName": "Wholesale",
+      "lastName": "Buyer",
+      "userType": "registered",
+      "customerGroup": "Wholesale"
+    },
+    {
+      "id": "user-005",
+      "email": "loadtest5@example.com",
+      "password": "LoadTest123!",
+      "firstName": "Load",
+      "lastName": "Tester",
+      "userType": "registered",
+      "customerGroup": "General"
+    }
+  ]
+}

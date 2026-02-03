@@ -1,0 +1,68 @@
+{
+  "environment": "staging",
+  "isProduction": false,
+  "dryRun": false,
+  "debug": true,
+  "timeout": 60000,
+  "maxRetries": 3,
+  "thinkTime": {
+    "min": 1,
+    "max": 3
+  },
+  "sites": {
+    "platypus-au": {
+      "baseUrl": "https://stag-platypus-au.accentgra.com",
+      "graphqlEndpoint": "https://stag-platypus-au.accentgra.com/graphql",
+      "storeCode": "default"
+    },
+    "platypus-nz": {
+      "baseUrl": "https://stag-platypus-nz.accentgra.com",
+      "graphqlEndpoint": "https://stag-platypus-nz.accentgra.com/graphql",
+      "storeCode": "default"
+    },
+    "skechers-au": {
+      "baseUrl": "https://stag-skechers-au.accentgra.com",
+      "graphqlEndpoint": "https://stag-skechers-au.accentgra.com/graphql",
+      "storeCode": "default"
+    },
+    "skechers-nz": {
+      "baseUrl": "https://stag-skechers-nz.accentgra.com",
+      "graphqlEndpoint": "https://stag-skechers-nz.accentgra.com/graphql",
+      "storeCode": "default"
+    },
+    "drmartens-au": {
+      "baseUrl": "https://stag-drmartens-au.accentgra.com",
+      "graphqlEndpoint": "https://stag-drmartens-au.accentgra.com/graphql",
+      "storeCode": "default"
+    },
+    "drmartens-nz": {
+      "baseUrl": "https://stag-drmartens-nz.accentgra.com",
+      "graphqlEndpoint": "https://stag-drmartens-nz.accentgra.com/graphql",
+      "storeCode": "default"
+    },
+    "vans-au": {
+      "baseUrl": "https://stag-vans-au.accentgra.com",
+      "graphqlEndpoint": "https://stag-vans-au.accentgra.com/graphql",
+      "storeCode": "default"
+    },
+    "vans-nz": {
+      "baseUrl": "https://stag-vans-nz.accentgra.com",
+      "graphqlEndpoint": "https://stag-vans-nz.accentgra.com/graphql",
+      "storeCode": "default"
+    }
+  },
+  "thresholds": {
+    "http_req_duration_p95": 1000,
+    "http_req_duration_p99": 3000,
+    "http_req_failed_rate": 0.05,
+    "http_req_waiting_p95": 300
+  },
+  "features": {
+    "enableLogin": true,
+    "enablePDP": true,
+    "enableAddToCart": true,
+    "enableCheckout": true,
+    "enablePlaceOrder": false
+  },
+  "notes": "Staging environment for development and testing. Orders are NOT placed."
+}

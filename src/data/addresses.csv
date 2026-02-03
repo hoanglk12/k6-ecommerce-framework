@@ -1,0 +1,6 @@
+id,label,firstname,lastname,street,city,region,postcode,country_code,telephone,isDeliverable
+addr-001,Sydney CBD,John,Smith,123 George Street,Sydney,NSW,2000,AU,0412345678,true
+addr-002,Melbourne CBD,Emma,Johnson,456 Collins Street,Melbourne,VIC,3000,AU,0423456789,true
+addr-003,Brisbane CBD,Michael,Williams,789 Queen Street,Brisbane,QLD,4000,AU,0434567890,true
+addr-004,Perth CBD,Sarah,Brown,321 Hay Street,Perth,WA,6000,AU,0445678901,true
+addr-005,Adelaide CBD,David,Taylor,654 Rundle Mall,Adelaide,SA,5000,AU,0456789012,true

@@ -1,0 +1,6 @@
+id,email,password,firstName,lastName,userType,customerGroup
+user-001,testuser1@example.com,TestPassword123!,Test,User One,registered,General
+user-002,testuser2@example.com,TestPassword123!,Test,User Two,registered,General
+user-003,vipuser@example.com,VIPPassword123!,VIP,Customer,vip,VIP
+user-004,wholesale@example.com,WholesalePass123!,Wholesale,Buyer,registered,Wholesale
+user-005,loadtest5@example.com,LoadTest123!,Load,Tester,registered,General

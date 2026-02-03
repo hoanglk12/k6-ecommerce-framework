@@ -1,0 +1,6 @@
+id,sku,urlKey,name,productType,categoryPath,quantity
+prod-001,NIKE-AIR-MAX-90,nike-air-max-90,Nike Air Max 90,configurable,shoes/men/sneakers,1
+prod-002,ADIDAS-SUPERSTAR,adidas-superstar,Adidas Superstar,configurable,shoes/men/sneakers,1
+prod-003,CONVERSE-CHUCK-70,converse-chuck-70,Converse Chuck 70,configurable,shoes/unisex/sneakers,1
+prod-004,VANS-OLD-SKOOL,vans-old-skool,Vans Old Skool,configurable,shoes/unisex/sneakers,1
+prod-005,NEW-BALANCE-574,new-balance-574,New Balance 574,configurable,shoes/men/sneakers,1

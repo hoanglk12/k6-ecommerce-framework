@@ -1,0 +1,137 @@
+{
+  "description": "Sample products for Platypus Shoes load testing",
+  "site": "platypus",
+  "note": "Replace SKUs with actual product SKUs from the Platypus catalog",
+  "data": [
+    {
+      "id": "prod-001",
+      "sku": "NIKE-AIR-MAX-90",
+      "urlKey": "nike-air-max-90",
+      "name": "Nike Air Max 90",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 150,
+        "max": 250
+      }
+    },
+    {
+      "id": "prod-002",
+      "sku": "ADIDAS-SUPERSTAR",
+      "urlKey": "adidas-superstar",
+      "name": "Adidas Superstar",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 100,
+        "max": 180
+      }
+    },
+    {
+      "id": "prod-003",
+      "sku": "CONVERSE-CHUCK-70",
+      "urlKey": "converse-chuck-70",
+      "name": "Converse Chuck 70",
+      "productType": "configurable",
+      "categoryPath": "shoes/unisex/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 100,
+        "max": 160
+      }
+    },
+    {
+      "id": "prod-004",
+      "sku": "VANS-OLD-SKOOL",
+      "urlKey": "vans-old-skool",
+      "name": "Vans Old Skool",
+      "productType": "configurable",
+      "categoryPath": "shoes/unisex/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 90,
+        "max": 140
+      }
+    },
+    {
+      "id": "prod-005",
+      "sku": "NEW-BALANCE-574",
+      "urlKey": "new-balance-574",
+      "name": "New Balance 574",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 100,
+        "max": 180
+      }
+    },
+    {
+      "id": "prod-006",
+      "sku": "PUMA-SUEDE-CLASSIC",
+      "urlKey": "puma-suede-classic",
+      "name": "Puma Suede Classic",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 80,
+        "max": 130
+      }
+    },
+    {
+      "id": "prod-007",
+      "sku": "REEBOK-CLASSIC-LEATHER",
+      "urlKey": "reebok-classic-leather",
+      "name": "Reebok Classic Leather",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 90,
+        "max": 150
+      }
+    },
+    {
+      "id": "prod-008",
+      "sku": "ASICS-GEL-LYTE-III",
+      "urlKey": "asics-gel-lyte-iii",
+      "name": "ASICS Gel-Lyte III",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/sneakers",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 120,
+        "max": 200
+      }
+    },
+    {
+      "id": "prod-009",
+      "sku": "DR-MARTENS-1460",
+      "urlKey": "dr-martens-1460",
+      "name": "Dr. Martens 1460",
+      "productType": "configurable",
+      "categoryPath": "shoes/unisex/boots",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 200,
+        "max": 300
+      }
+    },
+    {
+      "id": "prod-010",
+      "sku": "TIMBERLAND-6-INCH",
+      "urlKey": "timberland-6-inch-premium",
+      "name": "Timberland 6-Inch Premium",
+      "productType": "configurable",
+      "categoryPath": "shoes/men/boots",
+      "quantity": 1,
+      "expectedPrice": {
+        "min": 220,
+        "max": 320
+      }
+    }
+  ]
+}

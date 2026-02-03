@@ -1,0 +1,6 @@
+id,sku,urlKey,name,productType,categoryPath,quantity
+prod-001,SKECHERS-GO-WALK-6,go-walk-6,Skechers GO WALK 6,configurable,shoes/men/walking,1
+prod-002,SKECHERS-MAX-CUSHION,max-cushioning-elite,Skechers Max Cushioning Elite,configurable,shoes/men/running,1
+prod-003,SKECHERS-ARCH-FIT,arch-fit,Skechers Arch Fit,configurable,shoes/men/comfort,1
+prod-004,SKECHERS-D-LITES,d-lites,Skechers D'Lites,configurable,shoes/women/sneakers,1
+prod-005,SKECHERS-UNO,uno-stand-on-air,Skechers Uno - Stand on Air,configurable,shoes/unisex/sneakers,1
