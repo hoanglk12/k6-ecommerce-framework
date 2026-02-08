@@ -32,11 +32,20 @@ This framework provides comprehensive load testing capabilities for GraphQL-base
 
 ### Prerequisites
 - Node.js 18+
-- k6 v0.49+ ([Installation Guide](https://k6.io/docs/getting-started/installation/))
+- k6 v0.49+ ([Installation Guide](https://k6.io/docs/getting-started/installation/)) **OR** Docker (see Docker section below)
 
 ### Installation
 
+#### Option 1: Local k6 Installation
+
 ```bash
+# Install k6 (Windows)
+winget install k6 --source winget
+# OR
+choco install k6
+# OR
+scoop install k6
+
 # Clone the repository
 git clone <repository-url>
 cd k6-ecommerce-framework
@@ -48,7 +57,25 @@ npm install
 npm run build
 ```
 
+#### Option 2: Docker (No k6 Installation Required)
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd k6-ecommerce-framework
+
+# Install dependencies
+npm install
+
+# Build the tests
+npm run build
+
+# Run tests via Docker (see Docker section below)
+```
+
 ### Running Tests
+
+#### Using Local k6 Installation
 
 ```bash
 # Smoke Test (quick validation)
@@ -68,6 +95,45 @@ npm run test:soak
 
 # Cloud Test (Grafana Cloud)
 npm run test:cloud
+```
+
+#### Using Docker
+
+Run tests using Docker without installing k6 locally:
+
+```bash
+# Basic load test
+docker run --rm -v "%CD%:/app" grafana/k6 run /app/dist/tests/load.test.js
+
+# Load test with 10 VUs for 2 minutes
+docker run --rm -v "%CD%:/app" grafana/k6 run --vus 10 --duration 2m /app/dist/tests/load.test.js
+
+# Platypus staging test
+docker run --rm -v "%CD%:/app" -e SITE=platypus-au -e ENVIRONMENT=staging grafana/k6 run --vus 50 --duration 5m /app/dist/tests/load.test.js
+
+# Skechers staging test
+docker run --rm -v "%CD%:/app" -e SITE=skechers-au -e ENVIRONMENT=staging grafana/k6 run --vus 50 --duration 5m /app/dist/tests/load.test.js
+
+# Dry run (no actual API calls)
+docker run --rm -v "%CD%:/app" -e DRY_RUN=true grafana/k6 run --vus 1 --iterations 1 /app/dist/tests/load.test.js
+
+# With dashboard output (mount output directory)
+docker run --rm -v "%CD%:/app" -p 5665:5665 grafana/k6 run --out web-dashboard /app/dist/tests/load.test.js
+```
+
+**Windows CMD Troubleshooting:** If `%CD%` doesn't work, use the absolute path with forward slashes:
+```bash
+docker run --rm -v "E:/path/to/k6-ecommerce-framework:/app" grafana/k6 run /app/dist/tests/load.test.js
+```
+
+**PowerShell:** Replace `%CD%` with `${PWD}`:
+```powershell
+docker run --rm -v "${PWD}:/app" grafana/k6 run /app/dist/tests/load.test.js
+```
+
+**Linux/Mac:** Replace `%CD%` with `$(pwd)`:
+```bash
+docker run --rm -v "$(pwd):/app" grafana/k6 run /app/dist/tests/load.test.js
 ```
 
 ### Environment Variables
@@ -100,9 +166,6 @@ npm run dashboard
 
 ```
 k6-ecommerce-framework/
-├── .github/
-│   └── workflows/
-│       └── k6-tests.yml       # CI/CD pipeline
 ├── src/
 │   ├── config/
 │   │   ├── config-manager.ts  # Configuration management
@@ -262,34 +325,7 @@ k6 run \
   dist/tests/smoke.test.js
 ```
 
-## 🚢 CI/CD Integration
-
-### GitHub Actions
-
-The framework includes a comprehensive GitHub Actions workflow:
-
-| Trigger | Test Type | Sites | Duration |
-|---------|-----------|-------|----------|
-| Pull Request | Smoke | Both | 2m each |
-| Schedule (daily) | Regression | Both | 5m each |
-| Manual | Any | Selectable | Configurable |
-
-### Secrets Required
-
-| Secret | Description |
-|--------|-------------|
-| `K6_CLOUD_TOKEN` | Grafana Cloud API token |
-| `K6_CLOUD_PROJECT_ID` | Grafana Cloud project ID |
-
-### Manual Workflow Dispatch
-
-Trigger tests manually via GitHub Actions UI with options for:
-- Test type (smoke, load, stress)
-- Target site (platypus, skechers)
-- Virtual users
-- Duration
-
-## 📊 Reporting
+##  Reporting
 
 ### k6 Dashboard
 
@@ -303,11 +339,88 @@ Access at http://localhost:5665
 
 ### Grafana Cloud
 
-Push results to Grafana Cloud:
+#### Setup Steps
 
-```bash
-K6_CLOUD_TOKEN=your_token npm run test:cloud
-```
+1. **Create Grafana Cloud Account**
+   - Visit https://grafana.com/auth/sign-up/create-user
+   - Select the free tier or appropriate plan
+   - Complete account setup
+
+2. **Get k6 Cloud API Token**
+   - Log in to Grafana Cloud
+   - Navigate to **Testing & Synthetic Monitoring** → **k6**
+   - Click your profile → **Settings** → **API Token**
+   - Click **Generate New Token**
+   - Copy the token (it won't be shown again)
+
+3. **Configure Token (Choose One Method)**
+
+   **Method 1: Environment Variable (Recommended)**
+   ```bash
+   # Windows CMD
+   set K6_CLOUD_TOKEN=your_token_here
+   
+   # Windows PowerShell
+   $env:K6_CLOUD_TOKEN="your_token_here"
+   
+   # Linux/Mac
+   export K6_CLOUD_TOKEN=your_token_here
+   ```
+   
+   **Method 2: Config File**
+   Create `~/.config/loadimpact/k6.json` (Windows: `%APPDATA%\loadimpact\k6.json`):
+   ```json
+   {
+     "token": "your_token_here"
+   }
+   ```
+
+4. **Run Cloud Tests**
+
+   **Using Local k6:**
+   ```bash
+   # Basic cloud test
+   npm run test:cloud
+   
+   # Site-specific cloud tests
+   npm run test:cloud:platypus-au
+   npm run test:cloud:skechers-au
+   
+   # Custom cloud test
+   k6 cloud -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/load.test.js
+   ```
+   
+   **Using Docker:**
+   ```bash
+   # Basic cloud test
+   docker run --rm -v "${PWD}:/app" -e K6_CLOUD_TOKEN=your_token_here grafana/k6 cloud /app/dist/tests/load.test.js
+   
+   # Platypus staging
+   docker run --rm -v "${PWD}:/app" -e K6_CLOUD_TOKEN=your_token_here -e SITE=platypus-au grafana/k6 cloud /app/dist/tests/load.test.js
+   
+   # Skechers staging
+   docker run --rm -v "${PWD}:/app" -e K6_CLOUD_TOKEN=your_token_here -e SITE=skechers-au grafana/k6 cloud /app/dist/tests/load.test.js
+   ```
+
+5. **View Results**
+   - Tests will appear in your Grafana Cloud k6 dashboard
+   - Get real-time metrics and detailed analysis
+   - Access at: https://app.k6.io/runs
+
+#### Cloud Test Benefits
+- 🌍 Global load zones (distributed testing)
+- 📊 Advanced analytics and dashboards
+- 📈 Historical trend analysis
+- 🔔 Automated alerts and notifications
+- 👥 Team collaboration features
+- 💾 Long-term result storage
+
+#### CI/CD Integration with Grafana Cloud
+
+Add to GitHub Actions secrets:
+- `K6_CLOUD_TOKEN`: Your Grafana Cloud API token
+
+Tests will automatically stream results to Grafana Cloud when the token is configured.
 
 ### JSON Output
 
@@ -365,3 +478,4 @@ MIT License - see LICENSE file for details.
 - [k6](https://k6.io/) - Modern load testing tool
 - [Grafana Labs](https://grafana.com/) - Cloud platform
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
+Deployment guide
