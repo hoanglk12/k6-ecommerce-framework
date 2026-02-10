@@ -23,7 +23,7 @@
     "rootDir": "./src",
     "baseUrl": "./src",
     "noUncheckedIndexedAccess": false,
-    "ignoreDeprecations": "5.0",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@config/*": ["config/*"],
       "@lib/*": ["lib/*"],
