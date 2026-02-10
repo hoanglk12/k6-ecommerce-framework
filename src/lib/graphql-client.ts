@@ -10,7 +10,7 @@
  */
 
 import http, { RefinedResponse, ResponseType } from 'k6/http';
-import { check, fail } from 'k6';
+import { check, fail, sleep } from 'k6';
 import { Rate, Trend, Counter } from 'k6/metrics';
 import {
   GraphQLRequest,
@@ -398,13 +398,9 @@ export class GraphQLClient {
    * Sleep for the specified duration
    */
   private sleep(ms: number): void {
-    // k6 doesn't have a built-in sleep that accepts ms
-    // We use the http module's timeout behavior
+    // Convert milliseconds to seconds for k6's sleep function
     const seconds = ms / 1000;
-    const iterations = Math.ceil(seconds / 0.1);
-    for (let i = 0; i < iterations; i++) {
-      // Busy wait - k6's sleep is in the scenarios module
-    }
+    sleep(seconds);
   }
 }
 

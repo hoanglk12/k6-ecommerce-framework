@@ -1,136 +1,147 @@
 {
-  "description": "Sample products for Platypus Shoes load testing",
+  "description": "Real products from Platypus Shoes staging environment",
   "site": "platypus",
-  "note": "Replace SKUs with actual product SKUs from the Platypus catalog",
+  "note": "Products discovered from staging GraphQL API. Note: Most products are OUT_OF_STOCK but valid for API/performance testing.",
+  "lastUpdated": "2026-02-10T09:36:00.000Z",
   "data": [
     {
       "id": "prod-001",
-      "sku": "NIKE-AIR-MAX-90",
-      "urlKey": "nike-air-max-90",
-      "name": "Nike Air Max 90",
+      "sku": "ADYS400073-062.BLK",
+      "urlKey": "mens-cure-shoes-adys400073-062-blk",
+      "name": "Mens Cure Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/men/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 150,
-        "max": 250
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-002",
-      "sku": "ADIDAS-SUPERSTAR",
-      "urlKey": "adidas-superstar",
-      "name": "Adidas Superstar",
+      "sku": "ADYS400073-XKRK.BLK",
+      "urlKey": "mens-cure-shoes-adys400073-xkrk-blk",
+      "name": "Mens Cure Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/men/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 100,
-        "max": 180
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-003",
-      "sku": "CONVERSE-CHUCK-70",
-      "urlKey": "converse-chuck-70",
-      "name": "Converse Chuck 70",
+      "sku": "ADYS400073-111.WHT",
+      "urlKey": "mens-cure-shoes-adys400073-111-wht",
+      "name": "Mens Cure Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/unisex/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 100,
-        "max": 160
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-004",
-      "sku": "VANS-OLD-SKOOL",
-      "urlKey": "vans-old-skool",
-      "name": "Vans Old Skool",
+      "sku": "ADYS400073-HLC.WHT",
+      "urlKey": "mens-cure-shoes-adys400073-hlc-wht",
+      "name": "Mens Cure Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/unisex/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 90,
-        "max": 140
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-005",
-      "sku": "NEW-BALANCE-574",
-      "urlKey": "new-balance-574",
-      "name": "New Balance 574",
+      "sku": "302361WNW.WHT",
+      "urlKey": "mens-net-shoes-302361wnw-wht",
+      "name": "Mens Net Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/men/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 100,
-        "max": 180
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-006",
-      "sku": "PUMA-SUEDE-CLASSIC",
-      "urlKey": "puma-suede-classic",
-      "name": "Puma Suede Classic",
+      "sku": "26422322.PNK",
+      "urlKey": "1461-patent-leather-oxford-shoes-26422322-pnk",
+      "name": "1461 Patent Leather Oxford Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/men/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 80,
-        "max": 130
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-007",
-      "sku": "REEBOK-CLASSIC-LEATHER",
-      "urlKey": "reebok-classic-leather",
-      "name": "Reebok Classic Leather",
+      "sku": "300660XKSK.BLK",
+      "urlKey": "mens-pure-shoes-300660xksk-blk",
+      "name": "Mens Pure Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/men/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 90,
-        "max": 150
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-008",
-      "sku": "ASICS-GEL-LYTE-III",
-      "urlKey": "asics-gel-lyte-iii",
-      "name": "ASICS Gel-Lyte III",
+      "sku": "300660XKWS.BLK",
+      "urlKey": "mens-pure-shoes-300660xkws-blk",
+      "name": "Mens Pure Shoes",
       "productType": "configurable",
-      "categoryPath": "shoes/men/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 120,
-        "max": 200
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-009",
-      "sku": "DR-MARTENS-1460",
-      "urlKey": "dr-martens-1460",
-      "name": "Dr. Martens 1460",
+      "sku": "27875001.BLK",
+      "urlKey": "1460-bex-squared-toe-leather-shoes-27875001-blk",
+      "name": "1460 Bex Squared Toe Leather Shoes ",
       "productType": "configurable",
-      "categoryPath": "shoes/unisex/boots",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 200,
+        "min": 50,
         "max": 300
       }
     },
     {
       "id": "prod-010",
-      "sku": "TIMBERLAND-6-INCH",
-      "urlKey": "timberland-6-inch-premium",
-      "name": "Timberland 6-Inch Premium",
+      "sku": "ADYS400094XKWR.BLK",
+      "urlKey": "mens-pure-shoes-adys400094xkwr-blk",
+      "name": "Mens Pure Shoes ",
       "productType": "configurable",
-      "categoryPath": "shoes/men/boots",
+      "categoryPath": "shoes",
       "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
       "expectedPrice": {
-        "min": 220,
-        "max": 320
+        "min": 50,
+        "max": 300
       }
     }
   ]

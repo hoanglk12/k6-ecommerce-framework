@@ -1,110 +1,72 @@
 {
-  "description": "Sample products for Skechers Australia load testing",
+  "description": "Real products from Skechers Australia staging environment",
   "site": "skechers",
-  "note": "Replace SKUs with actual product SKUs from the Skechers catalog",
+  "note": "Products discovered from staging GraphQL API - IN_STOCK items only",
+  "lastUpdated": "2026-02-10T09:36:00.000Z",
   "data": [
     {
       "id": "prod-001",
-      "sku": "SKECHERS-GO-WALK-6",
-      "urlKey": "go-walk-6",
-      "name": "Skechers GO WALK 6",
+      "sku": "114343-101.101",
+      "urlKey": "3-pack-low-cut-socks-fits-us-5-9-5-shoe-114343-101-101",
+      "name": "3pk Low Cut Socks",
       "productType": "configurable",
-      "categoryPath": "shoes/men/walking",
+      "categoryPath": "shoes",
       "quantity": 1,
       "expectedPrice": {
-        "min": 100,
-        "max": 160
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-002",
-      "sku": "SKECHERS-MAX-CUSHION",
-      "urlKey": "max-cushioning-elite",
-      "name": "Skechers Max Cushioning Elite",
+      "sku": "101584-102.102",
+      "urlKey": "3-pack-microfibre-liner-socks-fits-us-5-9-5-shoe-101584-102-102",
+      "name": "3pk Microfibre Liner Socks",
       "productType": "configurable",
-      "categoryPath": "shoes/men/running",
+      "categoryPath": "shoes",
       "quantity": 1,
       "expectedPrice": {
-        "min": 140,
-        "max": 200
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-003",
-      "sku": "SKECHERS-ARCH-FIT",
-      "urlKey": "arch-fit",
-      "name": "Skechers Arch Fit",
+      "sku": "101590-001.001",
+      "urlKey": "3-pack-superlow-liner-socks-fits-us-6-12-shoe-101590-001-001",
+      "name": "3pk Superlow Liner Socks",
       "productType": "configurable",
-      "categoryPath": "shoes/men/comfort",
+      "categoryPath": "shoes",
       "quantity": 1,
       "expectedPrice": {
-        "min": 120,
-        "max": 180
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-004",
-      "sku": "SKECHERS-D-LITES",
-      "urlKey": "d-lites",
-      "name": "Skechers D'Lites",
+      "sku": "101585-001.001",
+      "urlKey": "3-pack-sport-cushion-liner-socks-fits-us-5-9-5-shoe-101585-001-001",
+      "name": "3pk Sport Cushion Liner Socks",
       "productType": "configurable",
-      "categoryPath": "shoes/women/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
       "expectedPrice": {
-        "min": 90,
-        "max": 150
+        "min": 50,
+        "max": 300
       }
     },
     {
       "id": "prod-005",
-      "sku": "SKECHERS-UNO",
-      "urlKey": "uno-stand-on-air",
-      "name": "Skechers Uno - Stand on Air",
+      "sku": "101589-001.001",
+      "urlKey": "3-pack-mesh-no-show-liner-socks-fits-us-6-12-shoe-101589-001-001",
+      "name": "3pk Mesh No Show Liner Socks",
       "productType": "configurable",
-      "categoryPath": "shoes/unisex/sneakers",
+      "categoryPath": "shoes",
       "quantity": 1,
       "expectedPrice": {
-        "min": 100,
-        "max": 160
-      }
-    },
-    {
-      "id": "prod-006",
-      "sku": "SKECHERS-SUMMITS",
-      "urlKey": "summits",
-      "name": "Skechers Summits",
-      "productType": "configurable",
-      "categoryPath": "shoes/men/athletic",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 80,
-        "max": 130
-      }
-    },
-    {
-      "id": "prod-007",
-      "sku": "SKECHERS-SLIP-INS",
-      "urlKey": "slip-ins",
-      "name": "Skechers Slip-ins",
-      "productType": "configurable",
-      "categoryPath": "shoes/men/comfort",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 110,
-        "max": 170
-      }
-    },
-    {
-      "id": "prod-008",
-      "sku": "SKECHERS-WORK",
-      "urlKey": "work-relaxed-fit",
-      "name": "Skechers Work Relaxed Fit",
-      "productType": "configurable",
-      "categoryPath": "shoes/men/work",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 100,
-        "max": 160
+        "min": 50,
+        "max": 300
       }
     }
   ]
