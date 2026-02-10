@@ -1,11 +1,19 @@
 /**
  * Product Discovery Script
  * 
- * Discovers real products from the eCommerce staging sites.
- * Verifies each product's PDP URL is accessible and correctly classifies:
- *   - IN_STOCK: PDP loads, sizes selectable, real price shown
- *   - OUT_OF_STOCK: PDP loads, sizes disabled, shows "out of stock" message
- *   - DISABLED: PDP returns 404/redirect — excluded from results
+ * Discovers real products from eCommerce staging sites using GraphQL.
+ * 
+ * Classification is done via GraphQL `route` query which resolves a URL key
+ * to a product and returns its real stock_status. This is necessary because
+ * the PWA frontend returns HTTP 200 for ALL URLs (even non-existent ones),
+ * so HTTP-based verification doesn't work.
+ *
+ * Verification via GraphQL route query:
+ *   - route returns data with stock_status=IN_STOCK → product is viewable,
+ *     some or all sizes available to add to cart
+ *   - route returns data with stock_status=OUT_OF_STOCK → product is viewable,
+ *     no sizes available, shows "This Product is currently out of stock" message
+ *   - route returns null → product is disabled/not visible → EXCLUDED
  */
 
 import http from 'k6/http';
@@ -29,6 +37,9 @@ const sites = {
     baseUrl: 'https://stag-vans-au.accentgra.com'
   }
 };
+
+// Broad search terms to discover diverse products
+const SEARCH_TERMS = ['shoe', 'boot', 'sneaker', 'sandal', 'clog', 'slip', 'classic', 'old skool', 'run'];
 
 // Query to discover products using search
 const DISCOVER_PRODUCTS = `
@@ -63,25 +74,67 @@ const DISCOVER_PRODUCTS = `
   }
 `;
 
+// Route query to verify a URL resolves to a real, visible product
+// Returns product data if valid, null if disabled/non-existent
+const ROUTE_QUERY = `
+  query VerifyRoute($url: String!) {
+    route(url: $url) {
+      ... on ConfigurableProduct {
+        sku
+        name
+        stock_status
+        price_range {
+          minimum_price {
+            regular_price {
+              value
+              currency
+            }
+          }
+        }
+      }
+      ... on SimpleProduct {
+        sku
+        name
+        stock_status
+        price_range {
+          minimum_price {
+            regular_price {
+              value
+              currency
+            }
+          }
+        }
+      }
+      ... on BundleProduct {
+        sku
+        name
+        stock_status
+        price_range {
+          minimum_price {
+            regular_price {
+              value
+              currency
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 /**
  * Fetch products via search query
  */
 function fetchProducts(endpoint, searchTerm, pageSize, currentPage, siteName) {
   const payload = JSON.stringify({
     query: DISCOVER_PRODUCTS,
-    variables: {
-      search: searchTerm,
-      pageSize: pageSize,
-      currentPage: currentPage
-    }
+    variables: { search: searchTerm, pageSize, currentPage }
   });
 
-  const params = {
+  const response = http.post(endpoint, payload, {
     headers: { 'Content-Type': 'application/json' },
     tags: { site: siteName },
-  };
-
-  const response = http.post(endpoint, payload, params);
+  });
 
   if (response.status === 200) {
     const data = JSON.parse(response.body);
@@ -101,99 +154,119 @@ function fetchProducts(endpoint, searchTerm, pageSize, currentPage, siteName) {
 }
 
 /**
- * Verify a product's PDP URL is accessible (not 404/disabled).
- * Returns true if the PDP is a real, viewable product page.
+ * Verify a product's URL key via GraphQL route query.
+ * Returns product data with verified stock_status if valid, or null if disabled.
  */
-function verifyPDP(baseUrl, urlKey) {
-  const pdpUrl = `${baseUrl}/${urlKey}.html`;
-  const response = http.get(pdpUrl, {
-    redirects: 0,
-    tags: { type: 'pdp-verify' },
+function verifyProductRoute(endpoint, urlKey, siteName) {
+  const payload = JSON.stringify({
+    query: ROUTE_QUERY,
+    variables: { url: `${urlKey}.html` }
   });
-  // 200 = accessible PDP; 301/302 = redirect (likely disabled); 404 = not found
-  return response.status === 200;
+
+  const response = http.post(endpoint, payload, {
+    headers: { 'Content-Type': 'application/json' },
+    tags: { site: siteName, type: 'route-verify' },
+  });
+
+  if (response.status === 200) {
+    const data = JSON.parse(response.body);
+    if (data.data && data.data.route) {
+      return data.data.route; // { sku, name, stock_status, price_range }
+    }
+  }
+  return null; // Disabled or non-existent
 }
 
 export default function() {
-  console.log('=== Discovering & Verifying Products ===\n');
-  console.log('Stock status classification:');
-  console.log('  IN_STOCK     = PDP accessible, sizes selectable, can add to cart');
-  console.log('  OUT_OF_STOCK = PDP accessible, all sizes disabled, "out of stock" message');
-  console.log('  DISABLED     = PDP returns 404/redirect — EXCLUDED\n');
+  console.log('=== Product Discovery with GraphQL Route Verification ===\n');
+  console.log('Verification method: GraphQL route query (resolves URL to product)');
+  console.log('  route returns product data → product is visible on PDP');
+  console.log('  route returns null         → product is disabled/not visible → EXCLUDED');
+  console.log('Classification:');
+  console.log('  IN_STOCK     = PDP viewable, sizes available to add to cart');
+  console.log('  OUT_OF_STOCK = PDP viewable, no sizes available, shows OOS message\n');
 
   Object.entries(sites).forEach(([siteName, siteConfig]) => {
     console.log(`\n========== ${siteName.toUpperCase()} ==========`);
 
-    // Fetch a larger batch of products via search across multiple pages
-    const searchTerms = ['shoes', 'boot', 'sneaker'];
+    // Phase 1: Fetch products via search across multiple terms
     const allProducts = [];
     const seenSkus = {};
 
-    for (const term of searchTerms) {
+    for (const term of SEARCH_TERMS) {
       for (let page = 1; page <= 2; page++) {
         const result = fetchProducts(siteConfig.graphql, term, 20, page, siteName);
         if (result.items.length === 0) break;
         for (const item of result.items) {
-          if (!seenSkus[item.sku]) {
+          if (!seenSkus[item.sku] && item.url_key) {
             seenSkus[item.sku] = true;
             allProducts.push(item);
           }
         }
       }
+      sleep(0.1);
     }
 
     console.log(`[${siteName}] Found ${allProducts.length} unique products from GraphQL search`);
 
-    // Separate by API stock_status
-    const apiInStock = allProducts.filter(p => p.stock_status === 'IN_STOCK');
-    const apiOutOfStock = allProducts.filter(p => p.stock_status === 'OUT_OF_STOCK');
-    console.log(`  API reports: ${apiInStock.length} IN_STOCK, ${apiOutOfStock.length} OUT_OF_STOCK`);
+    // Phase 2: Verify each product via route query and classify
+    const verifiedInStock = [];
+    const verifiedOOS = [];
+    const TARGET_COUNT = 5;
 
-    const verifiedProducts = [];
+    console.log(`[${siteName}] Verifying products via GraphQL route query...`);
 
-    // Verify IN_STOCK products via PDP
-    console.log(`\n[${siteName}] Verifying IN_STOCK products via PDP...`);
-    let inStockVerified = 0;
-    for (const p of apiInStock) {
-      if (inStockVerified >= 5) break;
-      const accessible = verifyPDP(siteConfig.baseUrl, p.url_key);
-      if (accessible) {
-        verifiedProducts.push({ ...p, verifiedStatus: 'IN_STOCK' });
-        inStockVerified++;
-        const price = p.price_range.minimum_price.regular_price.value;
-        const currency = p.price_range.minimum_price.regular_price.currency;
-        console.log(`  OK IN_STOCK     : ${p.sku} | ${p.name} | ${price} ${currency}`);
-      } else {
-        console.log(`  XX DISABLED     : ${p.sku} | ${p.name} | PDP not accessible, skipped`);
+    for (const p of allProducts) {
+      // Stop when we have enough of both types
+      if (verifiedInStock.length >= TARGET_COUNT && verifiedOOS.length >= TARGET_COUNT) break;
+
+      const routeData = verifyProductRoute(siteConfig.graphql, p.url_key, siteName);
+
+      if (!routeData) {
+        // Product not resolvable via route — disabled/not visible, skip
+        continue;
       }
-      sleep(0.3);
+
+      // Use route-verified stock_status (source of truth)
+      const routePrice = routeData.price_range
+        ? routeData.price_range.minimum_price.regular_price.value
+        : 0;
+      const routeCurrency = routeData.price_range
+        ? routeData.price_range.minimum_price.regular_price.currency
+        : 'AUD';
+
+      if (routeData.stock_status === 'IN_STOCK' && verifiedInStock.length < TARGET_COUNT) {
+        verifiedInStock.push({
+          ...p,
+          verifiedStatus: 'IN_STOCK',
+          routePrice: routePrice,
+          routeCurrency: routeCurrency
+        });
+        console.log(`  + IN_STOCK     : ${p.sku} | ${routeData.name} | ${routePrice} ${routeCurrency} | ${p.url_key}`);
+      } else if (routeData.stock_status === 'OUT_OF_STOCK' && verifiedOOS.length < TARGET_COUNT) {
+        verifiedOOS.push({
+          ...p,
+          verifiedStatus: 'OUT_OF_STOCK',
+          routePrice: routePrice,
+          routeCurrency: routeCurrency
+        });
+        console.log(`  + OUT_OF_STOCK : ${p.sku} | ${routeData.name} | ${routePrice} ${routeCurrency} | ${p.url_key}`);
+      }
+
+      sleep(0.1);
     }
 
-    // Verify OUT_OF_STOCK products via PDP
-    console.log(`\n[${siteName}] Verifying OUT_OF_STOCK products via PDP...`);
-    let oosVerified = 0;
-    for (const p of apiOutOfStock) {
-      if (oosVerified >= 5) break;
-      const accessible = verifyPDP(siteConfig.baseUrl, p.url_key);
-      if (accessible) {
-        verifiedProducts.push({ ...p, verifiedStatus: 'OUT_OF_STOCK' });
-        oosVerified++;
-        console.log(`  OK OUT_OF_STOCK : ${p.sku} | ${p.name}`);
-      } else {
-        console.log(`  XX DISABLED     : ${p.sku} | ${p.name} | PDP not accessible, skipped`);
-      }
-      sleep(0.3);
-    }
-
-    // Summary for this site
+    // Combine: IN_STOCK first, then OUT_OF_STOCK
+    const verifiedProducts = [...verifiedInStock, ...verifiedOOS];
     const brandName = siteName.split('-')[0];
-    console.log(`\n[${siteName}] VERIFIED: ${inStockVerified} IN_STOCK + ${oosVerified} OUT_OF_STOCK = ${verifiedProducts.length} total`);
+
+    console.log(`\n[${siteName}] FINAL: ${verifiedInStock.length} IN_STOCK + ${verifiedOOS.length} OUT_OF_STOCK = ${verifiedProducts.length} total (route-verified)`);
 
     // Generate JSON output
     const jsonData = {
-      description: `Products for ${brandName} load testing (discovered & verified from staging)`,
+      description: `Products for ${brandName} load testing (route-verified from staging)`,
       site: siteName,
-      note: `Products discovered on ${new Date().toISOString().split('T')[0]}. Each product PDP verified accessible.`,
+      note: `Products discovered on ${new Date().toISOString().split('T')[0]}. Each product verified via GraphQL route query.`,
       data: verifiedProducts.map((p, idx) => ({
         id: `prod-${String(idx + 1).padStart(3, '0')}`,
         sku: p.sku,
@@ -203,8 +276,8 @@ export default function() {
         categoryPath: `shoes/${brandName}`,
         quantity: 1,
         stockStatus: p.verifiedStatus,
-        price: p.price_range.minimum_price.regular_price.value,
-        currency: p.price_range.minimum_price.regular_price.currency
+        price: p.routePrice,
+        currency: p.routeCurrency
       }))
     };
 

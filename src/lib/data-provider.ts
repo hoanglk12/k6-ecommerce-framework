@@ -13,7 +13,8 @@ import {
   TestProduct, 
   TestAddress, 
   DataRotationStrategy,
-  CSVParserOptions 
+  CSVParserOptions,
+  SiteIdentifier
 } from '../types';
 import { createLogger } from '../lib/logger';
 
@@ -29,19 +30,32 @@ const DATA_PATHS = {
     json: '../data/users.json',
   },
   products: {
-    platypus: {
-      csv: '../data/products-platypus.csv',
-      json: '../data/products-platypus.json',
+    'platypus-au': {
+      csv: '../data/products-platypus-au.csv',
+      json: '../data/products-platypus-au.json',
     },
-    skechers: {
-      csv: '../data/products-skechers.csv',
-      json: '../data/products-skechers.json',
+    'skechers-au': {
+      csv: '../data/products-skechers-au.csv',
+      json: '../data/products-skechers-au.json',
+    },
+    'drmartens-au': {
+      csv: '../data/products-drmartens-au.csv',
+      json: '../data/products-drmartens-au.json',
+    },
+    'vans-au': {
+      csv: '../data/products-vans-au.csv',
+      json: '../data/products-vans-au.json',
     },
   },
   addresses: {
     csv: '../data/addresses.csv',
     json: '../data/addresses.json',
   },
+};
+
+const PRODUCT_SITE_ALIASES: Record<string, SiteIdentifier> = {
+  platypus: 'platypus-au',
+  skechers: 'skechers-au',
 };
 
 // ============================================================================
@@ -261,8 +275,7 @@ export class DataProvider<T> {
 
 // Lazy-loaded data providers using SharedArray
 let _usersData: TestUser[] | null = null;
-let _productsDataPlatypus: TestProduct[] | null = null;
-let _productsDataSkechers: TestProduct[] | null = null;
+const _productsDataBySite: Partial<Record<SiteIdentifier, TestProduct[]>> = {};
 let _addressesData: TestAddress[] | null = null;
 
 /**
@@ -289,32 +302,35 @@ export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): 
  * @param strategy - Data rotation strategy
  */
 export function getProductProvider(
-  site: 'platypus' | 'skechers',
+  site: SiteIdentifier | 'platypus' | 'skechers',
   strategy: DataRotationStrategy = 'random'
 ): DataProvider<TestProduct> {
-  const paths = DATA_PATHS.products[site];
-  
-  if (site === 'platypus') {
-    if (!_productsDataPlatypus) {
-      try {
-        _productsDataPlatypus = loadJSON<TestProduct>('products-platypus', paths.json);
-      } catch {
-        logger.warn('Failed to load products from JSON, trying CSV');
-        _productsDataPlatypus = loadCSV<TestProduct>('products-platypus', paths.csv);
-      }
-    }
-    return new DataProvider<TestProduct>(_productsDataPlatypus, strategy);
-  } else {
-    if (!_productsDataSkechers) {
-      try {
-        _productsDataSkechers = loadJSON<TestProduct>('products-skechers', paths.json);
-      } catch {
-        logger.warn('Failed to load products from JSON, trying CSV');
-        _productsDataSkechers = loadCSV<TestProduct>('products-skechers', paths.csv);
-      }
-    }
-    return new DataProvider<TestProduct>(_productsDataSkechers, strategy);
+  const resolvedSite = PRODUCT_SITE_ALIASES[site] ?? site;
+  const paths = DATA_PATHS.products[resolvedSite as SiteIdentifier];
+
+  if (!paths) {
+    throw new Error(`No product data configured for site: ${site}`);
   }
+
+  if (!_productsDataBySite[resolvedSite as SiteIdentifier]) {
+    try {
+      _productsDataBySite[resolvedSite as SiteIdentifier] = loadJSON<TestProduct>(
+        `products-${resolvedSite}`,
+        paths.json
+      );
+    } catch {
+      logger.warn('Failed to load products from JSON, trying CSV');
+      _productsDataBySite[resolvedSite as SiteIdentifier] = loadCSV<TestProduct>(
+        `products-${resolvedSite}`,
+        paths.csv
+      );
+    }
+  }
+
+  return new DataProvider<TestProduct>(
+    _productsDataBySite[resolvedSite as SiteIdentifier] as TestProduct[],
+    strategy
+  );
 }
 
 /**

@@ -1,7 +1,7 @@
-{
-  "description": "Products for drmartens load testing (discovered & verified from staging)",
+﻿{
+  "description": "Products for drmartens load testing (route-verified from staging)",
   "site": "drmartens-au",
-  "note": "Products discovered on 2026-02-10. Each product PDP verified accessible.",
+  "note": "Products discovered on 2026-02-10. Each product verified via GraphQL route query.",
   "data": [
     {
       "id": "prod-001",

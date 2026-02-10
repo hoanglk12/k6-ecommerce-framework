@@ -1,7 +1,7 @@
-{
-  "description": "PDP-verified products for vans load testing (discovered from staging)",
+﻿{
+  "description": "Products for vans load testing (route-verified from staging)",
   "site": "vans-au",
-  "note": "Products discovered and PDP-verified on 2025-07-24",
+  "note": "Products discovered on 2026-02-10. Each product verified via GraphQL route query.",
   "data": [
     {
       "id": "prod-001",
@@ -29,6 +29,18 @@
     },
     {
       "id": "prod-003",
+      "sku": "VNA4UUK6BT.BLK",
+      "urlKey": "sk8-low-vna4uuk6bt-blk",
+      "name": "Sk8-Low",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 129.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-004",
       "sku": "VN-0EYEBLK.BLK",
       "urlKey": "classic-slip-on-vn-0eyeblk-blk",
       "name": "Classic Slip-On",
@@ -40,21 +52,9 @@
       "currency": "AUD"
     },
     {
-      "id": "prod-004",
+      "id": "prod-005",
       "sku": "VN-0D3HY28.BLK",
       "urlKey": "old-skool-vn-0d3hy28-blk",
-      "name": "Old Skool",
-      "productType": "configurable",
-      "categoryPath": "shoes/vans",
-      "quantity": 1,
-      "stockStatus": "IN_STOCK",
-      "price": 139.99,
-      "currency": "AUD"
-    },
-    {
-      "id": "prod-005",
-      "sku": "VN-0D3HW00.WHT",
-      "urlKey": "old-skool-vn-0d3hw00-wht",
       "name": "Old Skool",
       "productType": "configurable",
       "categoryPath": "shoes/vans",
@@ -113,14 +113,14 @@
     },
     {
       "id": "prod-010",
-      "sku": "VN005V9BLA.BLK",
-      "urlKey": "ultrarange-exo-mte-1-vn005v9bla-blk",
-      "name": "UltraRange EXO MTE-1",
+      "sku": "VN005V8BLK.BLK",
+      "urlKey": "slip-on-mule-trk-vn005v8blk-blk",
+      "name": "Slip-On Mule TRK",
       "productType": "configurable",
       "categoryPath": "shoes/vans",
       "quantity": 1,
       "stockStatus": "OUT_OF_STOCK",
-      "price": 199.99,
+      "price": 99.99,
       "currency": "AUD"
     }
   ]

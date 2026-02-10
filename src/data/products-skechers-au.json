@@ -1,7 +1,7 @@
-{
-  "description": "Products for skechers load testing (discovered & verified from staging)",
+﻿{
+  "description": "Products for skechers load testing (route-verified from staging)",
   "site": "skechers-au",
-  "note": "Products discovered on 2026-02-10. Each product PDP verified accessible.",
+  "note": "Products discovered on 2026-02-10. Each product verified via GraphQL route query.",
   "data": [
     {
       "id": "prod-001",
@@ -101,26 +101,26 @@
     },
     {
       "id": "prod-009",
-      "sku": "124806.BBK",
-      "urlKey": "skechers-gowalk-glide-step-flex-124806-bbk",
-      "name": "Skechers GOwalk Glide-Step Flex",
+      "sku": "124354.BBK",
+      "urlKey": "skechers-gowalk-air-2-0-dynamic-virtue-124354-bbk",
+      "name": "Skechers GOwalk Air 2.0 - Dynamic Virtue",
       "productType": "configurable",
       "categoryPath": "shoes/skechers",
       "quantity": 1,
       "stockStatus": "OUT_OF_STOCK",
-      "price": 149.99,
+      "price": 139.99,
       "currency": "AUD"
     },
     {
       "id": "prod-010",
-      "sku": "124806.NVY",
-      "urlKey": "skechers-gowalk-glide-step-flex-124806-nvy",
-      "name": "Skechers GOwalk Glide-Step Flex",
+      "sku": "55509.NVY",
+      "urlKey": "skechers-gowalk-5-qualify-55509-nvy",
+      "name": "Skechers GOwalk 5 - Qualify",
       "productType": "configurable",
       "categoryPath": "shoes/skechers",
       "quantity": 1,
       "stockStatus": "OUT_OF_STOCK",
-      "price": 149.99,
+      "price": 129.99,
       "currency": "AUD"
     }
   ]

@@ -21,6 +21,7 @@ import { randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 import { GraphQLClient } from '../lib/graphql-client';
 import { createLogger } from '../lib/logger';
 import { thinkTime } from '../lib/utils';
+import { getProductProvider } from '../lib/data-provider';
 
 // Import configuration
 import { 
@@ -34,7 +35,7 @@ import {
 import { pdpScenario } from '../scenarios/pdp';
 
 // Import types
-import { TestProduct, SiteConfig } from '../types';
+import { TestProduct, SiteConfig, SiteIdentifier } from '../types';
 
 const logger = createLogger('LoadTest');
 
@@ -96,7 +97,7 @@ export const options: Options = {
 // TEST DATA
 // ============================================================================
 
-// Products data - Real SKUs discovered from sites
+// Products data - Real SKUs discovered from sites (fallback for sites without datasets)
 const PRODUCTS: Record<string, TestProduct[]> = {
   'platypus-au': [
     // All ConfigurableProducts from Platypus AU
@@ -144,7 +145,23 @@ const PRODUCTS: Record<string, TestProduct[]> = {
 // HELPER FUNCTIONS
 // ============================================================================
 
-function getRandomProduct(siteId: string): TestProduct {
+const SITE_ID: SiteIdentifier = getSiteConfig().id;
+let productProvider: ReturnType<typeof getProductProvider> | null = null;
+
+try {
+  productProvider = getProductProvider(SITE_ID, 'random');
+} catch (error) {
+  logger.warn('Product dataset not available for site, using static list', {
+    siteId: SITE_ID,
+    error: (error as Error).message,
+  });
+}
+
+function getRandomProduct(siteId: SiteIdentifier): TestProduct {
+  if (productProvider && productProvider.count() > 0) {
+    return productProvider.getNext();
+  }
+
   const products = PRODUCTS[siteId] || PRODUCTS['platypus-au'];
   return randomItem(products) as TestProduct;
 }

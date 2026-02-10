@@ -1,7 +1,7 @@
-{
-  "description": "Products for platypus load testing (discovered & verified from staging)",
+﻿{
+  "description": "Products for platypus load testing (route-verified from staging)",
   "site": "platypus-au",
-  "note": "Products discovered on 2026-02-10. Each product PDP verified accessible.",
+  "note": "Products discovered on 2026-02-10. Each product verified via GraphQL route query.",
   "data": [
     {
       "id": "prod-001",
@@ -41,6 +41,30 @@
     },
     {
       "id": "prod-004",
+      "sku": "10001-410.NVY",
+      "urlKey": "classic-clog-10001-410-nvy",
+      "name": "Classic Clog",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 59.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-005",
+      "sku": "210059-6ZQ.PNK",
+      "urlKey": "classic-lined-overpuff-clog-210059-6zq-pnk",
+      "name": "Classic Lined Overpuff Clog",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 109.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-006",
       "sku": "26422322.PNK",
       "urlKey": "1461-patent-leather-oxford-shoes-26422322-pnk",
       "name": "1461 Patent Leather Oxford Shoes",
@@ -52,7 +76,7 @@
       "currency": "AUD"
     },
     {
-      "id": "prod-005",
+      "id": "prod-007",
       "sku": "GW7558.WHT",
       "urlKey": "court-peak-shoes-gw7558-wht",
       "name": "Court Peak Shoes",
@@ -64,19 +88,7 @@
       "currency": "AUD"
     },
     {
-      "id": "prod-006",
-      "sku": "GX2846.WHT",
-      "urlKey": "classic-leather-shoes-gx2846-wht",
-      "name": "Classic Leather Shoes",
-      "productType": "configurable",
-      "categoryPath": "shoes/platypus",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "price": 140,
-      "currency": "AUD"
-    },
-    {
-      "id": "prod-007",
+      "id": "prod-008",
       "sku": "VNA4UUK24K.YEL",
       "urlKey": "sk8-low-shoes-vna4uuk24k-yel",
       "name": "Sk8-Low Shoes",
@@ -88,7 +100,19 @@
       "currency": "AUD"
     },
     {
-      "id": "prod-008",
+      "id": "prod-009",
+      "sku": "GX2846.WHT",
+      "urlKey": "classic-leather-shoes-gx2846-wht",
+      "name": "Classic Leather Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 140,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-010",
       "sku": "VNA4BU6XVZ.BLU",
       "urlKey": "washed-demin-vans-sport-shoes-vna4bu6xvz-blu",
       "name": "Washed Demin Vans Sport Shoes",
