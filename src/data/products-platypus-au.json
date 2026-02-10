@@ -1,0 +1,103 @@
+{
+  "description": "Products for platypus load testing (discovered & verified from staging)",
+  "site": "platypus-au",
+  "note": "Products discovered on 2026-02-10. Each product PDP verified accessible.",
+  "data": [
+    {
+      "id": "prod-001",
+      "sku": "VNA4UUK6BT.BLK",
+      "urlKey": "sk8-low-shoes-vna4uuk6bt-blk",
+      "name": "Sk8-Low Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 129.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-002",
+      "sku": "27100001.BLK",
+      "urlKey": "2976-nappa-chelsea-boot-27100001-blk",
+      "name": "2976 Nappa Chelsea Boot",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 319.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-003",
+      "sku": "10061.WTN",
+      "urlKey": "men-s-6-inch-premium-waterproof-boot-10061-wtn",
+      "name": "Men's 6-Inch Premium Waterproof Boot",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 329.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-004",
+      "sku": "26422322.PNK",
+      "urlKey": "1461-patent-leather-oxford-shoes-26422322-pnk",
+      "name": "1461 Patent Leather Oxford Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 219.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-005",
+      "sku": "GW7558.WHT",
+      "urlKey": "court-peak-shoes-gw7558-wht",
+      "name": "Court Peak Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 140,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-006",
+      "sku": "GX2846.WHT",
+      "urlKey": "classic-leather-shoes-gx2846-wht",
+      "name": "Classic Leather Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 140,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-007",
+      "sku": "VNA4UUK24K.YEL",
+      "urlKey": "sk8-low-shoes-vna4uuk24k-yel",
+      "name": "Sk8-Low Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 139.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-008",
+      "sku": "VNA4BU6XVZ.BLU",
+      "urlKey": "washed-demin-vans-sport-shoes-vna4bu6xvz-blu",
+      "name": "Washed Demin Vans Sport Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/platypus",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 129.99,
+      "currency": "AUD"
+    }
+  ]
+}

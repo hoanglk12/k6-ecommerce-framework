@@ -1,0 +1,127 @@
+{
+  "description": "Products for drmartens load testing (discovered & verified from staging)",
+  "site": "drmartens-au",
+  "note": "Products discovered on 2026-02-10. Each product PDP verified accessible.",
+  "data": [
+    {
+      "id": "prod-001",
+      "sku": "AD064001.BLK",
+      "urlKey": "cushion-shoe-insoles-ad064001-blk",
+      "name": "Cushion Shoe Insoles",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 40,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-002",
+      "sku": "AC796000.NOC",
+      "urlKey": "dubbin-shoe-protector-50ml-ac796000-noc",
+      "name": "Dubbin Shoe Protector 50ml",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 19.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-003",
+      "sku": "AC986000.NOC",
+      "urlKey": "black-shoe-polish-75ml-ac986000-noc",
+      "name": "Black Shoe Polish 75ml",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 19.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-004",
+      "sku": "AD080261.NAT",
+      "urlKey": "fresh-cork-shoe-insoles-ad080261-nat",
+      "name": "Fresh Cork Shoe Insoles",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 34.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-005",
+      "sku": "11838001.BNPPA",
+      "urlKey": "1461-nappa-11838001-bnppa",
+      "name": "1461 Nappa",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 299.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-006",
+      "sku": "30685001.BLK",
+      "urlKey": "audrick-mary-jane-shoes-30685001-blk",
+      "name": "Audrick Mary Jane Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 319.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-007",
+      "sku": "27815211.CHA",
+      "urlKey": "audrick-brando-shoes-27815211-cha",
+      "name": "Audrick Brando Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 319.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-008",
+      "sku": "27147001.BLK",
+      "urlKey": "audrick-nappa-shoes-27147001-blk",
+      "name": "Audrick Nappa Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 369.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-009",
+      "sku": "27147055.COB",
+      "urlKey": "audrick-nappa-shoes-27147055-cob",
+      "name": "Audrick Nappa Shoes",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 319.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-010",
+      "sku": "32235001.BLK",
+      "urlKey": "smiths-neighborhood-shoe-32235001-blk",
+      "name": "Smiths Neighborhood Shoe",
+      "productType": "configurable",
+      "categoryPath": "shoes/drmartens",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 319.99,
+      "currency": "AUD"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+id,sku,urlKey,name,productType,categoryPath,quantity,stockStatus,price,currency
+prod-001,AD064001.BLK,cushion-shoe-insoles-ad064001-blk,"Cushion Shoe Insoles",configurable,shoes/drmartens,1,IN_STOCK,40,AUD
+prod-002,AC796000.NOC,dubbin-shoe-protector-50ml-ac796000-noc,"Dubbin Shoe Protector 50ml",configurable,shoes/drmartens,1,IN_STOCK,19.99,AUD
+prod-003,AC986000.NOC,black-shoe-polish-75ml-ac986000-noc,"Black Shoe Polish 75ml",configurable,shoes/drmartens,1,IN_STOCK,19.99,AUD
+prod-004,AD080261.NAT,fresh-cork-shoe-insoles-ad080261-nat,"Fresh Cork Shoe Insoles",configurable,shoes/drmartens,1,IN_STOCK,34.99,AUD
+prod-005,11838001.BNPPA,1461-nappa-11838001-bnppa,"1461 Nappa",configurable,shoes/drmartens,1,IN_STOCK,299.99,AUD
+prod-006,30685001.BLK,audrick-mary-jane-shoes-30685001-blk,"Audrick Mary Jane Shoes",configurable,shoes/drmartens,1,OUT_OF_STOCK,319.99,AUD
+prod-007,27815211.CHA,audrick-brando-shoes-27815211-cha,"Audrick Brando Shoes",configurable,shoes/drmartens,1,OUT_OF_STOCK,319.99,AUD
+prod-008,27147001.BLK,audrick-nappa-shoes-27147001-blk,"Audrick Nappa Shoes",configurable,shoes/drmartens,1,OUT_OF_STOCK,369.99,AUD
+prod-009,27147055.COB,audrick-nappa-shoes-27147055-cob,"Audrick Nappa Shoes",configurable,shoes/drmartens,1,OUT_OF_STOCK,319.99,AUD
+prod-010,32235001.BLK,smiths-neighborhood-shoe-32235001-blk,"Smiths Neighborhood Shoe",configurable,shoes/drmartens,1,OUT_OF_STOCK,319.99,AUD

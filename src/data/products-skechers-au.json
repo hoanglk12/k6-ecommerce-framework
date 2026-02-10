@@ -1,0 +1,127 @@
+{
+  "description": "Products for skechers load testing (discovered & verified from staging)",
+  "site": "skechers-au",
+  "note": "Products discovered on 2026-02-10. Each product PDP verified accessible.",
+  "data": [
+    {
+      "id": "prod-001",
+      "sku": "76536.BBK",
+      "urlKey": "work-sure-track-76536-bbk",
+      "name": "Work Sure Track",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 149.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-002",
+      "sku": "SK0018.NOC",
+      "urlKey": "water-proofer-spray-sk0018-noc",
+      "name": "Water Proofer Spray",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 12.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-003",
+      "sku": "76576.BLK",
+      "urlKey": "work-relaxed-fit-sure-track-erath-sr-76576-blk",
+      "name": "Work Relaxed Fit: Sure Track - Erath SR",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 159.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-004",
+      "sku": "73690.BBK",
+      "urlKey": "uno-stand-on-air-73690-bbk",
+      "name": "Uno - Stand on Air",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 159.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-005",
+      "sku": "403674L.WNVR",
+      "urlKey": "kids-uno-stand-on-air-403674l-wnvr",
+      "name": "Kids' Uno - Stand On Air",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 89.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-006",
+      "sku": "894130.BLK",
+      "urlKey": "work-athletic-composite-toe-safety-shoe-894130-blk",
+      "name": "Work Athletic Composite Toe Safety Shoe",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 179.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-007",
+      "sku": "136451.NAT",
+      "urlKey": "skechers-on-the-go-flex-embark-136451-nat",
+      "name": "Skechers On-The-Go Flex - Embark",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 119.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-008",
+      "sku": "136451.NVY",
+      "urlKey": "skechers-on-the-go-flex-embark-136451-nvy",
+      "name": "Skechers On-The-Go Flex - Embark",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 119.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-009",
+      "sku": "124806.BBK",
+      "urlKey": "skechers-gowalk-glide-step-flex-124806-bbk",
+      "name": "Skechers GOwalk Glide-Step Flex",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 149.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-010",
+      "sku": "124806.NVY",
+      "urlKey": "skechers-gowalk-glide-step-flex-124806-nvy",
+      "name": "Skechers GOwalk Glide-Step Flex",
+      "productType": "configurable",
+      "categoryPath": "shoes/skechers",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 149.99,
+      "currency": "AUD"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "description": "PDP-verified products for vans load testing (discovered from staging)",
+  "site": "vans-au",
+  "note": "Products discovered and PDP-verified on 2025-07-24",
+  "data": [
+    {
+      "id": "prod-001",
+      "sku": "VNA38JNP0S.BLK",
+      "urlKey": "toddler-old-skool-v-vna38jnp0s-blk",
+      "name": "Toddler Old Skool V",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 69.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-002",
+      "sku": "VN000CR5FS8.WHT",
+      "urlKey": "old-skool-vn000cr5fs8-wht",
+      "name": "Old Skool",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 129.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-003",
+      "sku": "VN-0EYEBLK.BLK",
+      "urlKey": "classic-slip-on-vn-0eyeblk-blk",
+      "name": "Classic Slip-On",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 109.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-004",
+      "sku": "VN-0D3HY28.BLK",
+      "urlKey": "old-skool-vn-0d3hy28-blk",
+      "name": "Old Skool",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 139.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-005",
+      "sku": "VN-0D3HW00.WHT",
+      "urlKey": "old-skool-vn-0d3hw00-wht",
+      "name": "Old Skool",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "IN_STOCK",
+      "price": 139.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-006",
+      "sku": "VN00BV6GBK.BLK",
+      "urlKey": "toddler-ultrarange-66-v-vn00bv6gbk-blk",
+      "name": "Toddler Ultrarange 66 V",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 99.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-007",
+      "sku": "VN00CR5B9M.BLKGUM",
+      "urlKey": "old-skool-vn00cr5b9m-blkgum",
+      "name": "Old Skool",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 129.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-008",
+      "sku": "VN00CR5Y6Z.BLU",
+      "urlKey": "old-skool-threaded-denim-vn00cr5y6z-blu",
+      "name": "Old Skool Threaded Denim",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 149.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-009",
+      "sku": "VN005UFBF0.BRN",
+      "urlKey": "old-skool-vn005ufbf0-brn",
+      "name": "Old Skool",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 149.99,
+      "currency": "AUD"
+    },
+    {
+      "id": "prod-010",
+      "sku": "VN005V9BLA.BLK",
+      "urlKey": "ultrarange-exo-mte-1-vn005v9bla-blk",
+      "name": "UltraRange EXO MTE-1",
+      "productType": "configurable",
+      "categoryPath": "shoes/vans",
+      "quantity": 1,
+      "stockStatus": "OUT_OF_STOCK",
+      "price": 199.99,
+      "currency": "AUD"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+id,sku,urlKey,name,productType,categoryPath,quantity,stockStatus,price,currency
+prod-001,76536.BBK,work-sure-track-76536-bbk,"Work Sure Track",configurable,shoes/skechers,1,IN_STOCK,149.99,AUD
+prod-002,SK0018.NOC,water-proofer-spray-sk0018-noc,"Water Proofer Spray",configurable,shoes/skechers,1,IN_STOCK,12.99,AUD
+prod-003,76576.BLK,work-relaxed-fit-sure-track-erath-sr-76576-blk,"Work Relaxed Fit: Sure Track - Erath SR",configurable,shoes/skechers,1,IN_STOCK,159.99,AUD
+prod-004,73690.BBK,uno-stand-on-air-73690-bbk,"Uno - Stand on Air",configurable,shoes/skechers,1,IN_STOCK,159.99,AUD
+prod-005,403674L.WNVR,kids-uno-stand-on-air-403674l-wnvr,"Kids' Uno - Stand On Air",configurable,shoes/skechers,1,IN_STOCK,89.99,AUD
+prod-006,894130.BLK,work-athletic-composite-toe-safety-shoe-894130-blk,"Work Athletic Composite Toe Safety Shoe",configurable,shoes/skechers,1,OUT_OF_STOCK,179.99,AUD
+prod-007,136451.NAT,skechers-on-the-go-flex-embark-136451-nat,"Skechers On-The-Go Flex - Embark",configurable,shoes/skechers,1,OUT_OF_STOCK,119.99,AUD
+prod-008,136451.NVY,skechers-on-the-go-flex-embark-136451-nvy,"Skechers On-The-Go Flex - Embark",configurable,shoes/skechers,1,OUT_OF_STOCK,119.99,AUD
+prod-009,124806.BBK,skechers-gowalk-glide-step-flex-124806-bbk,"Skechers GOwalk Glide-Step Flex",configurable,shoes/skechers,1,OUT_OF_STOCK,149.99,AUD
+prod-010,124806.NVY,skechers-gowalk-glide-step-flex-124806-nvy,"Skechers GOwalk Glide-Step Flex",configurable,shoes/skechers,1,OUT_OF_STOCK,149.99,AUD

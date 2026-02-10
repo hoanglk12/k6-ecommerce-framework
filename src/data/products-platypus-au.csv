@@ -1,0 +1,9 @@
+id,sku,urlKey,name,productType,categoryPath,quantity,stockStatus,price,currency
+prod-001,VNA4UUK6BT.BLK,sk8-low-shoes-vna4uuk6bt-blk,"Sk8-Low Shoes",configurable,shoes/platypus,1,IN_STOCK,129.99,AUD
+prod-002,27100001.BLK,2976-nappa-chelsea-boot-27100001-blk,"2976 Nappa Chelsea Boot",configurable,shoes/platypus,1,IN_STOCK,319.99,AUD
+prod-003,10061.WTN,men-s-6-inch-premium-waterproof-boot-10061-wtn,"Men's 6-Inch Premium Waterproof Boot",configurable,shoes/platypus,1,IN_STOCK,329.99,AUD
+prod-004,26422322.PNK,1461-patent-leather-oxford-shoes-26422322-pnk,"1461 Patent Leather Oxford Shoes",configurable,shoes/platypus,1,OUT_OF_STOCK,219.99,AUD
+prod-005,GW7558.WHT,court-peak-shoes-gw7558-wht,"Court Peak Shoes",configurable,shoes/platypus,1,OUT_OF_STOCK,140,AUD
+prod-006,GX2846.WHT,classic-leather-shoes-gx2846-wht,"Classic Leather Shoes",configurable,shoes/platypus,1,OUT_OF_STOCK,140,AUD
+prod-007,VNA4UUK24K.YEL,sk8-low-shoes-vna4uuk24k-yel,"Sk8-Low Shoes",configurable,shoes/platypus,1,OUT_OF_STOCK,139.99,AUD
+prod-008,VNA4BU6XVZ.BLU,washed-demin-vans-sport-shoes-vna4bu6xvz-blu,"Washed Demin Vans Sport Shoes",configurable,shoes/platypus,1,OUT_OF_STOCK,129.99,AUD

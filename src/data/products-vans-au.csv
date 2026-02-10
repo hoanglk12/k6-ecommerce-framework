@@ -1,0 +1,11 @@
+id,sku,urlKey,name,productType,categoryPath,quantity,stockStatus,price,currency
+prod-001,VNA38JNP0S.BLK,toddler-old-skool-v-vna38jnp0s-blk,"Toddler Old Skool V",configurable,shoes/vans,1,IN_STOCK,69.99,AUD
+prod-002,VN000CR5FS8.WHT,old-skool-vn000cr5fs8-wht,"Old Skool",configurable,shoes/vans,1,IN_STOCK,129.99,AUD
+prod-003,VN-0EYEBLK.BLK,classic-slip-on-vn-0eyeblk-blk,"Classic Slip-On",configurable,shoes/vans,1,IN_STOCK,109.99,AUD
+prod-004,VN-0D3HY28.BLK,old-skool-vn-0d3hy28-blk,"Old Skool",configurable,shoes/vans,1,IN_STOCK,139.99,AUD
+prod-005,VN-0D3HW00.WHT,old-skool-vn-0d3hw00-wht,"Old Skool",configurable,shoes/vans,1,IN_STOCK,139.99,AUD
+prod-006,VN00BV6GBK.BLK,toddler-ultrarange-66-v-vn00bv6gbk-blk,"Toddler Ultrarange 66 V",configurable,shoes/vans,1,OUT_OF_STOCK,99.99,AUD
+prod-007,VN00CR5B9M.BLKGUM,old-skool-vn00cr5b9m-blkgum,"Old Skool",configurable,shoes/vans,1,OUT_OF_STOCK,129.99,AUD
+prod-008,VN00CR5Y6Z.BLU,old-skool-threaded-denim-vn00cr5y6z-blu,"Old Skool Threaded Denim",configurable,shoes/vans,1,OUT_OF_STOCK,149.99,AUD
+prod-009,VN005UFBF0.BRN,old-skool-vn005ufbf0-brn,"Old Skool",configurable,shoes/vans,1,OUT_OF_STOCK,149.99,AUD
+prod-010,VN005V9BLA.BLK,ultrarange-exo-mte-1-vn005v9bla-blk,"UltraRange EXO MTE-1",configurable,shoes/vans,1,OUT_OF_STOCK,199.99,AUD
