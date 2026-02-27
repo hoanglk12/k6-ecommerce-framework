@@ -199,6 +199,30 @@ export interface AuthSession {
 // ============================================================================
 
 /**
+ * Category data for PLP scenarios
+ */
+export interface CategoryData {
+  /** Category URL path (e.g., 'mens/sneakers') */
+  urlPath: string;
+  /** Category name for logging */
+  name?: string;
+  /** Category UID (Magento base64-encoded ID) */
+  uid?: string;
+  /** Products per page (default: 24) */
+  pageSize?: number;
+  /** Current page number (default: 1) */
+  currentPage?: number;
+}
+
+/**
+ * Test category data from CSV/JSON
+ */
+export interface TestCategory extends CategoryData {
+  /** Unique identifier */
+  id: string;
+}
+
+/**
  * Product data for test scenarios
  */
 export interface ProductData {

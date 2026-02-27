@@ -1,0 +1,28 @@
+{
+  "description": "Category URL paths for Skechers PLP load testing",
+  "site": "skechers",
+  "note": "Real category paths discovered from staging GraphQL API.",
+  "lastUpdated": "2026-02-27T00:00:00.000Z",
+  "data": [
+    { "id": "cat-001", "urlPath": "women", "name": "Women" },
+    { "id": "cat-002", "urlPath": "men", "name": "Men" },
+    { "id": "cat-003", "urlPath": "kids", "name": "Kids" },
+    { "id": "cat-004", "urlPath": "sale", "name": "Sale" },
+    { "id": "cat-005", "urlPath": "women/footwear", "name": "Women Footwear" },
+    { "id": "cat-006", "urlPath": "men/footwear", "name": "Men Footwear" },
+    { "id": "cat-007", "urlPath": "women/walking", "name": "Women Walking" },
+    { "id": "cat-008", "urlPath": "men/walking", "name": "Men Walking" },
+    { "id": "cat-009", "urlPath": "women/gowalk", "name": "Women GOwalk" },
+    { "id": "cat-010", "urlPath": "men/gowalk", "name": "Men GO Walk" },
+    { "id": "cat-011", "urlPath": "women/sport", "name": "Women Sport" },
+    { "id": "cat-012", "urlPath": "men/sport", "name": "Men Sport" },
+    { "id": "cat-013", "urlPath": "women/skech-air", "name": "Women Skech Air" },
+    { "id": "cat-014", "urlPath": "men/skech-air", "name": "Men Skech Air" },
+    { "id": "cat-015", "urlPath": "women/skechers-street", "name": "Women Skechers Street" },
+    { "id": "cat-016", "urlPath": "women/arch-fit", "name": "Women Arch Fit" },
+    { "id": "cat-017", "urlPath": "women/stretch-fit", "name": "Women Stretch Fit" },
+    { "id": "cat-018", "urlPath": "women/uno", "name": "Women Uno" },
+    { "id": "cat-019", "urlPath": "men/uno", "name": "Men Uno" },
+    { "id": "cat-020", "urlPath": "outlet", "name": "Outlet" }
+  ]
+}

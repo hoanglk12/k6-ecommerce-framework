@@ -1,0 +1,28 @@
+{
+  "description": "Category URL paths for Platypus Shoes PLP load testing",
+  "site": "platypus",
+  "note": "Real category paths discovered from staging GraphQL API.",
+  "lastUpdated": "2026-02-27T00:00:00.000Z",
+  "data": [
+    { "id": "cat-001", "urlPath": "mens", "name": "Mens" },
+    { "id": "cat-002", "urlPath": "womens", "name": "Womens" },
+    { "id": "cat-003", "urlPath": "kids", "name": "Kids" },
+    { "id": "cat-004", "urlPath": "sale", "name": "Sale" },
+    { "id": "cat-005", "urlPath": "mens/footwear", "name": "Mens Footwear" },
+    { "id": "cat-006", "urlPath": "womens/footwear", "name": "Womens Footwear" },
+    { "id": "cat-007", "urlPath": "mens/clothing", "name": "Mens Clothing" },
+    { "id": "cat-008", "urlPath": "womens/clothing", "name": "Womens Clothing" },
+    { "id": "cat-009", "urlPath": "mens/accessories", "name": "Mens Accessories" },
+    { "id": "cat-010", "urlPath": "womens/accessories", "name": "Womens Accessories" },
+    { "id": "cat-011", "urlPath": "vans", "name": "Vans" },
+    { "id": "cat-012", "urlPath": "adidas", "name": "Adidas" },
+    { "id": "cat-013", "urlPath": "converse", "name": "Converse" },
+    { "id": "cat-014", "urlPath": "nike", "name": "Nike" },
+    { "id": "cat-015", "urlPath": "new-balance", "name": "New Balance" },
+    { "id": "cat-016", "urlPath": "puma", "name": "Puma" },
+    { "id": "cat-017", "urlPath": "kids/girls", "name": "Kids Girls" },
+    { "id": "cat-018", "urlPath": "kids/boys", "name": "Kids Boys" },
+    { "id": "cat-019", "urlPath": "sale/footwear", "name": "Sale Footwear" },
+    { "id": "cat-020", "urlPath": "sale/accessories", "name": "Sale Accessories" }
+  ]
+}

@@ -210,6 +210,10 @@ export const DEFAULT_THRESHOLDS: ThresholdConfig = {
       duration_p95: 800,
       success_rate: 0.99,
     },
+    plp: {
+      duration_p95: 3000,
+      success_rate: 0.95,
+    },
     addToCart: {
       duration_p95: 2500,
       success_rate: 0.95,

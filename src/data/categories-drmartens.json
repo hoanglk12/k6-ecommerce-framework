@@ -1,0 +1,28 @@
+{
+  "description": "Category URL paths for Dr Martens PLP load testing",
+  "site": "drmartens",
+  "note": "Real category paths discovered from staging GraphQL API.",
+  "lastUpdated": "2026-02-27T00:00:00.000Z",
+  "data": [
+    { "id": "cat-001", "urlPath": "unisex", "name": "For All" },
+    { "id": "cat-002", "urlPath": "women", "name": "Women" },
+    { "id": "cat-003", "urlPath": "men", "name": "Men" },
+    { "id": "cat-004", "urlPath": "kids", "name": "Kids" },
+    { "id": "cat-005", "urlPath": "sale", "name": "Sale" },
+    { "id": "cat-006", "urlPath": "unisex/footwear", "name": "Unisex Footwear" },
+    { "id": "cat-007", "urlPath": "women/footwear", "name": "Women Footwear" },
+    { "id": "cat-008", "urlPath": "men/footwear", "name": "Men Footwear" },
+    { "id": "cat-009", "urlPath": "unisex/originals", "name": "Unisex Originals" },
+    { "id": "cat-010", "urlPath": "women/originals", "name": "Women Originals" },
+    { "id": "cat-011", "urlPath": "men/originals", "name": "Men Originals" },
+    { "id": "cat-012", "urlPath": "unisex/accessories", "name": "Unisex Accessories" },
+    { "id": "cat-013", "urlPath": "women/accessories", "name": "Women Accessories" },
+    { "id": "cat-014", "urlPath": "men/accessories", "name": "Men Accessories" },
+    { "id": "cat-015", "urlPath": "unisex/best-sellers", "name": "Unisex Best Sellers" },
+    { "id": "cat-016", "urlPath": "women/best-sellers", "name": "Women Best Sellers" },
+    { "id": "cat-017", "urlPath": "men/best-sellers", "name": "Men Best Sellers" },
+    { "id": "cat-018", "urlPath": "kids/footwear", "name": "Kids Footwear" },
+    { "id": "cat-019", "urlPath": "sale/footwear", "name": "Sale Footwear" },
+    { "id": "cat-020", "urlPath": "sale/accessories", "name": "Sale Accessories" }
+  ]
+}

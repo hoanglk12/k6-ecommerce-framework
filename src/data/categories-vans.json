@@ -1,0 +1,28 @@
+{
+  "description": "Category URL paths for Vans PLP load testing",
+  "site": "vans",
+  "note": "Real category paths discovered from staging GraphQL API.",
+  "lastUpdated": "2026-02-27T00:00:00.000Z",
+  "data": [
+    { "id": "cat-001", "urlPath": "mens", "name": "Mens" },
+    { "id": "cat-002", "urlPath": "womens", "name": "Womens" },
+    { "id": "cat-003", "urlPath": "kids", "name": "Kids" },
+    { "id": "cat-004", "urlPath": "sale", "name": "Sale" },
+    { "id": "cat-005", "urlPath": "mens/shoes", "name": "Mens Shoes" },
+    { "id": "cat-006", "urlPath": "womens/shoes", "name": "Womens Shoes" },
+    { "id": "cat-007", "urlPath": "mens/new-arrivals", "name": "Mens New Arrivals" },
+    { "id": "cat-008", "urlPath": "womens/new-arrivals", "name": "Womens New Arrivals" },
+    { "id": "cat-009", "urlPath": "mens/classics", "name": "Mens Classics" },
+    { "id": "cat-010", "urlPath": "womens/classics", "name": "Womens Classics" },
+    { "id": "cat-011", "urlPath": "mens/best-sellers", "name": "Mens Best Sellers" },
+    { "id": "cat-012", "urlPath": "womens/best-sellers", "name": "Womens Best Sellers" },
+    { "id": "cat-013", "urlPath": "mens/accessories", "name": "Mens Accessories" },
+    { "id": "cat-014", "urlPath": "mens/clothing", "name": "Mens Clothing" },
+    { "id": "cat-015", "urlPath": "mens/skateboarding", "name": "Mens Skateboarding" },
+    { "id": "cat-016", "urlPath": "womens/skateboarding", "name": "Womens Skateboarding" },
+    { "id": "cat-017", "urlPath": "kids/shoes", "name": "Kids Shoes" },
+    { "id": "cat-018", "urlPath": "kids/easy-on-easy-off", "name": "Kids Easy On Easy Off" },
+    { "id": "cat-019", "urlPath": "sale/mens", "name": "Sale Mens" },
+    { "id": "cat-020", "urlPath": "sale/womens", "name": "Sale Womens" }
+  ]
+}

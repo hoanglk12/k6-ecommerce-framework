@@ -25,6 +25,13 @@ export const pdpSuccess = new Rate('scenario_pdp_success');
 /** PDP views counter */
 export const pdpViews = new Counter('scenario_pdp_views');
 
+/** PLP (Product Listing Page) load duration */
+export const plpDuration = new Trend('scenario_plp_duration', true);
+/** PLP success rate */
+export const plpSuccess = new Rate('scenario_plp_success');
+/** PLP views counter */
+export const plpViews = new Counter('scenario_plp_views');
+
 /** Add to cart duration */
 export const addToCartDuration = new Trend('scenario_add_to_cart_duration', true);
 /** Add to cart success rate */
@@ -104,6 +111,8 @@ export const customThresholds = {
   'scenario_login_success': ['rate>0.95'],
   'scenario_pdp_duration': ['p(95)<2000', 'p(99)<4000'],
   'scenario_pdp_success': ['rate>0.99'],
+  'scenario_plp_duration': ['p(95)<3000', 'p(99)<5000'],
+  'scenario_plp_success': ['rate>0.95'],
   'scenario_add_to_cart_duration': ['p(95)<2500', 'p(99)<5000'],
   'scenario_add_to_cart_success': ['rate>0.95'],
   'scenario_checkout_duration': ['p(95)<5000', 'p(99)<10000'],
@@ -150,6 +159,11 @@ export function recordScenarioMetrics(
       pdpDuration.add(duration, scenarioTags);
       pdpSuccess.add(success ? 1 : 0, scenarioTags);
       pdpViews.add(1, scenarioTags);
+      break;
+    case 'plp':
+      plpDuration.add(duration, scenarioTags);
+      plpSuccess.add(success ? 1 : 0, scenarioTags);
+      plpViews.add(1, scenarioTags);
       break;
     case 'addToCart':
       addToCartDuration.add(duration, scenarioTags);

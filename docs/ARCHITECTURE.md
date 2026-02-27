@@ -104,6 +104,7 @@ const users = new SharedArray('users', () => {
 ```
 
 Benefits:
+
 - Data loaded once, shared across VUs
 - Reduces memory footprint
 - Supports large datasets
@@ -131,6 +132,7 @@ class GraphQLClient {
 ```
 
 **Key Features:**
+
 - Exponential backoff retry (3 attempts)
 - Automatic token refresh
 - Request tagging for metrics
@@ -372,7 +374,7 @@ const siteConfigs = {
 };
 ```
 
-2. Create product data file:
+1. Create product data file:
 
 ```json
 // src/data/products-newsite.json
@@ -399,14 +401,14 @@ export function addToWishlist(productSku: string): WishlistItem {
 }
 ```
 
-2. Export from index:
+1. Export from index:
 
 ```typescript
 // src/scenarios/index.ts
 export * from './wishlist';
 ```
 
-3. Use in tests:
+1. Use in tests:
 
 ```typescript
 import { addToWishlist } from '@scenarios';
