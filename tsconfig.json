@@ -21,15 +21,14 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src",
     "noUncheckedIndexedAccess": false,
     "paths": {
-      "@config/*": ["config/*"],
-      "@lib/*": ["lib/*"],
-      "@scenarios/*": ["scenarios/*"],
-      "@data/*": ["data/*"],
-      "@tests/*": ["tests/*"],
-      "@types/*": ["types/*"]
+      "@config/*": ["./src/config/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@scenarios/*": ["./src/scenarios/*"],
+      "@data/*": ["./src/data/*"],
+      "@tests/*": ["./src/tests/*"],
+      "@types/*": ["./src/types/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["k6"]
