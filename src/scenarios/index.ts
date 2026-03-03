@@ -6,3 +6,4 @@
 
 export * from './pdp';
 export * from './plp';
+export * from './place-order';

@@ -1,0 +1,110 @@
+{
+  "description": "Sample New Zealand shipping addresses for load testing",
+  "note": "These are synthetic addresses for testing purposes only",
+  "data": [
+    {
+      "id": "nz-addr-001",
+      "label": "Auckland CBD",
+      "firstname": "James",
+      "lastname": "Wilson",
+      "street": ["123 Queen Street"],
+      "city": "Auckland",
+      "region": "AUK",
+      "postcode": "1010",
+      "country_code": "NZ",
+      "telephone": "0211234567",
+      "isDeliverable": true
+    },
+    {
+      "id": "nz-addr-002",
+      "label": "Wellington CBD",
+      "firstname": "Sophie",
+      "lastname": "Taylor",
+      "street": ["456 Lambton Quay"],
+      "city": "Wellington",
+      "region": "WGN",
+      "postcode": "6011",
+      "country_code": "NZ",
+      "telephone": "0222345678",
+      "isDeliverable": true
+    },
+    {
+      "id": "nz-addr-003",
+      "label": "Christchurch CBD",
+      "firstname": "Oliver",
+      "lastname": "Brown",
+      "street": ["789 Colombo Street"],
+      "city": "Christchurch",
+      "region": "CAN",
+      "postcode": "8011",
+      "country_code": "NZ",
+      "telephone": "0233456789",
+      "isDeliverable": true
+    },
+    {
+      "id": "nz-addr-004",
+      "label": "Hamilton CBD",
+      "firstname": "Ella",
+      "lastname": "Davis",
+      "street": ["22 Victoria Street"],
+      "city": "Hamilton",
+      "region": "WKO",
+      "postcode": "3204",
+      "country_code": "NZ",
+      "telephone": "0244567890",
+      "isDeliverable": true
+    },
+    {
+      "id": "nz-addr-005",
+      "label": "Tauranga CBD",
+      "firstname": "Noah",
+      "lastname": "Miller",
+      "street": ["55 Grey Street"],
+      "city": "Tauranga",
+      "region": "BOP",
+      "postcode": "3110",
+      "country_code": "NZ",
+      "telephone": "0255678901",
+      "isDeliverable": true
+    },
+    {
+      "id": "nz-addr-006",
+      "label": "Dunedin CBD",
+      "firstname": "Isabella",
+      "lastname": "Anderson",
+      "street": ["100 George Street"],
+      "city": "Dunedin",
+      "region": "OTA",
+      "postcode": "9016",
+      "country_code": "NZ",
+      "telephone": "0266789012",
+      "isDeliverable": true
+    },
+    {
+      "id": "nz-addr-007",
+      "label": "Palmerston North",
+      "firstname": "Liam",
+      "lastname": "Thomas",
+      "street": ["88 Broadway Avenue"],
+      "city": "Palmerston North",
+      "region": "MWT",
+      "postcode": "4410",
+      "country_code": "NZ",
+      "telephone": "0277890123",
+      "isDeliverable": true
+    },
+    {
+      "id": "nz-addr-008",
+      "label": "Nelson CBD",
+      "firstname": "Charlotte",
+      "lastname": "Jackson",
+      "street": ["40 Trafalgar Street"],
+      "city": "Nelson",
+      "region": "NSN",
+      "postcode": "7010",
+      "country_code": "NZ",
+      "telephone": "0288901234",
+      "isDeliverable": true
+    }
+  ]
+}

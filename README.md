@@ -1,6 +1,6 @@
 # k6 eCommerce Load Testing Framework
 
-A production-ready k6 TypeScript framework for load testing Australian eCommerce sites (Platypus Shoes & Skechers Australia).
+A production-ready k6 TypeScript framework for load testing Australian/New Zealand eCommerce sites (Platypus Shoes, Skechers Australia, Vans AU & Vans NZ).
 
 ## 🎯 Overview
 
@@ -9,6 +9,8 @@ This framework provides comprehensive load testing capabilities for GraphQL-base
 ### Target Sites
 - **Platypus Shoes**: https://www.platypusshoes.com.au/
 - **Skechers Australia**: https://www.skechers.com.au/
+- **Vans Australia**: https://stag-vans-au.accentgra.com/ (staging)
+- **Vans New Zealand**: https://stag-vans-nz.accentgra.com/ (staging)
 
 ### Test Scenarios
 | Scenario | Description | GraphQL Operations |
@@ -17,6 +19,7 @@ This framework provides comprehensive load testing capabilities for GraphQL-base
 | PDP | Product detail page | `products`, `productDetail` |
 | Add to Cart | Cart operations | `addProductsToCart`, `cart` |
 | Checkout | Order placement | `setShipping`, `setPayment`, `placeOrder` |
+| Guest Place Order | Full 9-step guest checkout (Vans AU/NZ) | `createEmptyCart`, `addConfigurableProductsToCart`, `setShippingAddressesOnCart`, `setShippingMethodsOnCart`, `setBillingAddressOnCart`, `setPaymentMethodOnCart`, `placeOrder` |
 
 ## 📊 Performance Targets
 
@@ -140,27 +143,126 @@ docker run --rm -v "$(pwd):/app" grafana/k6 run /app/dist/tests/load.test.js
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SITE` | Target site (`platypus` or `skechers`) | `platypus` |
+| `SITE` | Target site (`platypus-au`, `skechers-au`, `vans-au`, `vans-nz`) | `platypus-au` |
 | `ENVIRONMENT` | Environment (`staging` or `production`) | `staging` |
 | `VUS` | Number of virtual users | varies |
 | `DURATION` | Test duration | varies |
 | `DRY_RUN` | Skip actual API calls | `false` |
 | `ENABLE_PLACE_ORDER` | Enable order placement | `false` |
+| `PAYMENT_METHOD` | Payment method code (e.g. `checkmo`) | `checkmo` |
 | `PRODUCTION_CONFIRMED` | Confirm production testing | `false` |
 
 ### Example Commands
 
 ```bash
 # Test Platypus staging with 10 VUs for 2 minutes
-k6 run --env SITE=platypus --env ENVIRONMENT=staging --vus 10 --duration 2m dist/tests/smoke.test.js
+k6 run --env SITE=platypus-au --env ENVIRONMENT=staging --vus 10 --duration 2m dist/tests/smoke.test.js
 
 # Test Skechers staging with custom duration
-k6 run --env SITE=skechers --env ENVIRONMENT=staging --duration 5m dist/tests/load.test.js
+k6 run --env SITE=skechers-au --env ENVIRONMENT=staging --duration 5m dist/tests/load.test.js
 
 # Run with k6 dashboard
 npm run dashboard
 # Then access http://localhost:5665
 ```
+
+---
+
+## 👟 Vans AU / NZ — Guest Place Order
+
+Full 9-step guest checkout scenario against Vans AU and NZ Magento 2 staging stores.
+
+### Quick Run
+
+```bash
+# Build first (required after any source change)
+npm run build
+
+# ── Vans Australia ───────────────────────────────────────────────────────────
+# Single iteration validation (1 VU, 1 order)
+k6 run \
+  --env SITE=vans-au \
+  --env ENABLE_PLACE_ORDER=true \
+  --env PAYMENT_METHOD=checkmo \
+  --vus 1 --iterations 1 \
+  dist/tests/vans-place-order.test.js
+
+# Full ramp-up load test (1 m ramp → 5 VU steady 8 m → 1 m ramp-down)
+k6 run \
+  --env SITE=vans-au \
+  --env ENABLE_PLACE_ORDER=true \
+  --env PAYMENT_METHOD=checkmo \
+  dist/tests/vans-place-order.test.js
+
+# ── Vans New Zealand ─────────────────────────────────────────────────────────
+# Single iteration validation
+k6 run \
+  --env SITE=vans-nz \
+  --env ENABLE_PLACE_ORDER=true \
+  --env PAYMENT_METHOD=checkmo \
+  --vus 1 --iterations 1 \
+  dist/tests/vans-place-order.test.js
+
+# Full ramp-up load test
+k6 run \
+  --env SITE=vans-nz \
+  --env ENABLE_PLACE_ORDER=true \
+  --env PAYMENT_METHOD=checkmo \
+  dist/tests/vans-place-order.test.js
+
+# ── Dry run (no actual orders placed) ────────────────────────────────────────
+k6 run \
+  --env SITE=vans-au \
+  --env DRY_RUN=true \
+  --vus 1 --iterations 1 \
+  dist/tests/vans-place-order.test.js
+```
+
+> **Windows PowerShell**: replace the `\` line continuations with a single line or use backtick `` ` `` for continuation.
+
+### PowerShell One-liners
+
+```powershell
+# Vans AU – validation
+k6 run --env SITE=vans-au --env ENABLE_PLACE_ORDER=true --env PAYMENT_METHOD=checkmo --vus 1 --iterations 1 dist/tests/vans-place-order.test.js
+
+# Vans NZ – validation
+k6 run --env SITE=vans-nz --env ENABLE_PLACE_ORDER=true --env PAYMENT_METHOD=checkmo --vus 1 --iterations 1 dist/tests/vans-place-order.test.js
+
+# Vans AU – full load test
+k6 run --env SITE=vans-au --env ENABLE_PLACE_ORDER=true --env PAYMENT_METHOD=checkmo dist/tests/vans-place-order.test.js
+
+# Vans NZ – full load test
+k6 run --env SITE=vans-nz --env ENABLE_PLACE_ORDER=true --env PAYMENT_METHOD=checkmo dist/tests/vans-place-order.test.js
+```
+
+### Checkout Flow (9 Steps)
+
+| Step | GraphQL Mutation | Notes |
+|------|-----------------|-------|
+| 1 | `createEmptyCart` | Creates guest cart; returns masked cart ID |
+| 2 | `products` (query) | Resolves first in-stock configurable variant |
+| 3 | `addConfigurableProductsToCart` | Adds parent + variant SKU |
+| 4 | `setGuestEmailOnCart` | Assigns unique test email |
+| 5 | `setShippingAddressesOnCart` | AU or NZ address; returns available methods |
+| 6 | `setShippingMethodsOnCart` | Auto-selects first home-delivery method (skips Click & Collect) |
+| 7 | `setBillingAddressOnCart` | Same address as shipping |
+| 8 | `setPaymentMethodOnCart` | Uses `PAYMENT_METHOD` env var |
+| 9 | `placeOrder` | Returns order number |
+
+### Test Data & Endpoints
+
+| Site | GraphQL endpoint | Address data | SKU pool |
+|------|-----------------|--------------|----------|
+| `vans-au` | `https://stag-vans-au.accentgra.com/graphql` | `src/data/addresses.json` (10 AU addresses) | 8 confirmed in-stock configurable SKUs |
+| `vans-nz` | `https://stag-vans-nz.accentgra.com/graphql` | `src/data/addresses-nz.json` (8 NZ addresses) | 8 confirmed in-stock configurable SKUs |
+
+### Key Implementation Notes
+
+- `region_id` is **not** sent in the cart address — use the region string only (e.g. `NSW`). Region IDs are store-specific and cause validation errors.
+- Click & Collect / in-store pickup carrier codes (`instore`, `storepickup`, `pickup`, `clickandcollect`) are filtered out when auto-selecting the shipping method.
+- `createEmptyCart` (not `createGuestCart`) creates a guest cart on this Magento instance.
+- Child/variant SKUs are numeric strings on this store (e.g. `82218`) — `resolveInStockVariant` handles this automatically.
 
 ## 📁 Project Structure
 
@@ -178,7 +280,8 @@ k6-ecommerce-framework/
 │   │   ├── users.csv
 │   │   ├── products-platypus.json
 │   │   ├── products-skechers.json
-│   │   └── addresses.json
+│   │   ├── addresses.json     # AU shipping addresses (10 addresses)
+│   │   └── addresses-nz.json  # NZ shipping addresses (8 addresses)
 │   ├── lib/
 │   │   ├── graphql-client.ts  # GraphQL HTTP client
 │   │   ├── auth-manager.ts    # Authentication handling
@@ -192,13 +295,15 @@ k6-ecommerce-framework/
 │   │   ├── pdp.ts             # Product detail page
 │   │   ├── add-to-cart.ts     # Cart operations
 │   │   ├── checkout.ts        # Checkout flow
+│   │   ├── place-order.ts     # Guest place-order (Vans AU/NZ)
 │   │   └── index.ts
 │   ├── tests/
-│   │   ├── smoke.test.ts      # Smoke tests
-│   │   ├── load.test.ts       # Load tests
-│   │   ├── stress.test.ts     # Stress tests
-│   │   ├── spike.test.ts      # Spike tests
-│   │   └── soak.test.ts       # Soak tests
+│   │   ├── smoke.test.ts          # Smoke tests
+│   │   ├── load.test.ts           # Load tests
+│   │   ├── stress.test.ts         # Stress tests
+│   │   ├── spike.test.ts          # Spike tests
+│   │   ├── soak.test.ts           # Soak tests
+│   │   └── vans-place-order.test.ts  # Vans AU/NZ guest checkout
 │   └── types/
 │       └── index.ts           # TypeScript definitions
 ├── docs/
