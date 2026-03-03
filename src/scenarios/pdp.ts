@@ -9,9 +9,9 @@ import { check, group } from 'k6';
 import { Trend, Rate } from 'k6/metrics';
 import { GraphQLClient, checkGraphQLResponse } from '../lib/graphql-client';
 import { createLogger } from '../lib/logger';
-import { thinkTime, measureTime } from '../lib/utils';
+import { measureTime } from '../lib/utils';
 import { recordScenarioMetrics } from '../lib/metrics';
-import { getSiteConfig, getEnvironmentConfig, isDryRun } from '../config';
+import { getSiteConfig, isDryRun } from '../config';
 import { 
   ProductData, 
   Product, 
@@ -230,7 +230,6 @@ export function pdpScenario(
   siteConfig?: SiteConfig
 ): { result: ScenarioResult; product: Product | null } {
   const config = siteConfig ?? getSiteConfig();
-  const envConfig = getEnvironmentConfig();
   
   logger.info(`Starting PDP scenario for: ${productData.sku || productData.urlKey}`);
 
@@ -271,8 +270,7 @@ export function pdpScenario(
       });
     }
 
-    // Apply think time (simulates user viewing the page)
-    thinkTime(envConfig);
+    // Think time is applied by the caller (test file) to avoid double-counting
 
   } catch (error) {
     success = false;

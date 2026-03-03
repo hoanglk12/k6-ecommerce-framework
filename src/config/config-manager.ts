@@ -36,12 +36,14 @@ function createSiteConfig(
   env: string = 'staging'
 ): SiteConfig {
   const baseUrl = getBaseUrl(stagingUrl, productionUrl, env);
+  // Derive store code from locale suffix: 'en_AU' → 'au', 'en_NZ' → 'nz'
+  const storeCode = locale.split('_')[1]?.toLowerCase() ?? 'default';
   return {
     id,
     name,
     baseUrl,
     graphqlEndpoint: `${baseUrl}/graphql`,
-    storeCode: 'default',
+    storeCode,
     currency,
     locale,
     rateLimit: 50,

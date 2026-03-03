@@ -21,6 +21,7 @@ import {
   RetryConfig,
 } from '../types';
 import { Logger } from './logger';
+import { recordTimingMetrics } from './metrics';
 
 // ============================================================================
 // CUSTOM METRICS
@@ -223,11 +224,7 @@ export class GraphQLClient {
     }
 
     // All retries exhausted or non-retryable error
-    const duration = Date.now() - startTime;
-    graphqlDuration.add(duration, tags);
-    graphqlErrors.add(1, tags);
-    graphqlRequests.add(1, { ...tags, status: 'failed' });
-
+    // Note: do NOT add metrics here — parseResponse() handles them to avoid double-counting
     if (lastResponse) {
       return this.parseResponse<T>(lastResponse, tags, startTime);
     }
@@ -261,6 +258,13 @@ export class GraphQLClient {
 
     this.logger.debug(`GraphQL Response: ${response.status}`, {
       duration: response.timings.duration,
+    });
+
+    // Record infrastructure timing metrics for every request
+    recordTimingMetrics({
+      waiting: response.timings.waiting,
+      tls_handshaking: response.timings.tls_handshaking,
+      connecting: response.timings.connecting,
     });
 
     return response;

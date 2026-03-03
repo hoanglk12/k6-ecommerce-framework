@@ -6,6 +6,7 @@
  */
 
 import { SharedArray } from 'k6/data';
+// @ts-expect-error - k6 remote module import
 import papaparse from 'https://jslib.k6.io/papaparse/5.1.1/index.js';
 import exec from 'k6/execution';
 import { 

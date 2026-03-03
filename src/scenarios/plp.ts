@@ -16,9 +16,9 @@ import { check, group } from 'k6';
 import { Trend, Rate, Counter } from 'k6/metrics';
 import { GraphQLClient, checkGraphQLResponse } from '../lib/graphql-client';
 import { createLogger } from '../lib/logger';
-import { thinkTime, measureTime } from '../lib/utils';
+import { measureTime } from '../lib/utils';
 import { recordScenarioMetrics } from '../lib/metrics';
-import { getSiteConfig, getEnvironmentConfig, isDryRun } from '../config';
+import { getSiteConfig, isDryRun } from '../config';
 import { 
   SiteConfig, 
   ScenarioResult,
@@ -291,7 +291,6 @@ export function plpScenario(
   siteConfig?: SiteConfig
 ): { result: ScenarioResult; category: CategoryInfo | null; productCount: number } {
   const config = siteConfig ?? getSiteConfig();
-  const envConfig = getEnvironmentConfig();
 
   logger.info(`Starting PLP scenario for: ${categoryData.urlPath}`);
 
@@ -365,8 +364,7 @@ export function plpScenario(
     plpProductsReturned.add(productCount > 0 ? 1 : 0);
     plpTotalProductCount.add(productCount);
 
-    // ── Step 3: Simulate user reading time ─────────────────────────────
-    thinkTime(envConfig);
+    // Think time is applied by the caller (test file) to avoid double-counting
 
   } catch (error) {
     success = false;

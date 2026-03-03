@@ -5,17 +5,14 @@
  * for the k6 eCommerce load testing framework.
  */
 
-// import { check } from 'k6';
 import { Counter, Trend, Rate } from 'k6/metrics';
 import { GraphQLClient, checkGraphQLResponse } from './graphql-client';
 import { createLogger } from './logger';
 import { getSiteConfig } from '../config';
-import { 
-  UserCredentials, 
-  // AuthToken, 
-  AuthSession, 
+import {
+  UserCredentials,
+  AuthSession,
   SiteConfig,
-  // GraphQLResponse 
 } from '../types';
 
 const logger = createLogger('AuthManager');

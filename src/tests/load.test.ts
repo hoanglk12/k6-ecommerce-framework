@@ -21,6 +21,7 @@ import { randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 import { GraphQLClient } from '../lib/graphql-client';
 import { createLogger } from '../lib/logger';
 import { thinkTime } from '../lib/utils';
+import { customThresholds } from '../lib/metrics';
 
 // Import configuration
 import { 
@@ -72,9 +73,9 @@ export const options: Options = {
     'graphql_errors': ['rate<0.01'],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
     
-    // Scenario metrics
-    'scenario_pdp_success': ['rate>0.99'],
-    'scenario_pdp_duration': ['p(95)<800'],
+    // Scenario metrics — sourced from customThresholds for consistency
+    'scenario_pdp_success': customThresholds['scenario_pdp_success'],
+    'scenario_pdp_duration': customThresholds['scenario_pdp_duration'],
   },
   
   // Tags
@@ -87,10 +88,6 @@ export const options: Options = {
   noConnectionReuse: false,
   userAgent: 'k6-load-test-pdp/1.0',
 };
-
-// ============================================================================
-// TEST DATA
-// ============================================================================
 
 // ============================================================================
 // TEST DATA
@@ -139,6 +136,20 @@ const PRODUCTS: Record<string, TestProduct[]> = {
     { id: '1', sku: 'PLACEHOLDER-SKU', productType: 'configurable' },
   ],
 };
+
+/** Sites whose product list still contains placeholder SKUs */
+const SITES_WITH_PLACEHOLDERS = new Set(
+  Object.entries(PRODUCTS)
+    .filter(([, products]) => products.some(p => p.sku === 'PLACEHOLDER-SKU'))
+    .map(([siteId]) => siteId)
+);
+
+// ============================================================================
+// MODULE-LEVEL CLIENT (created once per VU, not per iteration)
+// ============================================================================
+
+const _siteConfig = getSiteConfig();
+const _client = new GraphQLClient(_siteConfig);
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -194,19 +205,23 @@ export default function(data: SetupData): void {
   const envConfig = getEnvironmentConfig();
   const vuId = exec.vu.idInTest;
   const iteration = exec.vu.iterationInScenario;
-  
+
+  // Guard: skip sites with unresolved placeholder SKUs
+  if (SITES_WITH_PLACEHOLDERS.has(siteId)) {
+    logger.warn(`⚠️  Site '${siteId}' has PLACEHOLDER-SKU entries — run the product discovery script first`);
+    return;
+  }
+
   // Get a random product
   const product = getRandomProduct(siteId);
   
   logger.debug(`VU ${vuId} - Iteration ${iteration} - Loading PDP: ${product.sku}`);
   
-  // Execute PDP scenario
+  // Execute PDP scenario (reuses module-level client — created once per VU)
   group('PDP Load', () => {
-    const client = new GraphQLClient(siteConfig);
-    
     const { result, product: loadedProduct } = pdpScenario(
       { sku: product.sku },
-      client,
+      _client,
       siteConfig
     );
     

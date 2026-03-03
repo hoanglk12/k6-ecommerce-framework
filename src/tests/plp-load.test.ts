@@ -24,6 +24,7 @@ import exec from 'k6/execution';
 import { GraphQLClient } from '../lib/graphql-client';
 import { createLogger } from '../lib/logger';
 import { thinkTime } from '../lib/utils';
+import { customThresholds } from '../lib/metrics';
 
 // Configuration
 import {
@@ -74,9 +75,9 @@ export const options: Options = {
     'graphql_errors': ['rate<0.01'],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
 
-    // PLP-specific metrics
-    'scenario_plp_success': ['rate>0.95'],
-    'scenario_plp_duration': ['p(95)<3000'],
+    // PLP-specific metrics — sourced from customThresholds for consistency
+    'scenario_plp_success': customThresholds['scenario_plp_success'],
+    'scenario_plp_duration': customThresholds['scenario_plp_duration'],
     'plp_category_query_time': ['p(95)<1500'],
     'plp_products_query_time': ['p(95)<2000'],
     'plp_category_found': ['rate>0.80'],
@@ -262,7 +263,7 @@ const CATEGORIES: Record<string, TestCategory[]> = {
     { id: 'cat-019', urlPath: 'sale/mens', name: 'Sale Mens' },
     { id: 'cat-020', urlPath: 'sale/womens', name: 'Sale Womens' },
   ],
-  // ── Vans NZ ──────────────────────────────────────────────────────────
+// ── Vans NZ ──────────────────────────────────────────────────────────
   'vans-nz': [
     { id: 'cat-001', urlPath: 'mens', name: 'Mens' },
     { id: 'cat-002', urlPath: 'womens', name: 'Womens' },
@@ -286,6 +287,13 @@ const CATEGORIES: Record<string, TestCategory[]> = {
     { id: 'cat-020', urlPath: 'sale/womens', name: 'Sale Womens' },
   ],
 };
+
+// ============================================================================
+// MODULE-LEVEL CLIENT (created once per VU, not per iteration)
+// ============================================================================
+
+const _siteConfig = getSiteConfig();
+const _client = new GraphQLClient(_siteConfig);
 
 // ============================================================================
 // HELPERS
@@ -365,11 +373,10 @@ export default function (data: SetupData): void {
   logger.debug(`VU ${vuId} - Iteration ${iteration} - Loading PLP: ${category.urlPath}`);
 
   group('PLP Load', () => {
-    const client = new GraphQLClient(siteConfig);
-
+    // Reuses module-level client — created once per VU, not per iteration
     const { result, category: resolvedCategory, productCount } = plpScenario(
       { urlPath: category.urlPath, name: category.name },
-      client,
+      _client,
       siteConfig
     );
 
