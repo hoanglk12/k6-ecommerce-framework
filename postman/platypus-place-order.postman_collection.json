@@ -1,0 +1,478 @@
+{
+  "info": {
+    "name": "k6 – Place Order (Guest Checkout) · Platypus AU",
+    "description": "End-to-end guest checkout for Platypus AU staging, exported from src/scenarios/place-order.ts.\n\nDataset: src/data/products-platypus.json + src/data/addresses.json\n\nRun order: Step 1 → 2 → 3a → 4 → 5 → 6 → 7 → 8 → 9\n\nAll cartId / variantSku / carrierCode / methodCode variables are auto-set by test scripts — just run steps in order.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "graphqlEndpoint",
+      "value": "https://stag-platypus-au.accentgra.com/graphql",
+      "description": "Platypus AU staging endpoint (src/config/environments/staging.json)"
+    },
+    {
+      "key": "storeCode",
+      "value": "default",
+      "description": "Magento store code for platypus-au"
+    },
+    {
+      "key": "parentSku",
+      "value": "10001-001.BLK",
+      "description": "Parent configurable SKU (prod-001 · Mens Cure Shoes). Other options from products-platypus.json: 302361WNW.WHT · 26422322.PNK · 300660XKSK.BLK · 27875001.BLK · ADYS400094XKWR.BLK"
+    },
+    {
+      "key": "variantSku",
+      "value": "",
+      "description": "Auto-set by Step 2 – first IN_STOCK child variant SKU"
+    },
+    {
+      "key": "guestEmail",
+      "value": "k6-platypus-au-test@example.com",
+      "description": "Guest email for checkout (mirrors randomEmail() in place-order.ts)"
+    },
+    {
+      "key": "cartId",
+      "value": "",
+      "description": "Auto-set by Step 1 – masked guest cart ID"
+    },
+    {
+      "key": "carrierCode",
+      "value": "",
+      "description": "Auto-set by Step 5 – home-delivery carrier code"
+    },
+    {
+      "key": "methodCode",
+      "value": "",
+      "description": "Auto-set by Step 5 – home-delivery method code"
+    },
+    {
+      "key": "paymentMethod",
+      "value": "checkmo",
+      "description": "Payment method code. Default: checkmo (Check/Money Order). Run Step 8 and check console for available_payment_methods on this store."
+    },
+    {
+      "key": "lastOrderNumber",
+      "value": "",
+      "description": "Auto-set by Step 9 – order number from successful placeOrder"
+    }
+  ],
+  "item": [
+    {
+      "name": "Step 1 – Create Guest Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Cart ID returned', function() {",
+              "    pm.expect(res.data.createEmptyCart).to.be.a('string').and.not.empty;",
+              "});",
+              "if (res.data && res.data.createEmptyCart) {",
+              "    pm.collectionVariables.set('cartId', res.data.createEmptyCart);",
+              "    console.log('[Step 1] cartId =', res.data.createEmptyCart);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation CreateGuestCart {\n  createEmptyCart\n}",
+            "variables": ""
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Creates an anonymous guest cart. The masked cart ID is auto-saved to `{{cartId}}`."
+      }
+    },
+    {
+      "name": "Step 2 – Get Configurable Product Variants",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Product found', function() { pm.expect(res.data.products.total_count).to.be.greaterThan(0); });",
+              "",
+              "var items = (res.data && res.data.products && res.data.products.items) ? res.data.products.items : [];",
+              "if (items.length > 0) {",
+              "    var variants = items[0].variants || [];",
+              "    var inStock = variants.find(function(v) { return v.product.stock_status === 'IN_STOCK'; });",
+              "    if (inStock) {",
+              "        pm.collectionVariables.set('variantSku', inStock.product.sku);",
+              "        console.log('[Step 2] variantSku =', inStock.product.sku, '(IN_STOCK)');",
+              "    } else if (variants.length > 0) {",
+              "        pm.collectionVariables.set('variantSku', variants[0].product.sku);",
+              "        console.warn('[Step 2] No IN_STOCK variant found. Fallback to:', variants[0].product.sku, '- add-to-cart may fail.');",
+              "    } else {",
+              "        console.error('[Step 2] No variants found for SKU:', pm.collectionVariables.get('parentSku'), '- try a different parentSku.');",
+              "    }",
+              "    pm.test('variantSku is set', function() {",
+              "        pm.expect(pm.collectionVariables.get('variantSku')).to.not.be.empty;",
+              "    });",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "query GetConfigurableProductVariants($sku: String!) {\n  products(filter: { sku: { eq: $sku } }) {\n    items {\n      id\n      sku\n      name\n      __typename\n      stock_status\n      ... on ConfigurableProduct {\n        variants {\n          product {\n            id\n            sku\n            stock_status\n          }\n          attributes {\n            code\n            value_index\n          }\n        }\n      }\n    }\n    total_count\n  }\n}",
+            "variables": "{\n  \"sku\": \"{{parentSku}}\"\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Fetches variants for `{{parentSku}}` and auto-saves the first IN_STOCK child SKU to `{{variantSku}}`.\n\nAvailable Platypus AU SKUs (from products-platypus.json):\n| SKU | Name |\n|-----|------|\n| ADYS400073-062.BLK | Mens Cure Shoes |\n| ADYS400073-XKRK.BLK | Mens Cure Shoes |\n| ADYS400073-111.WHT | Mens Cure Shoes |\n| 302361WNW.WHT | Mens Net Shoes |\n| 26422322.PNK | 1461 Patent Leather Oxford Shoes |\n| 300660XKSK.BLK | Mens Pure Shoes |\n| 300660XKWS.BLK | Mens Pure Shoes |\n| 27875001.BLK | 1460 Bex Squared Toe Leather Shoes |\n| ADYS400094XKWR.BLK | Mens Pure Shoes |"
+      }
+    },
+    {
+      "name": "Step 3a – Add Configurable Product to Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Item added to cart', function() {",
+              "    pm.expect(res.data.addConfigurableProductsToCart.cart.total_quantity).to.be.greaterThan(0);",
+              "});",
+              "var qty = res.data && res.data.addConfigurableProductsToCart ? res.data.addConfigurableProductsToCart.cart.total_quantity : 0;",
+              "console.log('[Step 3a] Cart total_quantity =', qty);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation AddConfigurableProductsToCart($cartId: String!, $parentSku: String!, $variantSku: String!, $qty: Float!) {\n  addConfigurableProductsToCart(input: {\n    cart_id: $cartId\n    cart_items: [{\n      parent_sku: $parentSku\n      data: { sku: $variantSku, quantity: $qty }\n    }]\n  }) {\n    cart {\n      id\n      total_quantity\n      items {\n        uid\n        quantity\n        product { sku name __typename }\n      }\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"parentSku\": \"{{parentSku}}\",\n  \"variantSku\": \"{{variantSku}}\",\n  \"qty\": 1\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Adds the configurable product to the cart using the parent + variant SKUs resolved in Steps 1–2.\n\nAll products in `products-platypus.json` are `productType: configurable`, so use this step (not 3b)."
+      }
+    },
+    {
+      "name": "Step 3b – Add Simple Product to Cart (alternative)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Item added to cart', function() {",
+              "    pm.expect(res.data.addSimpleProductsToCart.cart.total_quantity).to.be.greaterThan(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation AddSimpleProductsToCart($cartId: String!, $sku: String!, $qty: Float!) {\n  addSimpleProductsToCart(input: {\n    cart_id: $cartId\n    cart_items: [{ data: { sku: $sku, quantity: $qty } }]\n  }) {\n    cart {\n      id\n      total_quantity\n      items {\n        uid\n        quantity\n        product { sku name __typename }\n      }\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"sku\": \"{{variantSku}}\",\n  \"qty\": 1\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Alternative to Step 3a — only needed for `productType: simple`. Skip for Platypus (all products are configurable)."
+      }
+    },
+    {
+      "name": "Step 4 – Set Guest Email on Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Email set on cart', function() {",
+              "    pm.expect(res.data.setGuestEmailOnCart.cart.email).to.be.a('string').and.not.empty;",
+              "});",
+              "var email = res.data && res.data.setGuestEmailOnCart ? res.data.setGuestEmailOnCart.cart.email : 'N/A';",
+              "console.log('[Step 4] cart email =', email);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation SetGuestEmailOnCart($cartId: String!, $email: String!) {\n  setGuestEmailOnCart(input: { cart_id: $cartId, email: $email }) {\n    cart {\n      email\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"email\": \"{{guestEmail}}\"\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Associates a guest email with the cart. Required by Magento before shipping/payment steps."
+      }
+    },
+    {
+      "name": "Step 5 – Set Shipping Address on Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "",
+              "var cart = res.data && res.data.setShippingAddressesOnCart ? res.data.setShippingAddressesOnCart.cart : null;",
+              "var shippingAddrs = cart ? cart.shipping_addresses : [];",
+              "var methods = shippingAddrs.length > 0 ? shippingAddrs[0].available_shipping_methods : [];",
+              "pm.test('Shipping methods returned', function() { pm.expect(methods.length).to.be.greaterThan(0); });",
+              "",
+              "// Mirror PICKUP_CARRIER_CODES from place-order.ts",
+              "var PICKUP = ['instore', 'storepickup', 'clickandcollect', 'pickup'];",
+              "var homeDelivery = methods.find(function(m) {",
+              "    return m.available && !PICKUP.some(function(p) {",
+              "        return m.carrier_code.toLowerCase().indexOf(p) !== -1;",
+              "    });",
+              "});",
+              "if (homeDelivery) {",
+              "    pm.collectionVariables.set('carrierCode', homeDelivery.carrier_code);",
+              "    pm.collectionVariables.set('methodCode', homeDelivery.method_code);",
+              "    console.log('[Step 5] shipping =', homeDelivery.carrier_code + '_' + homeDelivery.method_code,",
+              "        '|', homeDelivery.carrier_title, homeDelivery.method_title,",
+              "        '| cost:', homeDelivery.amount.value, homeDelivery.amount.currency);",
+              "} else {",
+              "    console.error('[Step 5] No home-delivery method found. All methods:', JSON.stringify(methods.map(function(m) { return m.carrier_code; })));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation SetShippingAddressesOnCart($cartId: String!, $address: CartAddressInput!) {\n  setShippingAddressesOnCart(input: {\n    cart_id: $cartId\n    shipping_addresses: [{ address: $address }]\n  }) {\n    cart {\n      shipping_addresses {\n        firstname\n        lastname\n        city\n        country { code label }\n        available_shipping_methods {\n          carrier_code\n          method_code\n          carrier_title\n          method_title\n          available\n          amount { value currency }\n        }\n        selected_shipping_method {\n          carrier_code\n          method_code\n          carrier_title\n          method_title\n        }\n      }\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"address\": {\n    \"firstname\": \"John\",\n    \"lastname\": \"Smith\",\n    \"street\": [\"123 George Street\"],\n    \"city\": \"Sydney\",\n    \"region\": \"NSW\",\n    \"postcode\": \"2000\",\n    \"country_code\": \"AU\",\n    \"telephone\": \"0412345678\",\n    \"save_in_address_book\": false\n  }\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Sets shipping address (Sydney CBD – addr-001 from addresses.json) and returns available methods.\n\nTest script auto-saves `{{carrierCode}}` + `{{methodCode}}`, filtering out pickup/click-and-collect carriers (mirrors `PICKUP_CARRIER_CODES` in `place-order.ts`).\n\n**Address used (addr-001):** John Smith · 123 George Street · Sydney NSW 2000 · AU · 0412345678"
+      }
+    },
+    {
+      "name": "Step 6 – Set Shipping Method on Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Shipping method selected', function() {",
+              "    var cart = res.data && res.data.setShippingMethodsOnCart ? res.data.setShippingMethodsOnCart.cart : null;",
+              "    var selected = cart ? cart.shipping_addresses[0].selected_shipping_method : null;",
+              "    pm.expect(selected).to.not.be.null;",
+              "    pm.expect(selected.carrier_code).to.be.a('string');",
+              "});",
+              "var cart = res.data && res.data.setShippingMethodsOnCart ? res.data.setShippingMethodsOnCart.cart : null;",
+              "var grand = cart ? cart.prices.grand_total : null;",
+              "console.log('[Step 6] grand_total =', grand ? grand.value + ' ' + grand.currency : 'N/A');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation SetShippingMethodsOnCart($cartId: String!, $carrierCode: String!, $methodCode: String!) {\n  setShippingMethodsOnCart(input: {\n    cart_id: $cartId\n    shipping_methods: [{\n      carrier_code: $carrierCode\n      method_code:  $methodCode\n    }]\n  }) {\n    cart {\n      shipping_addresses {\n        selected_shipping_method {\n          carrier_code\n          method_code\n          carrier_title\n          method_title\n          amount { value currency }\n        }\n      }\n      prices {\n        grand_total { value currency }\n      }\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"carrierCode\": \"{{carrierCode}}\",\n  \"methodCode\": \"{{methodCode}}\"\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Selects the shipping method resolved by Step 5's test script. Uses `{{carrierCode}}` and `{{methodCode}}` collection variables."
+      }
+    },
+    {
+      "name": "Step 7 – Set Billing Address on Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Billing address set', function() {",
+              "    var billing = res.data && res.data.setBillingAddressOnCart ? res.data.setBillingAddressOnCart.cart.billing_address : null;",
+              "    pm.expect(billing).to.not.be.null;",
+              "    pm.expect(billing.city).to.equal('Sydney');",
+              "});",
+              "var billing = res.data && res.data.setBillingAddressOnCart ? res.data.setBillingAddressOnCart.cart.billing_address : null;",
+              "console.log('[Step 7] billing =', billing ? billing.firstname + ' ' + billing.lastname + ', ' + billing.city : 'N/A');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation SetBillingAddressOnCart($cartId: String!, $address: CartAddressInput!) {\n  setBillingAddressOnCart(input: {\n    cart_id: $cartId\n    billing_address: { address: $address }\n  }) {\n    cart {\n      billing_address {\n        firstname\n        lastname\n        city\n        country { code }\n      }\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"address\": {\n    \"firstname\": \"John\",\n    \"lastname\": \"Smith\",\n    \"street\": [\"123 George Street\"],\n    \"city\": \"Sydney\",\n    \"region\": \"NSW\",\n    \"postcode\": \"2000\",\n    \"country_code\": \"AU\",\n    \"telephone\": \"0412345678\",\n    \"save_in_address_book\": false\n  }\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Sets billing address same as shipping (mirrors `billingAddress ?? shippingAddress` fallback in `place-order.ts`)."
+      }
+    },
+    {
+      "name": "Step 8 – Set Payment Method on Cart",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Payment method selected', function() {",
+              "    var method = res.data && res.data.setPaymentMethodOnCart ? res.data.setPaymentMethodOnCart.cart.selected_payment_method : null;",
+              "    pm.expect(method).to.not.be.null;",
+              "    pm.expect(method.code).to.be.a('string').and.not.empty;",
+              "});",
+              "var cart = res.data && res.data.setPaymentMethodOnCart ? res.data.setPaymentMethodOnCart.cart : null;",
+              "var grand = cart ? cart.prices.grand_total : null;",
+              "console.log('[Step 8] payment =', cart ? cart.selected_payment_method.code : 'N/A',",
+              "    '| grand_total =', grand ? grand.value + ' ' + grand.currency : 'N/A');",
+              "if (cart) { console.log('[Step 8] available_payment_methods =', JSON.stringify(cart.available_payment_methods)); }"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation SetPaymentMethodOnCart($cartId: String!, $paymentCode: String!) {\n  setPaymentMethodOnCart(input: {\n    cart_id: $cartId\n    payment_method: { code: $paymentCode }\n  }) {\n    cart {\n      selected_payment_method { code title }\n      available_payment_methods { code title }\n      prices {\n        grand_total { value currency }\n      }\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"paymentCode\": \"{{paymentMethod}}\"\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Sets payment method. Default `{{paymentMethod}}` = `checkmo`.\n\nIf `checkmo` fails, check the console output for `available_payment_methods` and update the `paymentMethod` collection variable accordingly."
+      }
+    },
+    {
+      "name": "Step 9 – Place Order ⚠️ STAGING ONLY",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() { pm.expect(res.errors).to.be.undefined; });",
+              "pm.test('Order number returned', function() {",
+              "    pm.expect(res.data.placeOrder.order.order_number).to.be.a('string').and.not.empty;",
+              "});",
+              "var orderNumber = res.data && res.data.placeOrder ? res.data.placeOrder.order.order_number : null;",
+              "if (orderNumber) {",
+              "    pm.collectionVariables.set('lastOrderNumber', orderNumber);",
+              "    console.log('[Step 9] ORDER PLACED:', orderNumber);",
+              "} else {",
+              "    console.error('[Step 9] No order number in response:', JSON.stringify(res));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation PlaceOrder($cartId: String!) {\n  placeOrder(input: { cart_id: $cartId }) {\n    order {\n      order_number\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\"\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "⚠️ **STAGING ONLY** – No real charges but the order IS recorded in Magento.\n\nExecutes the final `placeOrder` mutation. On success, `{{lastOrderNumber}}` is auto-saved to collection variables.\n\nDo NOT run against production without setting `ENABLE_PLACE_ORDER=true` and `PRODUCTION_CONFIRMED=true` (matches safety flags in `place-order.ts`)."
+      }
+    }
+  ]
+}
