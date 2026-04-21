@@ -54,15 +54,17 @@ export function sleepBetween(min: number, max: number): void {
 // ============================================================================
 
 /**
- * Generate a random email address
- * 
+ * Generate a random email address unique to this VU and timestamp.
+ * Including exec.vu.idInTest prevents collisions when multiple VUs run in the same millisecond.
+ *
  * @param domain - Email domain (default: test.example.com)
  * @returns Random email address
  */
 export function randomEmail(domain = 'test.example.com'): string {
   const timestamp = Date.now();
   const random = randomString(8).toLowerCase();
-  return `test_${random}_${timestamp}@${domain}`;
+  const vuId = exec.vu.idInTest;
+  return `test_${random}_${timestamp}_${vuId}@${domain}`;
 }
 
 /**
@@ -236,17 +238,22 @@ export function cleanObject<T extends Record<string, unknown>>(obj: T): Partial<
   return result;
 }
 
+/** Cache formatters by currency code to avoid per-call allocations under high VU concurrency */
+const _currencyFormatters = new Map<string, Intl.NumberFormat>();
+
 /**
  * Format currency value
- * 
+ *
  * @param value - Numeric value
  * @param currency - Currency code (default: AUD)
  */
 export function formatCurrency(value: number, currency = 'AUD'): string {
-  return new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency,
-  }).format(value);
+  let formatter = _currencyFormatters.get(currency);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat('en-AU', { style: 'currency', currency });
+    _currencyFormatters.set(currency, formatter);
+  }
+  return formatter.format(value);
 }
 
 // ============================================================================
