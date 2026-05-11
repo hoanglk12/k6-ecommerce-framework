@@ -6,7 +6,7 @@ dist/
 
 # Test reports
 reports/
-*.html
+
 
 # Environment files with secrets
 .env

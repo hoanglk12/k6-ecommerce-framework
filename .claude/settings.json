@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build*)",
+      "Bash(npm run clean)",
+      "Bash(npm run validate)",
+      "Bash(npm run lint)",
+      "Bash(npm run dry-run)",
+      "Bash(npm install)",
+      "Bash(k6 run --vus 1 --iterations 1*)",
+      "Bash(k6 run --out web-dashboard*)",
+      "Bash(k6 version)"
+    ],
+    "deny": [
+      "Bash(k6 run --vus 200*)",
+      "Bash(k6 cloud*)"
+    ]
+  }
+}

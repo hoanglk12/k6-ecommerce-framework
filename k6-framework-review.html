@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>k6 eCommerce Framework — Best Practices Review</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222533;
+    --border: #2e3347;
+    --text: #e2e4ed;
+    --muted: #8b90a7;
+    --accent: #7c6ef5;
+    --accent2: #5eead4;
+    --critical: #f87171;
+    --high: #fb923c;
+    --medium: #facc15;
+    --low: #4ade80;
+    --good: #34d399;
+    --code-bg: #12141e;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* ── Layout ── */
+  .page-wrap {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 40px;
+  }
+  .header-meta {
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 99px;
+    border: 1px solid;
+  }
+  .badge-critical { color: var(--critical); border-color: var(--critical); background: rgba(248,113,113,.08); }
+  .badge-high     { color: var(--high);     border-color: var(--high);     background: rgba(251,146,60,.08); }
+  .badge-medium   { color: var(--medium);   border-color: var(--medium);   background: rgba(250,204,21,.08); }
+  .badge-good     { color: var(--good);     border-color: var(--good);     background: rgba(52,211,153,.08); }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-bottom: 40px;
+  }
+  .toc h2 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .toc ol {
+    padding-left: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 24px;
+  }
+  .toc li { font-size: 13px; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  /* ── Sections ── */
+  section { margin-bottom: 56px; }
+  section h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Finding cards ── */
+  .finding {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .finding-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .finding-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 24px;
+  }
+  .finding-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+  }
+  .pill {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 2px 9px;
+    border-radius: 99px;
+  }
+  .pill-critical { background: rgba(248,113,113,.15); color: var(--critical); }
+  .pill-high     { background: rgba(251,146,60,.15);  color: var(--high); }
+  .pill-medium   { background: rgba(250,204,21,.15);  color: var(--medium); }
+  .pill-low      { background: rgba(74,222,128,.15);  color: var(--low); }
+
+  .finding-body {
+    padding: 18px 20px;
+    background: var(--surface2);
+  }
+  .finding-body p { margin-bottom: 12px; color: var(--text); }
+  .finding-body p:last-child { margin-bottom: 0; }
+
+  /* ── Strength cards ── */
+  .strength-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .strength-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--good);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .strength-card strong {
+    display: block;
+    font-size: 13px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .strength-card span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+    color: #c9d1d9;
+  }
+  pre code { color: #c9d1d9; }
+  .cm  { color: #6a737d; }  /* comment */
+  .kw  { color: #ff7b72; }  /* keyword */
+  .st  { color: #a5d6ff; }  /* string */
+  .fn  { color: #d2a8ff; }  /* function/type */
+  .nm  { color: #79c0ff; }  /* number/name */
+  .op  { color: #8b90a7; }  /* operator */
+
+  /* ── Summary table ── */
+  .table-wrap { overflow-x: auto; margin-top: 8px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead tr {
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+  }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--surface); }
+  td:first-child { color: #fff; font-weight: 500; }
+  td:nth-child(2) { color: var(--muted); }
+
+  /* ── Footer ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-meta">Performance Engineering · Code Review</div>
+    <h1>k6 eCommerce Framework<br>Best Practices Review</h1>
+    <div class="subtitle">Reviewed against k6 OSS best practices (2024–2025) · Generated 2026-05-11</div>
+    <div class="badge-row">
+      <span class="badge badge-critical">3 Critical</span>
+      <span class="badge badge-high">4 High</span>
+      <span class="badge badge-medium">5 Medium</span>
+      <span class="badge badge-good">6 Strengths</span>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#strengths">What's Done Well</a></li>
+      <li><a href="#critical">Critical Issues</a></li>
+      <li><a href="#high">High-Priority Issues</a></li>
+      <li><a href="#medium">Medium Issues</a></li>
+      <li><a href="#low">Low / Future-Proofing</a></li>
+      <li><a href="#summary">Summary Table</a></li>
+    </ol>
+  </div>
+
+  <!-- Strengths -->
+  <section id="strengths">
+    <h2>What's Done Well</h2>
+    <div class="strength-grid">
+      <div class="strength-card">
+        <strong>SharedArray in init context</strong>
+        <span>loadCSV/loadJSON wrap data in SharedArray correctly — one copy shared across all VUs, never marshalled through setup().</span>
+      </div>
+      <div class="strength-card">
+        <strong>Module-level GraphQLClient</strong>
+        <span>Clients created at module scope (once per VU, before default() runs). TCP connections are reused across iterations.</span>
+      </div>
+      <div class="strength-card">
+        <strong>Exponential backoff with jitter</strong>
+        <span>Retry logic in graphql-client.ts uses ±20% jitter to avoid thundering-herd on retries.</span>
+      </div>
+      <div class="strength-card">
+        <strong>Production safety multi-flag</strong>
+        <span>ENABLE_PLACE_ORDER + PRODUCTION_CONFIRMED required together before any mutation runs in production.</span>
+      </div>
+      <div class="strength-card">
+        <strong>Request tagging strategy</strong>
+        <span>Every request is tagged with site and operation name, enabling fine-grained Grafana filtering.</span>
+      </div>
+      <div class="strength-card">
+        <strong>Clean separation of concerns</strong>
+        <span>scenarios/ lib/ config/ tests/ are well separated. Scenarios are pure functions returning ScenarioResult.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Critical -->
+  <section id="critical">
+    <h2>Critical Issues</h2>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">C1</span>
+        <span class="finding-title">Wrong executor for all tests — ramping-vus when arrival-rate is needed</span>
+        <span class="pill pill-critical">Critical</span>
+      </div>
+      <div class="finding-body">
+        <p>Every test uses <code>stages</code>, which maps to the <strong>ramping-vus</strong> executor. With ramping-vus, if the system gets slow, VUs queue waiting for responses — actual throughput (RPS) drops silently. A "200 VU test" might deliver 50 req/min when the system is struggling, giving you no signal about where the breaking point actually is.</p>
+        <p>For load validation and checkout tests where you want to guarantee X requests-per-minute, the correct executor is <strong>ramping-arrival-rate</strong> or <strong>constant-arrival-rate</strong>. These maintain target RPS regardless of response time and are the industry standard for SLA testing.</p>
+        <p><code>ramping-vus</code> is still appropriate for realistic concurrent-user simulation (e.g., soak tests simulating N users browsing simultaneously). But it should be a deliberate choice, not the only option.</p>
+        <pre><code><span class="cm">// Current — throughput varies with system latency</span>
+stages: [
+  { duration: <span class="st">'2m'</span>, target: <span class="nm">50</span> },
+  { duration: <span class="st">'5m'</span>, target: <span class="nm">50</span> },
+]
+
+<span class="cm">// Better for SLA/load validation — guaranteed throughput</span>
+scenarios: {
+  pdp_load: {
+    executor: <span class="st">'ramping-arrival-rate'</span>,
+    startRate: <span class="nm">0</span>,
+    timeUnit: <span class="st">'1m'</span>,
+    preAllocatedVUs: <span class="nm">50</span>,
+    maxVUs: <span class="nm">150</span>,
+    stages: [
+      { duration: <span class="st">'2m'</span>, target: <span class="nm">200</span> },  <span class="cm">// 200 req/min</span>
+      { duration: <span class="st">'5m'</span>, target: <span class="nm">200</span> },
+      { duration: <span class="st">'2m'</span>, target: <span class="nm">500</span> },  <span class="cm">// 500 req/min peak</span>
+      { duration: <span class="st">'5m'</span>, target: <span class="nm">500</span> },
+      { duration: <span class="st">'2m'</span>, target: <span class="nm">0</span>   },
+    ],
+  },
+},</code></pre>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">C2</span>
+        <span class="finding-title">Metrics double-counting bug in GraphQL client retry path</span>
+        <span class="pill pill-critical">Critical</span>
+      </div>
+      <div class="finding-body">
+        <p>In <code>src/lib/graphql-client.ts</code>, when a retryable GraphQL error is encountered, <code>parseResponse()</code> is called <em>inside</em> the retry loop (line 197) — recording <code>graphqlDuration</code> and <code>graphqlRequests</code> — and then called <em>again</em> at line 229 after all retries are exhausted. The same request gets double-counted in every affected metric.</p>
+        <pre><code><span class="cm">// Inside retry loop — parseResponse() records metrics</span>
+<span class="kw">const</span> result = <span class="kw">this</span>.parseResponse&lt;T&gt;(lastResponse, tags, startTime);
+<span class="cm">// ... retryable error path continues loop without returning</span>
+
+<span class="cm">// After loop — parseResponse() called AGAIN on the same lastResponse</span>
+<span class="kw">return</span> <span class="kw">this</span>.parseResponse&lt;T&gt;(lastResponse, tags, startTime);
+<span class="cm">// → graphqlDuration + graphqlRequests double-counted</span></code></pre>
+        <p>Fix: track whether the final response has already been parsed and skip the second call, or separate metric recording from response parsing into distinct methods.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">C3</span>
+        <span class="finding-title">Product test data hardcoded in test file, bypassing SharedArray</span>
+        <span class="pill pill-critical">Critical</span>
+      </div>
+      <div class="finding-body">
+        <p><code>load.test.ts</code> declares product SKUs as a module-level <code>const PRODUCTS</code> object. The entire <code>DataProvider</code> / <code>SharedArray</code> infrastructure in <code>data-provider.ts</code> — and the <code>src/data/products-*.json</code> files — are completely bypassed by the main load test.</p>
+        <p>This also means four of eight sites still carry <code>PLACEHOLDER-SKU</code> values in production code, guarded only by a runtime <code>Set</code> check that silently no-ops the VU instead of failing fast. All product data should flow through <code>SharedArray</code> to get memory efficiency and consistent data access across VUs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- High -->
+  <section id="high">
+    <h2>High-Priority Issues</h2>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">H1</span>
+        <span class="finding-title">No scenarios API — only single-journey tests are possible</span>
+        <span class="pill pill-high">High</span>
+      </div>
+      <div class="finding-body">
+        <p>The <code>stages</code> shorthand locks every test to a single user journey and a single executor. The <code>scenarios</code> key in k6 options enables multiple concurrent journeys in one test file — each with its own executor, VU pool, start time, and graceful stop duration — which is the correct model for realistic eCommerce load.</p>
+        <p>A production store doesn't have 200 users all viewing PDPs simultaneously. It has a mix: 70% browsing, 20% searching/filtering, 10% checking out. Without the <code>scenarios</code> API, you cannot model this in a single run and cannot set per-scenario thresholds.</p>
+        <pre><code>scenarios: {
+  pdp_browse: {
+    executor: <span class="st">'ramping-arrival-rate'</span>,
+    weight: <span class="nm">70</span>,
+    stages: [{ duration: <span class="st">'10m'</span>, target: <span class="nm">350</span> }],
+  },
+  plp_browse: {
+    executor: <span class="st">'constant-arrival-rate'</span>,
+    rate: <span class="nm">100</span>, timeUnit: <span class="st">'1m'</span>,
+    preAllocatedVUs: <span class="nm">10</span>, duration: <span class="st">'10m'</span>,
+  },
+  guest_checkout: {
+    executor: <span class="st">'constant-arrival-rate'</span>,
+    rate: <span class="nm">10</span>, timeUnit: <span class="st">'1m'</span>,
+    preAllocatedVUs: <span class="nm">5</span>, duration: <span class="st">'10m'</span>,
+    startTime: <span class="st">'2m'</span>, <span class="cm">// start after ramp-up</span>
+  },
+},</code></pre>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">H2</span>
+        <span class="finding-title">No abortOnFail on error-rate thresholds</span>
+        <span class="pill pill-high">High</span>
+      </div>
+      <div class="finding-body">
+        <p>All thresholds are defined as strings, which means k6 evaluates them at the end of the test but <em>never aborts early</em>. If the error rate hits 50% at minute 2 of a 16-minute test, k6 keeps running for 14 more minutes hammering a failing system.</p>
+        <pre><code><span class="cm">// Current — never aborts</span>
+<span class="st">'http_req_failed'</span>: [<span class="st">'rate&lt;0.01'</span>]
+
+<span class="cm">// Better — abort early, but allow 30s of ramp-up noise first</span>
+<span class="st">'http_req_failed'</span>: [{
+  threshold: <span class="st">'rate&lt;0.01'</span>,
+  abortOnFail: <span class="kw">true</span>,
+  delayAbortEval: <span class="st">'30s'</span>,
+}],</code></pre>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">H3</span>
+        <span class="finding-title">check() called inside the library layer</span>
+        <span class="pill pill-high">High</span>
+      </div>
+      <div class="finding-body">
+        <p><code>checkGraphQLResponse()</code> in <code>graphql-client.ts</code> calls <code>check()</code> directly. k6's end-of-test summary groups check results by label — when checks are in a library, the output shows <em>"✓ GraphQL response has no errors"</em> with no indication of which scenario or user journey triggered the failure. Debugging a failing run becomes significantly harder.</p>
+        <p><code>check()</code> belongs at the scenario or test layer, where labels can carry meaningful context: <em>"PDP — product detail loads with stock status"</em>. Libraries should return structured results and let the caller decide how to assert.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">H4</span>
+        <span class="finding-title">DataProvider.getByVU() breaks under VU ramping</span>
+        <span class="pill pill-high">High</span>
+      </div>
+      <div class="finding-body">
+        <p><code>getByVU()</code> uses <code>exec.vu.idInTest</code> as the data index. With <code>ramping-vus</code>, VU IDs are assigned sequentially as VUs start and are not reassigned when VUs are destroyed between stages. A VU spun up at peak load with ID 100 may map to the same data slot as VU 100 from an earlier stage, causing data collisions and uneven distribution.</p>
+        <pre><code><span class="cm">// Current — breaks under VU ramping</span>
+<span class="kw">const</span> index = (exec.vu.idInTest - <span class="nm">1</span>) % <span class="kw">this</span>.data.length;
+
+<span class="cm">// Better — works correctly across all executors</span>
+<span class="kw">const</span> index = exec.scenario.iterationInTest % <span class="kw">this</span>.data.length;</code></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Medium -->
+  <section id="medium">
+    <h2>Medium Issues</h2>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">M1</span>
+        <span class="finding-title">No smoke test</span>
+        <span class="pill pill-medium">Medium</span>
+      </div>
+      <div class="finding-body">
+        <p>The framework has a <code>dry-run</code> (1 VU, skips mutations), but no smoke test that exercises the full happy path at minimal load with real API calls. Best practice is 1–2 VUs, 1–2 iterations, all assertions enabled, no think time — run this in CI before every load test to catch endpoint regressions, config drift, or placeholder SKUs before committing to a 16-minute run.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">M2</span>
+        <span class="finding-title">DataProvider only supports 2 of 8 sites</span>
+        <span class="pill pill-medium">Medium</span>
+      </div>
+      <div class="finding-body">
+        <p><code>getProductProvider()</code> accepts only <code>'platypus' | 'skechers'</code>. The <code>DATA_PATHS</code> map does not include Dr Martens or Vans, and their <code>data/products-*.json</code> files — which do exist on disk — are inaccessible through the DataProvider API. Any new scenario targeting these sites cannot use the framework's data layer.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">M3</span>
+        <span class="finding-title">Remote jslib imports are fragile in CI/CD</span>
+        <span class="pill pill-medium">Medium</span>
+      </div>
+      <div class="finding-body">
+        <p>Both <code>k6-utils</code> and <code>papaparse</code> are fetched at runtime from <code>jslib.k6.io</code>. k6 caches these locally, but in CI runners with no cache, air-gapped environments, or during CDN outages, tests will fail before they start. These should be vendored into <code>src/lib/vendor/</code> and imported locally.</p>
+        <pre><code><span class="cm">// Current — network dependency at runtime</span>
+<span class="kw">import</span> { randomItem } <span class="kw">from</span> <span class="st">'https://jslib.k6.io/k6-utils/1.4.0/index.js'</span>;
+
+<span class="cm">// Better — vendored local copy</span>
+<span class="kw">import</span> { randomItem } <span class="kw">from</span> <span class="st">'../vendor/k6-utils.js'</span>;</code></pre>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">M4</span>
+        <span class="finding-title">Logger ignores DEBUG env var inside GraphQLClient</span>
+        <span class="pill pill-medium">Medium</span>
+      </div>
+      <div class="finding-body">
+        <p>The <code>GraphQLClient</code> constructor instantiates its logger with a hardcoded <code>level: 'info'</code>, bypassing the environment config's <code>debug</code> flag. Setting <code>DEBUG=true</code> in the environment has no effect on client-level logging. The constructor should use <code>createLogger('GraphQLClient')</code>, which picks up the environment config.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">M5</span>
+        <span class="finding-title">DataProvider instantiated per-call instead of per-VU</span>
+        <span class="pill pill-medium">Medium</span>
+      </div>
+      <div class="finding-body">
+        <p>Functions like <code>getUserProvider()</code> return <code>new DataProvider(...)</code> on every call. If called inside <code>default()</code> (the per-iteration function), a fresh provider with <code>currentIndex = 0</code> is created each iteration — making the <code>'sequential'</code> strategy always return the first item. These provider factory calls must happen at module scope (init context), not inside iteration functions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Low -->
+  <section id="low">
+    <h2>Low / Future-Proofing</h2>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">L1</span>
+        <span class="finding-title">k6 v0.57+ has native TypeScript support</span>
+        <span class="pill pill-low">Low</span>
+      </div>
+      <div class="finding-body">
+        <p>The Webpack + Babel pipeline works today, but as of k6 v0.57 TypeScript is supported natively without a bundler. The main remaining reason to keep Webpack is <code>CopyWebpackPlugin</code> (copying <code>data/</code> to <code>dist/</code>) and multi-entry bundling. Worth tracking — simplifying the build reduces a meaningful maintenance surface and removes the Babel/webpack version-pinning overhead.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">L2</span>
+        <span class="finding-title">unique data strategy is O(n²) worst-case</span>
+        <span class="pill pill-low">Low</span>
+      </div>
+      <div class="finding-body">
+        <p><code>DataProvider.getUniqueItem()</code> uses rejection sampling to find an unused index. With a small dataset and many VUs exhausting items quickly, this loop can spin for many iterations. A Fisher-Yates pre-shuffle with a sequential pointer is O(1) per access and eliminates the worst case entirely.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="finding-header">
+        <span class="finding-num">L3</span>
+        <span class="finding-title">No output format standardization for CI/CD</span>
+        <span class="pill pill-low">Low</span>
+      </div>
+      <div class="finding-body">
+        <p>No npm scripts emit structured output files. Adding <code>--out json=results/{SITE}-{timestamp}.json</code> to key scripts and committing a baseline result to version control enables trend-over-time tracking without requiring Grafana Cloud, making regressions visible in PR reviews.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Summary Table -->
+  <section id="summary">
+    <h2>Summary Table</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Finding</th>
+            <th>Location</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>C1</td>
+            <td>Wrong executor — ramping-vus for all tests, arrival-rate needed for checkout/SLA</td>
+            <td>all test files</td>
+            <td><span class="pill pill-critical">Critical</span></td>
+          </tr>
+          <tr>
+            <td>C2</td>
+            <td>Metrics double-counting in retry exhaust path</td>
+            <td>graphql-client.ts:197, 229</td>
+            <td><span class="pill pill-critical">Critical</span></td>
+          </tr>
+          <tr>
+            <td>C3</td>
+            <td>Product SKUs hardcoded in test file, SharedArray bypassed</td>
+            <td>tests/load.test.ts</td>
+            <td><span class="pill pill-critical">Critical</span></td>
+          </tr>
+          <tr>
+            <td>H1</td>
+            <td>No scenarios API — single-journey tests only, no mixed-journey simulation</td>
+            <td>all test files</td>
+            <td><span class="pill pill-high">High</span></td>
+          </tr>
+          <tr>
+            <td>H2</td>
+            <td>No abortOnFail on error-rate thresholds</td>
+            <td>all test files</td>
+            <td><span class="pill pill-high">High</span></td>
+          </tr>
+          <tr>
+            <td>H3</td>
+            <td>check() in library layer — poor failure traceability</td>
+            <td>graphql-client.ts:429</td>
+            <td><span class="pill pill-high">High</span></td>
+          </tr>
+          <tr>
+            <td>H4</td>
+            <td>getByVU() uses vu.idInTest — breaks under VU ramping</td>
+            <td>data-provider.ts:169</td>
+            <td><span class="pill pill-high">High</span></td>
+          </tr>
+          <tr>
+            <td>M1</td>
+            <td>No smoke test for CI regression detection</td>
+            <td>missing</td>
+            <td><span class="pill pill-medium">Medium</span></td>
+          </tr>
+          <tr>
+            <td>M2</td>
+            <td>DataProvider covers only 2 of 8 sites (platypus, skechers)</td>
+            <td>data-provider.ts:27</td>
+            <td><span class="pill pill-medium">Medium</span></td>
+          </tr>
+          <tr>
+            <td>M3</td>
+            <td>Remote jslib imports fragile in CI/air-gapped environments</td>
+            <td>all files using jslib</td>
+            <td><span class="pill pill-medium">Medium</span></td>
+          </tr>
+          <tr>
+            <td>M4</td>
+            <td>GraphQLClient logger ignores DEBUG env var</td>
+            <td>graphql-client.ts:96</td>
+            <td><span class="pill pill-medium">Medium</span></td>
+          </tr>
+          <tr>
+            <td>M5</td>
+            <td>DataProvider created per-call, sequential strategy always returns item 0</td>
+            <td>data-provider.ts:274</td>
+            <td><span class="pill pill-medium">Medium</span></td>
+          </tr>
+          <tr>
+            <td>L1</td>
+            <td>k6 v0.57+ has native TypeScript — Webpack pipeline may be simplified</td>
+            <td>webpack.config.js</td>
+            <td><span class="pill pill-low">Low</span></td>
+          </tr>
+          <tr>
+            <td>L2</td>
+            <td>unique data strategy O(n²) worst-case rejection sampling</td>
+            <td>data-provider.ts:243</td>
+            <td><span class="pill pill-low">Low</span></td>
+          </tr>
+          <tr>
+            <td>L3</td>
+            <td>No output format standardization for CI/CD trend tracking</td>
+            <td>package.json</td>
+            <td><span class="pill pill-low">Low</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>k6 eCommerce Framework · Best Practices Review · 2026-05-11</span>
+    <span>Reviewed by Claude Code</span>
+  </div>
+
+</div>
+</body>
+</html>
