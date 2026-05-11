@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "k6 – Place Order (Guest Checkout) · Platypus AU",
-    "description": "End-to-end guest checkout for Platypus AU staging, exported from src/scenarios/place-order.ts.\n\nDataset: src/data/products-platypus.json + src/data/addresses.json\n\nRun order: Step 1 → 2 → 3a → 4 → 5 → 6 → 7 → 8 → 9\n\nAll cartId / variantSku / carrierCode / methodCode variables are auto-set by test scripts — just run steps in order.",
+    "name": "k6 – Place Order (Guest Checkout) · Platypus AU - Paypal",
+    "description": "End-to-end guest checkout for Platypus AU staging, exported from src/scenarios/place-order.ts.\n\nDataset: src/data/products-platypus.json + src/data/addresses.json\n\nRun order: Step 1 → 2 → 3a → 4 → 5 → 6 → 7 → 8a → 8 → 9\n\nAll cartId / variantSku / carrierCode / methodCode / paypalToken variables are auto-set by test scripts — just run steps in order.\n\n⚠️ PayPal flow: After Step 8a, open the paypal_urls.start URL in a browser, approve with a PayPal sandbox account, then copy the PayerID from the redirect URL into the paypalPayerId collection variable before running Step 8.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -47,8 +47,18 @@
     },
     {
       "key": "paymentMethod",
-      "value": "checkmo",
-      "description": "Payment method code. Default: checkmo (Check/Money Order). Run Step 8 and check console for available_payment_methods on this store."
+      "value": "paypal_express",
+      "description": "Payment method code. Set to paypal_express for PayPal Express Checkout. Run Step 8 and check console for available_payment_methods on this store."
+    },
+    {
+      "key": "paypalToken",
+      "value": "",
+      "description": "Auto-set by Step 8a – PayPal Express token returned by createPaypalExpressToken mutation."
+    },
+    {
+      "key": "paypalPayerId",
+      "value": "",
+      "description": "Must be set manually – copy the PayerID query param from the PayPal sandbox redirect URL after approving in Step 8a."
     },
     {
       "key": "lastOrderNumber",
@@ -391,6 +401,56 @@
       }
     },
     {
+      "name": "Step 8a – Create PayPal Express Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "var res = pm.response.json();",
+              "pm.test('HTTP 200', function() { pm.response.to.have.status(200); });",
+              "pm.test('No GraphQL errors', function() {",
+              "    if (res.errors) { console.error('[Step 8a] GraphQL errors:', JSON.stringify(res.errors, null, 2)); }",
+              "    pm.expect(res.errors, 'GraphQL errors: ' + JSON.stringify(res.errors)).to.be.undefined;",
+              "});",
+              "pm.test('PayPal token returned', function() {",
+              "    var tokenData = res.data && res.data.createPaypalExpressToken;",
+              "    if (!tokenData) { console.error('[Step 8a] Full response:', JSON.stringify(res, null, 2)); }",
+              "    pm.expect(tokenData).to.not.be.null;",
+              "    pm.expect(tokenData.token).to.be.a('string').and.not.empty;",
+              "});",
+              "if (res.data && res.data.createPaypalExpressToken) {",
+              "    var tokenData = res.data.createPaypalExpressToken;",
+              "    pm.collectionVariables.set('paypalToken', tokenData.token);",
+              "    var startUrl = tokenData.paypal_urls && tokenData.paypal_urls.start;",
+              "    console.log('[Step 8a] paypalToken =', tokenData.token);",
+              "    console.log('[Step 8a] ⚠️  Open this URL in a browser to approve payment:');",
+              "    console.log('[Step 8a]', startUrl || '(no start URL returned)');",
+              "    console.log('[Step 8a] After approval, copy the PayerID from the redirect URL into the paypalPayerId collection variable.');",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Store", "value": "{{storeCode}}" }
+        ],
+        "body": {
+          "mode": "graphql",
+          "graphql": {
+            "query": "mutation CreatePaypalExpressToken($cartId: String!, $returnUrl: String!, $cancelUrl: String!) {\n  createPaypalExpressToken(input: {\n    cart_id: $cartId\n    code: \"paypal_express\"\n    express_button: true\n    urls: {\n      return_url: $returnUrl\n      cancel_url: $cancelUrl\n    }\n  }) {\n    token\n    paypal_urls {\n      start\n      edit\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"returnUrl\": \"https://stag-platypus-au.accentgra.com/checkout/paypal/return\",\n  \"cancelUrl\": \"https://stag-platypus-au.accentgra.com/checkout/paypal/cancel\"\n}"
+          }
+        },
+        "url": "{{graphqlEndpoint}}",
+        "description": "Creates a PayPal Express token and returns the PayPal approval URL.\n\n**After running this step:**\n1. Open the `paypal_urls.start` URL printed in the console.\n2. Log in to your PayPal **sandbox** account and approve the payment.\n3. PayPal redirects to `return_url?token=...&PayerID=...` — copy the `PayerID` value.\n4. Paste it into the `paypalPayerId` collection variable before running Step 8."
+      }
+    },
+    {
       "name": "Step 8 – Set Payment Method on Cart",
       "event": [
         {
@@ -424,12 +484,12 @@
         "body": {
           "mode": "graphql",
           "graphql": {
-            "query": "mutation SetPaymentMethodOnCart($cartId: String!, $paymentCode: String!) {\n  setPaymentMethodOnCart(input: {\n    cart_id: $cartId\n    payment_method: { code: $paymentCode }\n  }) {\n    cart {\n      selected_payment_method { code title }\n      available_payment_methods { code title }\n      prices {\n        grand_total { value currency }\n      }\n    }\n  }\n}",
-            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"paymentCode\": \"{{paymentMethod}}\"\n}"
+            "query": "mutation SetPaymentMethodOnCart($cartId: String!, $token: String!, $payerId: String!) {\n  setPaymentMethodOnCart(input: {\n    cart_id: $cartId\n    payment_method: {\n      code: \"paypal_express\"\n      paypal_express: {\n        payer_id: $payerId\n        token: $token\n      }\n    }\n  }) {\n    cart {\n      selected_payment_method { code title }\n      available_payment_methods { code title }\n      prices {\n        grand_total { value currency }\n      }\n    }\n  }\n}",
+            "variables": "{\n  \"cartId\": \"{{cartId}}\",\n  \"token\": \"{{paypalToken}}\",\n  \"payerId\": \"{{paypalPayerId}}\"\n}"
           }
         },
         "url": "{{graphqlEndpoint}}",
-        "description": "Sets payment method. Default `{{paymentMethod}}` = `checkmo`.\n\nIf `checkmo` fails, check the console output for `available_payment_methods` and update the `paymentMethod` collection variable accordingly."
+        "description": "Sets PayPal Express as the payment method using the token from Step 8a and the PayerID manually captured from the browser redirect.\n\n**Prerequisites:** `{{paypalToken}}` must be set (auto-set by Step 8a) and `{{paypalPayerId}}` must be set manually from the PayPal sandbox redirect URL.\n\nIf PayPal Express is unavailable, check the console output for `available_payment_methods` and use an alternative code."
       }
     },
     {

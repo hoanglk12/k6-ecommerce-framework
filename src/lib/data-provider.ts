@@ -61,7 +61,7 @@ export function parseCSV<T>(csvContent: string, options: CSVParserOptions = {}):
     header: options.hasHeader ?? true,
     delimiter: options.delimiter ?? ',',
     skipEmptyLines: options.skipEmpty ?? true,
-    transformHeader: (header: string) => header.trim().toLowerCase(),
+    transformHeader: (header: string): string => header.trim().toLowerCase(),
   };
 
   const result = papaparse.parse(csvContent, config);
@@ -344,9 +344,8 @@ export function getAddressProvider(strategy: DataRotationStrategy = 'random'): D
  */
 export function validateUser(user: TestUser): boolean {
   return !!(
-    user &&
-    user.email &&
-    user.password &&
+    user?.email &&
+    user?.password &&
     typeof user.email === 'string' &&
     typeof user.password === 'string' &&
     user.email.includes('@')
@@ -358,8 +357,7 @@ export function validateUser(user: TestUser): boolean {
  */
 export function validateProduct(product: TestProduct): boolean {
   return !!(
-    product &&
-    product.sku &&
+    product?.sku &&
     typeof product.sku === 'string' &&
     product.sku.length > 0
   );
@@ -370,15 +368,14 @@ export function validateProduct(product: TestProduct): boolean {
  */
 export function validateAddress(address: TestAddress): boolean {
   return !!(
-    address &&
-    address.firstname &&
-    address.lastname &&
-    address.street &&
+    address?.firstname &&
+    address?.lastname &&
+    address?.street &&
     Array.isArray(address.street) &&
     address.street.length > 0 &&
-    address.city &&
-    address.postcode &&
-    address.country_code &&
-    address.telephone
+    address?.city &&
+    address?.postcode &&
+    address?.country_code &&
+    address?.telephone
   );
 }

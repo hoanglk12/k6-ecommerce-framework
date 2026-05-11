@@ -179,6 +179,10 @@ export class GraphQLClient {
 
     let lastError: Error | null = null;
     let lastResponse: RefinedResponse<ResponseType> | null = null;
+    // Track the last parsed result so we don't call parseResponse twice on the same response.
+    // This prevents double-counting metrics when the final retry returns a 200 with retryable
+    // GraphQL errors (the response is parsed inside the loop, then execution falls through here).
+    let lastParsedResult: GraphQLResponse<T> | null = null;
 
     // Retry loop
     for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
@@ -191,20 +195,23 @@ export class GraphQLClient {
 
       try {
         lastResponse = this.makeRequest(request, tags);
+        lastParsedResult = null; // reset for this attempt
 
         // Check for HTTP-level success
         if (lastResponse.status >= 200 && lastResponse.status < 300) {
           const result = this.parseResponse<T>(lastResponse, tags, startTime);
-          
+          lastParsedResult = result;
+
           // Check for GraphQL-level errors that should not be retried
           if (result.errors && !this.isRetryableGraphQLError(result.errors)) {
             return result;
           }
-          
+
           // If no errors, return success
           if (!result.errors || result.errors.length === 0) {
             return result;
           }
+          // else: retryable GraphQL errors — fall through to next attempt
         }
 
         // Check if status is retryable
@@ -214,8 +221,9 @@ export class GraphQLClient {
 
       } catch (error) {
         lastError = error as Error;
+        lastParsedResult = null;
         this.logger.error(`Request failed: ${lastError.message}`);
-        
+
         // Don't retry on non-network errors
         if (!this.isNetworkError(lastError)) {
           break;
@@ -223,8 +231,12 @@ export class GraphQLClient {
       }
     }
 
-    // All retries exhausted or non-retryable error
-    // Note: do NOT add metrics here — parseResponse() handles them to avoid double-counting
+    // All retries exhausted or non-retryable error.
+    // Return the already-parsed result if available to avoid double-counting metrics;
+    // otherwise parse the raw response once.
+    if (lastParsedResult) {
+      return lastParsedResult;
+    }
     if (lastResponse) {
       return this.parseResponse<T>(lastResponse, tags, startTime);
     }

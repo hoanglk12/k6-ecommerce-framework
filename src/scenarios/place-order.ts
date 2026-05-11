@@ -343,6 +343,18 @@ interface PlaceOrderResponse {
   placeOrder: { order: { order_number: string } };
 }
 
+interface AddConfigurableToCartResponse {
+  addConfigurableProductsToCart: {
+    cart: { total_quantity: number };
+  };
+}
+
+interface AddSimpleToCartResponse {
+  addSimpleProductsToCart: {
+    cart: { total_quantity: number };
+  };
+}
+
 // ============================================================================
 // PUBLIC INPUT TYPE
 // ============================================================================
@@ -429,9 +441,10 @@ export function placeOrderGuestScenario(
     if (!addedToCart) throw new Error('Failed to add product to cart');
 
     // ── Step 4: Set guest email ──────────────────────────────────────────────
-    group('4 – Set Guest Email', () =>
+    const emailSet = group('4 – Set Guest Email', () =>
       setGuestEmail(gqlClient, cartId, email)
     );
+    if (!emailSet) throw new Error('Failed to set guest email on cart');
 
     // ── Step 5: Set shipping address → get available methods ─────────────────
     const shippingMethods = group('5 – Set Shipping Address', () =>
@@ -594,7 +607,7 @@ function addConfigurableToCart(
   siteId: string
 ): boolean {
   const { result: response, duration } = measureTime(() =>
-    client.mutate(ADD_CONFIGURABLE_TO_CART, {
+    client.mutate<AddConfigurableToCartResponse>(ADD_CONFIGURABLE_TO_CART, {
       cartId, parentSku, variantSku, qty,
     }, { tags: { operation: 'addConfigurableProductsToCart', site: siteId } })
   );
@@ -608,8 +621,7 @@ function addConfigurableToCart(
     return false;
   }
 
-  const data = (response as { data?: { addConfigurableProductsToCart?: { cart?: { total_quantity?: number } } } }).data;
-  const totalQty = data?.addConfigurableProductsToCart?.cart?.total_quantity ?? 0;
+  const totalQty = response.data?.addConfigurableProductsToCart?.cart?.total_quantity ?? 0;
   check(totalQty, { 'Cart has items after add': (q) => q > 0 });
 
   logger.debug(`Added configurable product to cart | parent: ${parentSku} variant: ${variantSku} qty: ${qty}`);
@@ -625,7 +637,7 @@ function addSimpleToCart(
   siteId: string
 ): boolean {
   const { result: response, duration } = measureTime(() =>
-    client.mutate(ADD_SIMPLE_TO_CART, { cartId, sku, qty }, {
+    client.mutate<AddSimpleToCartResponse>(ADD_SIMPLE_TO_CART, { cartId, sku, qty }, {
       tags: { operation: 'addSimpleProductsToCart', site: siteId },
     })
   );
@@ -639,16 +651,15 @@ function addSimpleToCart(
     return false;
   }
 
-  const data = (response as { data?: { addSimpleProductsToCart?: { cart?: { total_quantity?: number } } } }).data;
-  const totalQty = data?.addSimpleProductsToCart?.cart?.total_quantity ?? 0;
+  const totalQty = response.data?.addSimpleProductsToCart?.cart?.total_quantity ?? 0;
   check(totalQty, { 'Cart has items after add': (q) => q > 0 });
 
   logger.debug(`Added simple product to cart | sku: ${sku} qty: ${qty}`);
   return totalQty > 0;
 }
 
-/** Set guest email on the cart */
-function setGuestEmail(client: GraphQLClient, cartId: string, email: string): void {
+/** Set guest email on the cart. Returns false if the mutation fails. */
+function setGuestEmail(client: GraphQLClient, cartId: string, email: string): boolean {
   const response = client.mutate(
     SET_GUEST_EMAIL,
     { cartId, email },
@@ -656,10 +667,12 @@ function setGuestEmail(client: GraphQLClient, cartId: string, email: string): vo
   );
 
   if (!checkGraphQLResponse(response)) {
-    logger.warn(`setGuestEmailOnCart failed – continuing anyway`);
-  } else {
-    logger.debug(`Guest email set: ${email}`);
+    logger.error(`setGuestEmailOnCart failed: ${response.errors?.[0]?.message ?? 'unknown'}`);
+    return false;
   }
+
+  logger.debug(`Guest email set: ${email}`);
+  return true;
 }
 
 /**

@@ -133,16 +133,19 @@ export const customThresholds = {
 // METRIC RECORDING HELPERS
 // ============================================================================
 
+/** Valid scenario names for recordScenarioMetrics */
+export type ScenarioName = 'login' | 'pdp' | 'plp' | 'addToCart' | 'checkout' | 'placeOrder';
+
 /**
  * Record scenario execution metrics
- * 
+ *
  * @param scenario - Scenario name
  * @param duration - Execution duration in ms
  * @param success - Whether scenario succeeded
  * @param tags - Additional tags
  */
 export function recordScenarioMetrics(
-  scenario: string,
+  scenario: ScenarioName,
   duration: number,
   success: boolean,
   tags: Record<string, string> = {}

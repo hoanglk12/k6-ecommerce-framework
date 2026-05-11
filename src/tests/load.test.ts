@@ -13,6 +13,7 @@
 
 import { check, group } from 'k6';
 import { Options } from 'k6/options';
+import { SharedArray } from 'k6/data';
 import exec from 'k6/execution';
 // @ts-expect-error - k6 remote module import
 import { randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
@@ -93,48 +94,33 @@ export const options: Options = {
 // TEST DATA
 // ============================================================================
 
-// Products data - Real SKUs discovered from sites
+/** Products loaded from src/data/products-platypus.json (shared across all VUs) */
+const PLATYPUS_PRODUCTS = new SharedArray('platypus-products', function () {
+  const raw = JSON.parse(open('../data/products-platypus.json')) as { data: TestProduct[] };
+  return raw.data;
+});
+
+/** Products loaded from src/data/products-skechers.json (shared across all VUs) */
+const SKECHERS_PRODUCTS = new SharedArray('skechers-products', function () {
+  const raw = JSON.parse(open('../data/products-skechers.json')) as { data: TestProduct[] };
+  return raw.data;
+});
+
+/** Sites that have no real product data file yet */
+const PLACEHOLDER_PRODUCTS: TestProduct[] = [
+  { id: '1', sku: 'PLACEHOLDER-SKU', productType: 'configurable' },
+];
+
+/** Map site ID → product list */
 const PRODUCTS: Record<string, TestProduct[]> = {
-  'platypus-au': [
-    // All ConfigurableProducts from Platypus AU
-    { id: '1', sku: 'ADYS400073-062.BLK', productType: 'configurable' },
-    { id: '2', sku: '26422322.PNK', productType: 'configurable' },
-    { id: '3', sku: '300660XKSK.BLK', productType: 'configurable' },
-    { id: '4', sku: '27875001.BLK', productType: 'configurable' },
-    { id: '5', sku: 'ADYS400094XKWR.BLK', productType: 'configurable' },
-  ],
-  'platypus-nz': [
-    // Platypus NZ products (to be discovered)
-    { id: '1', sku: 'ADYS400073-062.BLK', productType: 'configurable' },
-  ],
-  'skechers-au': [
-    // Real products discovered from Skechers AU staging site
-    { id: '1', sku: '894130.BLK', productType: 'configurable' }, // Work Athletic Composite Toe Safety Shoe
-    { id: '2', sku: '136451.NAT', productType: 'configurable' }, // Skechers On-The-Go Flex - Embark
-    { id: '3', sku: '136451.NVY', productType: 'configurable' }, // Skechers On-The-Go Flex - Embark
-    { id: '4', sku: '76536.BBK', productType: 'configurable' }, // Work Sure Track
-    { id: '5', sku: '124806.NVY', productType: 'configurable' }, // Skechers GOwalk Glide-Step Flex
-  ],
-  'skechers-nz': [
-    // Skechers NZ products (to be discovered)
-    { id: '1', sku: '114343-101.101', productType: 'configurable' },
-  ],
-  'drmartens-au': [
-    // Dr Martens AU products (to be discovered)
-    { id: '1', sku: 'PLACEHOLDER-SKU', productType: 'configurable' },
-  ],
-  'drmartens-nz': [
-    // Dr Martens NZ products (to be discovered)
-    { id: '1', sku: 'PLACEHOLDER-SKU', productType: 'configurable' },
-  ],
-  'vans-au': [
-    // Vans AU products (to be discovered)
-    { id: '1', sku: 'PLACEHOLDER-SKU', productType: 'configurable' },
-  ],
-  'vans-nz': [
-    // Vans NZ products (to be discovered)
-    { id: '1', sku: 'PLACEHOLDER-SKU', productType: 'configurable' },
-  ],
+  'platypus-au': PLATYPUS_PRODUCTS as unknown as TestProduct[],
+  'platypus-nz': PLATYPUS_PRODUCTS as unknown as TestProduct[],
+  'skechers-au':  SKECHERS_PRODUCTS as unknown as TestProduct[],
+  'skechers-nz':  SKECHERS_PRODUCTS as unknown as TestProduct[],
+  'drmartens-au': PLACEHOLDER_PRODUCTS,
+  'drmartens-nz': PLACEHOLDER_PRODUCTS,
+  'vans-au':      PLACEHOLDER_PRODUCTS,
+  'vans-nz':      PLACEHOLDER_PRODUCTS,
 };
 
 /** Sites whose product list still contains placeholder SKUs */
