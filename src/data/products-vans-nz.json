@@ -1,0 +1,16 @@
+{
+  "description": "Vans NZ products for load and checkout testing",
+  "site": "vans-nz",
+  "note": "VN000CR5FS8.WHT excluded: NZ store Varnish cache intermittently returns 0 in-stock variants for this SKU via k6 HTTP client (direct API: 7 variants). Use VN-0D3HW00.WHT instead.",
+  "lastUpdated": "2026-05-12",
+  "data": [
+    { "id": "vans-nz-001", "sku": "VN-0D3HW00.WHT",  "productType": "configurable" },
+    { "id": "vans-nz-002", "sku": "VN-0EE3BLK.BLK",  "productType": "configurable" },
+    { "id": "vans-nz-003", "sku": "VN-0EE3W00.WHT",  "productType": "configurable" },
+    { "id": "vans-nz-004", "sku": "VN-0EYEBWW.BKW",  "productType": "configurable" },
+    { "id": "vans-nz-005", "sku": "VNA38HBP0S.BLK",  "productType": "configurable" },
+    { "id": "vans-nz-006", "sku": "VNA38HBP0S.BLK",  "productType": "configurable" },
+    { "id": "vans-nz-007", "sku": "VN000D83CCZ.WHT", "productType": "configurable" },
+    { "id": "vans-nz-008", "sku": "VNA4UUK6BT.BLK",  "productType": "configurable" }
+  ]
+}

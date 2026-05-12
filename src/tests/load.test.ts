@@ -1,33 +1,31 @@
 /**
  * Load Test - PDP Scenario Only
- * 
- * Simplified load test focusing on Product Detail Page (PDP) browsing.
- * Tests average load (200 req/min) and peak load (500 req/min) scenarios.
- * 
+ *
+ * Validates average load (200 req/min) and peak load (500 req/min) against the
+ * Product Detail Page GraphQL query using a guaranteed arrival-rate executor.
+ *
  * Usage:
  *   k6 run dist/tests/load.test.js
  *   k6 run --out dashboard dist/tests/load.test.js
- *   k6 run --env SITE=platypus dist/tests/load.test.js
- *   k6 run --env SITE=skechers dist/tests/load.test.js
+ *   k6 run --env SITE=platypus-au dist/tests/load.test.js
+ *   k6 run --env SITE=skechers-au dist/tests/load.test.js
  */
 
-import { check, group } from 'k6';
+import { check, fail, group } from 'k6';
 import { Options } from 'k6/options';
-import { SharedArray } from 'k6/data';
 import exec from 'k6/execution';
-// @ts-expect-error - k6 remote module import
-import { randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
 // Import framework modules
 import { GraphQLClient } from '../lib/graphql-client';
 import { createLogger } from '../lib/logger';
 import { thinkTime } from '../lib/utils';
 import { customThresholds } from '../lib/metrics';
+import { getProductProviderForSite, DataProvider } from '../lib/data-provider';
 
 // Import configuration
-import { 
-  getSiteConfig, 
-  getEnvironmentConfig, 
+import {
+  getSiteConfig,
+  getEnvironmentConfig,
   isDryRun,
   isProduction,
 } from '../config';
@@ -41,94 +39,84 @@ import { TestProduct, SiteConfig } from '../types';
 const logger = createLogger('LoadTest');
 
 // ============================================================================
-// TEST CONFIGURATION
+// TEST CONFIGURATION — arrival-rate executor guarantees throughput targets
+// regardless of response time, preventing the silent RPS collapse that occurs
+// with ramping-vus when the system under test gets slow.
+//
+// Set QUICK_TEST=true to run a 30-second smoke pass (2 VUs, 5 req/min).
 // ============================================================================
 
-/**
- * k6 Options for Load Test - PDP Only
- * 
- * Stages:
- * 1. Ramp-up: 0 -> 50 VUs over 2 minutes
- * 2. Average load: 50 VUs for 5 minutes (~200 req/min)
- * 3. Ramp to peak: 50 -> 100 VUs over 2 minutes
- * 4. Peak load: 100 VUs for 5 minutes (~500 req/min)
- * 5. Ramp-down: 100 -> 0 VUs over 2 minutes
- */
+const isQuickTest = __ENV.QUICK_TEST === 'true';
+
 export const options: Options = {
-  stages: [
-    { duration: '2m', target: 50 },   // Ramp-up
-    { duration: '5m', target: 50 },   // Average load
-    { duration: '2m', target: 100 },  // Ramp to peak
-    { duration: '5m', target: 100 },  // Peak load
-    { duration: '2m', target: 0 },    // Ramp-down
-  ],
-  
-  // Performance thresholds
+  scenarios: isQuickTest ? {
+    pdp_smoke: {
+      executor: 'constant-arrival-rate',
+      rate: 5,
+      timeUnit: '1m',
+      duration: '30s',
+      preAllocatedVUs: 2,
+      maxVUs: 5,
+    },
+  } : {
+    pdp_load: {
+      executor: 'ramping-arrival-rate',
+      startRate: 0,
+      timeUnit: '1m',
+      preAllocatedVUs: 50,
+      maxVUs: 150,
+      stages: [
+        { duration: '2m', target: 200 },  // ramp to 200 req/min
+        { duration: '5m', target: 200 },  // average load
+        { duration: '2m', target: 500 },  // ramp to peak
+        { duration: '5m', target: 500 },  // peak load
+        { duration: '2m', target: 0 },    // ramp-down
+      ],
+    },
+  },
+
   thresholds: {
-    // HTTP metrics
     'http_req_duration': ['p(95)<800', 'p(99)<2000'],
     'http_req_failed': ['rate<0.01'],
     'http_req_waiting': ['p(95)<600'],
-    
-    // GraphQL metrics
+
     'graphql_errors': ['rate<0.01'],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
-    
-    // Scenario metrics — sourced from customThresholds for consistency
+
     'scenario_pdp_success': customThresholds['scenario_pdp_success'],
     'scenario_pdp_duration': customThresholds['scenario_pdp_duration'],
   },
-  
-  // Tags
+
   tags: {
     testType: 'load',
     scenario: 'pdp',
   },
-  
-  // Connection settings
+
   noConnectionReuse: false,
   userAgent: 'k6-load-test-pdp/1.0',
 };
 
 // ============================================================================
-// TEST DATA
+// TEST DATA — product providers created at module scope (init context),
+// one DataProvider instance per VU. SharedArray memory is shared across all VUs.
 // ============================================================================
 
-/** Products loaded from src/data/products-platypus.json (shared across all VUs) */
-const PLATYPUS_PRODUCTS = new SharedArray('platypus-products', function () {
-  const raw = JSON.parse(open('../data/products-platypus.json')) as { data: TestProduct[] };
-  return raw.data;
-});
+const _platypusProvider  = getProductProviderForSite('platypus-au',  'random');
+const _skechersProvider  = getProductProviderForSite('skechers-au',  'random');
+const _drmartensProvider = getProductProviderForSite('drmartens-au', 'random');
+const _vansAuProvider    = getProductProviderForSite('vans-au',       'random');
+const _vansNzProvider    = getProductProviderForSite('vans-nz',       'random');
 
-/** Products loaded from src/data/products-skechers.json (shared across all VUs) */
-const SKECHERS_PRODUCTS = new SharedArray('skechers-products', function () {
-  const raw = JSON.parse(open('../data/products-skechers.json')) as { data: TestProduct[] };
-  return raw.data;
-});
-
-/** Sites that have no real product data file yet */
-const PLACEHOLDER_PRODUCTS: TestProduct[] = [
-  { id: '1', sku: 'PLACEHOLDER-SKU', productType: 'configurable' },
-];
-
-/** Map site ID → product list */
-const PRODUCTS: Record<string, TestProduct[]> = {
-  'platypus-au': PLATYPUS_PRODUCTS as unknown as TestProduct[],
-  'platypus-nz': PLATYPUS_PRODUCTS as unknown as TestProduct[],
-  'skechers-au':  SKECHERS_PRODUCTS as unknown as TestProduct[],
-  'skechers-nz':  SKECHERS_PRODUCTS as unknown as TestProduct[],
-  'drmartens-au': PLACEHOLDER_PRODUCTS,
-  'drmartens-nz': PLACEHOLDER_PRODUCTS,
-  'vans-au':      PLACEHOLDER_PRODUCTS,
-  'vans-nz':      PLACEHOLDER_PRODUCTS,
+const SITE_PROVIDERS: Record<string, DataProvider<TestProduct>> = {
+  'platypus-au':  _platypusProvider,
+  'platypus-nz':  _platypusProvider,
+  'skechers-au':  _skechersProvider,
+  'skechers-nz':  _skechersProvider,
+  'drmartens-au': _drmartensProvider,
+  'drmartens-nz': _drmartensProvider,
+  'vans-au':      _vansAuProvider,
+  'vans-nz':      _vansNzProvider,
 };
-
-/** Sites whose product list still contains placeholder SKUs */
-const SITES_WITH_PLACEHOLDERS = new Set(
-  Object.entries(PRODUCTS)
-    .filter(([, products]) => products.some(p => p.sku === 'PLACEHOLDER-SKU'))
-    .map(([siteId]) => siteId)
-);
 
 // ============================================================================
 // MODULE-LEVEL CLIENT (created once per VU, not per iteration)
@@ -142,8 +130,8 @@ const _client = new GraphQLClient(_siteConfig);
 // ============================================================================
 
 function getRandomProduct(siteId: string): TestProduct {
-  const products = PRODUCTS[siteId] || PRODUCTS['platypus-au'];
-  return randomItem(products) as TestProduct;
+  const provider = SITE_PROVIDERS[siteId] ?? SITE_PROVIDERS['platypus-au'];
+  return provider.getNext();
 }
 
 // ============================================================================
@@ -157,22 +145,33 @@ interface SetupData {
 
 export function setup(): SetupData {
   logger.info('=== Load Test Setup - PDP Only ===');
-  
+
   const siteConfig = getSiteConfig();
   const envConfig = getEnvironmentConfig();
-  
+
   logger.info(`Site: ${siteConfig.name}`);
   logger.info(`GraphQL Endpoint: ${siteConfig.graphqlEndpoint}`);
   logger.info(`Environment: ${envConfig.environment}`);
   logger.info(`Is Production: ${isProduction()}`);
   logger.info(`Dry Run: ${isDryRun()}`);
-  
-  // Production safety check
+
+  // Fail fast: placeholder SKUs must be replaced before running a load test
+  const provider = SITE_PROVIDERS[siteConfig.id];
+  if (provider) {
+    const sample = provider.getNext();
+    if (sample.sku === 'PLACEHOLDER-SKU') {
+      fail(
+        `Site '${siteConfig.id}' has PLACEHOLDER-SKU entries. ` +
+        `Run product discovery first: k6 run --env SITE=${siteConfig.id} dist/discover-products.js`
+      );
+    }
+  }
+
   if (isProduction()) {
     logger.warn('⚠️  Running load test against PRODUCTION');
     logger.warn('⚠️  Ensure this is authorized and monitored');
   }
-  
+
   return {
     siteConfig,
     siteId: siteConfig.id,
@@ -183,46 +182,34 @@ export function setup(): SetupData {
 // DEFAULT FUNCTION (MAIN TEST)
 // ============================================================================
 
-/**
- * Main test function - PDP browsing scenario
- */
 export default function(data: SetupData): void {
   const { siteConfig, siteId } = data;
   const envConfig = getEnvironmentConfig();
   const vuId = exec.vu.idInTest;
   const iteration = exec.vu.iterationInScenario;
 
-  // Guard: skip sites with unresolved placeholder SKUs
-  if (SITES_WITH_PLACEHOLDERS.has(siteId)) {
-    logger.warn(`⚠️  Site '${siteId}' has PLACEHOLDER-SKU entries — run the product discovery script first`);
-    return;
-  }
-
-  // Get a random product
   const product = getRandomProduct(siteId);
-  
+
   logger.debug(`VU ${vuId} - Iteration ${iteration} - Loading PDP: ${product.sku}`);
-  
-  // Execute PDP scenario (reuses module-level client — created once per VU)
+
   group('PDP Load', () => {
     const { result, product: loadedProduct } = pdpScenario(
       { sku: product.sku },
       _client,
       siteConfig
     );
-    
+
     check(result, {
       'PDP load successful': (r) => r.success,
       'Product data retrieved': () => loadedProduct !== null,
       'Has product SKU': () => loadedProduct?.sku === product.sku,
     });
-    
+
     if (!result.success) {
       logger.error(`PDP load failed for ${product.sku}: ${result.error ?? 'Unknown error'}`);
     }
   });
-  
-  // Simulate user browsing/reading time
+
   thinkTime(envConfig);
 }
 
