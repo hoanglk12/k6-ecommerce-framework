@@ -46,34 +46,6 @@ const logger = createLogger('LoadTest');
 // Set QUICK_TEST=true to run a 30-second smoke pass (2 VUs, 5 req/min).
 // ============================================================================
 
-<<<<<<< HEAD
-/**
- * k6 Options for Load Test - PDP Only
- *
- * Scenario stages (pdp_browse):
- * 1. Ramp-up: 0 -> 50 VUs over 2 minutes
- * 2. Average load: 50 VUs for 5 minutes (~200 req/min)
- * 3. Ramp to peak: 50 -> 100 VUs over 2 minutes
- * 4. Peak load: 100 VUs for 5 minutes (~500 req/min)
- * 5. Ramp-down: 100 -> 0 VUs over 2 minutes
- */
-export const options: Options = {
-  scenarios: {
-    pdp_browse: {
-      executor: 'ramping-vus',
-      stages: [
-        { duration: '2m', target: 50 },   // Ramp-up
-        { duration: '5m', target: 50 },   // Average load
-        { duration: '2m', target: 100 },  // Ramp to peak
-        { duration: '5m', target: 100 },  // Peak load
-        { duration: '2m', target: 0 },    // Ramp-down
-      ],
-      gracefulRampDown: '30s',
-    },
-  },
-
-  // Performance thresholds
-=======
 const isQuickTest = __ENV.QUICK_TEST === 'true';
 
 export const options: Options = {
@@ -102,41 +74,22 @@ export const options: Options = {
       ],
     },
   },
-
->>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
   thresholds: {
     'http_req_duration': ['p(95)<800', 'p(99)<2000'],
     'http_req_failed': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'http_req_waiting': ['p(95)<600'],
 
-<<<<<<< HEAD
-    // GraphQL metrics
     'graphql_errors': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
-
-    // Scenario metrics — sourced from customThresholds for consistency
-=======
-    'graphql_errors': ['rate<0.01'],
-    'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
-
->>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
     'scenario_pdp_success': customThresholds['scenario_pdp_success'],
     'scenario_pdp_duration': customThresholds['scenario_pdp_duration'],
   },
 
-<<<<<<< HEAD
-  // Tags
-=======
->>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
   tags: {
     testType: 'load',
     scenario: 'pdp',
   },
 
-<<<<<<< HEAD
-  // Connection settings
-=======
->>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
   noConnectionReuse: false,
   userAgent: 'k6-load-test-pdp/1.0',
 };

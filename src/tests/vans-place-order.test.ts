@@ -73,31 +73,14 @@ const logger = createLogger('VansPlaceOrderTest');
 /**
  * k6 Options – conservative arrival rate to avoid flooding staging with orders.
  *
-<<<<<<< HEAD
- * Scenario stages (guest_checkout):
- *  1. Warm-up   :  0 →  5 VUs over  1 min
- *  2. Steady    :  5 VUs for  8 min  (~5–10 orders/min)
- *  3. Ramp-down :  5 →  0 VUs over  1 min
-=======
  * ramping-arrival-rate guarantees exactly N orders/min regardless of how long
  * each checkout takes. With the old ramping-vus approach, a slow staging server
  * would silently reduce throughput, masking the actual breaking point.
->>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
  *
  * Total runtime ≈ 10 minutes.
  */
 export const options: Options = {
   scenarios: {
-<<<<<<< HEAD
-    guest_checkout: {
-      executor: 'ramping-vus',
-      stages: [
-        { duration: '1m', target: 5 },   // warm-up
-        { duration: '8m', target: 5 },   // steady state
-        { duration: '1m', target: 0 },   // ramp-down
-      ],
-      gracefulRampDown: '30s',
-=======
     vans_place_order: {
       executor: 'ramping-arrival-rate',
       startRate: 0,
@@ -109,7 +92,6 @@ export const options: Options = {
         { duration: '8m', target: 5 },   // steady: 5 orders/min
         { duration: '1m', target: 0 },   // ramp-down
       ],
->>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
     },
   },
 
