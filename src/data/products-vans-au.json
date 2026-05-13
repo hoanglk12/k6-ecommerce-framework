@@ -1,0 +1,15 @@
+{
+  "description": "Vans AU products for load and checkout testing",
+  "site": "vans-au",
+  "lastUpdated": "2026-05-12",
+  "data": [
+    { "id": "vans-au-001", "sku": "VN000CR5FS8.WHT", "productType": "configurable" },
+    { "id": "vans-au-002", "sku": "VN-0EE3BLK.BLK",  "productType": "configurable" },
+    { "id": "vans-au-003", "sku": "VN-0EE3W00.WHT",  "productType": "configurable" },
+    { "id": "vans-au-004", "sku": "VN-0EYEBWW.BKW",  "productType": "configurable" },
+    { "id": "vans-au-005", "sku": "VN-0D3HW00.WHT",  "productType": "configurable" },
+    { "id": "vans-au-006", "sku": "VNA38HBP0S.BLK",  "productType": "configurable" },
+    { "id": "vans-au-007", "sku": "VN000D83CCZ.WHT", "productType": "configurable" },
+    { "id": "vans-au-008", "sku": "VNA4UUK6BT.BLK",  "productType": "configurable" }
+  ]
+}

@@ -42,6 +42,8 @@ import exec from 'k6/execution';
 // @ts-expect-error - k6 remote module import
 import { randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
+import { getProductProviderForSite } from '../lib/data-provider';
+
 // Framework modules
 import { GraphQLClient } from '../lib/graphql-client';
 import { createLogger } from '../lib/logger';
@@ -69,17 +71,24 @@ const logger = createLogger('VansPlaceOrderTest');
 // ============================================================================
 
 /**
- * k6 Options – conservative VU count to avoid flooding staging with orders.
+ * k6 Options – conservative arrival rate to avoid flooding staging with orders.
  *
+<<<<<<< HEAD
  * Scenario stages (guest_checkout):
  *  1. Warm-up   :  0 →  5 VUs over  1 min
  *  2. Steady    :  5 VUs for  8 min  (~5–10 orders/min)
  *  3. Ramp-down :  5 →  0 VUs over  1 min
+=======
+ * ramping-arrival-rate guarantees exactly N orders/min regardless of how long
+ * each checkout takes. With the old ramping-vus approach, a slow staging server
+ * would silently reduce throughput, masking the actual breaking point.
+>>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
  *
  * Total runtime ≈ 10 minutes.
  */
 export const options: Options = {
   scenarios: {
+<<<<<<< HEAD
     guest_checkout: {
       executor: 'ramping-vus',
       stages: [
@@ -88,6 +97,19 @@ export const options: Options = {
         { duration: '1m', target: 0 },   // ramp-down
       ],
       gracefulRampDown: '30s',
+=======
+    vans_place_order: {
+      executor: 'ramping-arrival-rate',
+      startRate: 0,
+      timeUnit: '1m',
+      preAllocatedVUs: 5,
+      maxVUs: 15,
+      stages: [
+        { duration: '1m', target: 5 },   // warm-up: ramp to 5/min
+        { duration: '8m', target: 5 },   // steady: 5 orders/min
+        { duration: '1m', target: 0 },   // ramp-down
+      ],
+>>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
     },
   },
 
@@ -129,51 +151,12 @@ export const options: Options = {
 };
 
 // ============================================================================
-// TEST DATA
+// TEST DATA — product providers created at module scope (init context).
+// SKU lists live in src/data/products-vans-{au,nz}.json.
 // ============================================================================
 
-/**
- * Vans product catalogue for both AU and NZ.
- *
- * STATUS: placeholder SKUs – run product discovery to replace these.
- *   k6 run  --env SITE=vans-au  dist/discover-products.js
- *   k6 run  --env SITE=vans-nz  dist/discover-products.js
- *
- * Once real SKUs are known, update the entries below.
- * All listed products should be ConfigurableProducts.
- */
-const VANS_PRODUCTS: Record<string, TestProduct[]> = {
-  'vans-au': [
-    { id: 'vans-au-001', sku: 'VN000CR5FS8.WHT', productType: 'configurable' }, // Old Skool (7 variants)
-    { id: 'vans-au-002', sku: 'VN-0EE3BLK.BLK',  productType: 'configurable' }, // Authentic (5 variants)
-    { id: 'vans-au-003', sku: 'VN-0EE3W00.WHT',  productType: 'configurable' }, // Authentic (6 variants)
-    { id: 'vans-au-004', sku: 'VN-0EYEBWW.BKW',  productType: 'configurable' }, // Classic Slip-On (6 variants)
-    { id: 'vans-au-005', sku: 'VN-0D3HW00.WHT',  productType: 'configurable' }, // Old Skool (6 variants)
-    { id: 'vans-au-006', sku: 'VNA38HBP0S.BLK',  productType: 'configurable' }, // Kids Old Skool (6 variants)
-    { id: 'vans-au-007', sku: 'VN000D83CCZ.WHT', productType: 'configurable' }, // Super Lowpro (5 variants)
-    { id: 'vans-au-008', sku: 'VNA4UUK6BT.BLK',  productType: 'configurable' }, // Sk8-Low (3 variants)
-  ],
-  'vans-nz': [
-    // VN000CR5FS8.WHT excluded: NZ store Varnish cache intermittently returns
-    // 0 in-stock variants for this SKU via k6 HTTP client (direct API: 7 variants).
-    // Use VN-0D3HW00.WHT (Old Skool, confirmed working end-to-end on NZ) instead.
-    { id: 'vans-nz-001', sku: 'VN-0D3HW00.WHT',  productType: 'configurable' }, // Old Skool (6 variants)
-    { id: 'vans-nz-002', sku: 'VN-0EE3BLK.BLK',  productType: 'configurable' }, // Authentic (5 variants)
-    { id: 'vans-nz-003', sku: 'VN-0EE3W00.WHT',  productType: 'configurable' }, // Authentic (6 variants)
-    { id: 'vans-nz-004', sku: 'VN-0EYEBWW.BKW',  productType: 'configurable' }, // Classic Slip-On (6 variants)
-    { id: 'vans-nz-005', sku: 'VNA38HBP0S.BLK',  productType: 'configurable' }, // Kids Old Skool (6 variants)
-    { id: 'vans-nz-006', sku: 'VNA38HBP0S.BLK',  productType: 'configurable' }, // Kids Old Skool (6 variants) – dup for weight
-    { id: 'vans-nz-007', sku: 'VN000D83CCZ.WHT', productType: 'configurable' }, // Super Lowpro (5 variants)
-    { id: 'vans-nz-008', sku: 'VNA4UUK6BT.BLK',  productType: 'configurable' }, // Sk8-Low (3 variants)
-  ],
-};
-
-/** Sites whose product list still contains placeholder SKUs */
-const SITES_WITH_PLACEHOLDERS = new Set(
-  Object.entries(VANS_PRODUCTS)
-    .filter(([, products]) => products.some(p => p.sku === 'PLACEHOLDER-SKU'))
-    .map(([siteId]) => siteId)
-);
+const _vansAuProvider = getProductProviderForSite('vans-au', 'random');
+const _vansNzProvider = getProductProviderForSite('vans-nz', 'random');
 
 /** Australian test addresses loaded from data file */
 const AU_ADDRESSES = new SharedArray('au-addresses', function () {
@@ -202,10 +185,9 @@ const _client     = new GraphQLClient(_siteConfig);
 // HELPERS
 // ============================================================================
 
-/** Pick a random product for the given site */
+/** Pick a random product for the given Vans site */
 function getRandomProduct(siteId: string): TestProduct {
-  const pool = VANS_PRODUCTS[siteId] ?? VANS_PRODUCTS['vans-au'];
-  return randomItem(pool) as TestProduct;
+  return siteId === 'vans-nz' ? _vansNzProvider.getNext() : _vansAuProvider.getNext();
 }
 
 /** Choose the address pool that matches the site's country */
@@ -271,12 +253,6 @@ export function setup(): SetupData {
       + `Set --env SITE=vans-au or --env SITE=vans-nz.`);
   }
 
-  // Warn if SKUs are still placeholder
-  if (SITES_WITH_PLACEHOLDERS.has(siteConfig.id)) {
-    logger.warn(`⚠️  Site '${siteConfig.id}' has PLACEHOLDER-SKU entries.`);
-    logger.warn(`⚠️  Run product discovery first: k6 run --env SITE=${siteConfig.id} dist/discover-products.js`);
-  }
-
   if (!enablePlaceOrder) {
     logger.warn('⚠️  ENABLE_PLACE_ORDER is not set – iterations will be skipped.');
     logger.warn('⚠️  Set --env ENABLE_PLACE_ORDER=true to run actual checkout.');
@@ -301,12 +277,6 @@ export default function (data: SetupData): void {
   const envConfig  = getEnvironmentConfig();
   const vuId       = exec.vu.idInTest;
   const iteration  = exec.vu.iterationInScenario;
-
-  // ── Guard: placeholder SKUs ──────────────────────────────────────────────
-  if (SITES_WITH_PLACEHOLDERS.has(siteId)) {
-    logger.warn(`⚠️  VU ${vuId} – Site '${siteId}' has PLACEHOLDER-SKU – skipping iteration ${iteration}`);
-    return;
-  }
 
   // ── Guard: place-order not opted in ─────────────────────────────────────
   if (!enablePlaceOrder && !isDryRun()) {

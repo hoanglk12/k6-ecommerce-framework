@@ -49,6 +49,7 @@ const logger = createLogger('PLPLoadTest');
 /**
  * k6 Options for PLP Load Test
  *
+<<<<<<< HEAD
  * Scenario stages (plp_browse):
  * 1. Ramp-up: 0 → 50 VUs over 2 min
  * 2. Average load: 50 VUs for 5 min  (~200 req/min)
@@ -68,6 +69,28 @@ export const options: Options = {
         { duration: '2m', target: 0 },
       ],
       gracefulRampDown: '30s',
+=======
+ * Uses ramping-arrival-rate to guarantee target throughput regardless of
+ * response time. With ramping-vus, RPS silently drops when the system gets
+ * slow — arrival-rate keeps the load constant so latency degradation is
+ * visible in metrics rather than hidden behind VU starvation.
+ */
+export const options: Options = {
+  scenarios: {
+    plp_load: {
+      executor: 'ramping-arrival-rate',
+      startRate: 0,
+      timeUnit: '1m',
+      preAllocatedVUs: 50,
+      maxVUs: 150,
+      stages: [
+        { duration: '2m', target: 200 },  // ramp to 200 req/min
+        { duration: '5m', target: 200 },  // average load
+        { duration: '2m', target: 500 },  // ramp to peak
+        { duration: '5m', target: 500 },  // peak load
+        { duration: '2m', target: 0 },    // ramp-down
+      ],
+>>>>>>> 31efe8b5bd56c10dc786501de8a54d9ff6054ea0
     },
   },
 

@@ -1,0 +1,9 @@
+{
+  "description": "Dr Martens products — PLACEHOLDER. Run product discovery before use.",
+  "site": "drmartens",
+  "note": "Run product discovery to populate real SKUs: k6 run --env SITE=drmartens-au dist/discover-products.js",
+  "lastUpdated": "2026-05-12",
+  "data": [
+    { "id": "drm-001", "sku": "PLACEHOLDER-SKU", "productType": "configurable" }
+  ]
+}

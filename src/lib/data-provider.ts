@@ -24,21 +24,34 @@ const logger = createLogger('DataProvider');
 // DATA FILE PATHS
 // ============================================================================
 
+/** Brand key used to look up product data files. vans-au/nz are site-specific
+ *  because their product catalogues differ between countries. */
+export type ProductSite = 'platypus' | 'skechers' | 'drmartens' | 'vans-au' | 'vans-nz';
+
+/** Maps the full 8-character site ID to the product data key. */
+const SITE_TO_PRODUCT_KEY: Record<string, ProductSite> = {
+  'platypus-au':  'platypus',
+  'platypus-nz':  'platypus',
+  'skechers-au':  'skechers',
+  'skechers-nz':  'skechers',
+  'drmartens-au': 'drmartens',
+  'drmartens-nz': 'drmartens',
+  'vans-au':      'vans-au',
+  'vans-nz':      'vans-nz',
+};
+
 const DATA_PATHS = {
   users: {
     csv: '../data/users.csv',
     json: '../data/users.json',
   },
   products: {
-    platypus: {
-      csv: '../data/products-platypus.csv',
-      json: '../data/products-platypus.json',
-    },
-    skechers: {
-      csv: '../data/products-skechers.csv',
-      json: '../data/products-skechers.json',
-    },
-  },
+    platypus:  { json: '../data/products-platypus.json', csv: '../data/products-platypus.csv' },
+    skechers:  { json: '../data/products-skechers.json', csv: '../data/products-skechers.csv' },
+    drmartens: { json: '../data/products-drmartens.json' },
+    'vans-au': { json: '../data/products-vans-au.json' },
+    'vans-nz': { json: '../data/products-vans-nz.json' },
+  } as Record<ProductSite, { json: string; csv?: string }>,
   addresses: {
     csv: '../data/addresses.csv',
     json: '../data/addresses.json',
@@ -259,16 +272,32 @@ export class DataProvider<T> {
 // SPECIALIZED DATA PROVIDERS
 // ============================================================================
 
-// Lazy-loaded data providers using SharedArray
+// Lazy-loaded SharedArray data — one entry per product key, shared across VUs
+const _productCache: Partial<Record<ProductSite, TestProduct[]>> = {};
 let _usersData: TestUser[] | null = null;
-let _productsDataPlatypus: TestProduct[] | null = null;
-let _productsDataSkechers: TestProduct[] | null = null;
 let _addressesData: TestAddress[] | null = null;
+
+function loadProductData(key: ProductSite): TestProduct[] {
+  if (!_productCache[key]) {
+    const paths = DATA_PATHS.products[key];
+    try {
+      _productCache[key] = loadJSON<TestProduct>(`products-${key}`, paths.json);
+    } catch {
+      if (paths.csv) {
+        logger.warn(`Failed to load ${key} products from JSON, trying CSV`);
+        _productCache[key] = loadCSV<TestProduct>(`products-${key}`, paths.csv);
+      } else {
+        throw new Error(`Failed to load product data for '${key}'`);
+      }
+    }
+  }
+  const data = _productCache[key];
+  if (!data) throw new Error(`Product data for '${key}' unexpectedly missing after load`);
+  return data;
+}
 
 /**
  * Get user data provider
- * 
- * @param strategy - Data rotation strategy
  */
 export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): DataProvider<TestUser> {
   if (!_usersData) {
@@ -283,44 +312,34 @@ export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): 
 }
 
 /**
- * Get product data provider for a specific site
- * 
- * @param site - Site identifier ('platypus' or 'skechers')
- * @param strategy - Data rotation strategy
+ * Get product data provider by product-site key.
+ * For convenience from test files, prefer getProductProviderForSite().
  */
 export function getProductProvider(
-  site: 'platypus' | 'skechers',
+  site: ProductSite,
   strategy: DataRotationStrategy = 'random'
 ): DataProvider<TestProduct> {
-  const paths = DATA_PATHS.products[site];
-  
-  if (site === 'platypus') {
-    if (!_productsDataPlatypus) {
-      try {
-        _productsDataPlatypus = loadJSON<TestProduct>('products-platypus', paths.json);
-      } catch {
-        logger.warn('Failed to load products from JSON, trying CSV');
-        _productsDataPlatypus = loadCSV<TestProduct>('products-platypus', paths.csv);
-      }
-    }
-    return new DataProvider<TestProduct>(_productsDataPlatypus, strategy);
-  } else {
-    if (!_productsDataSkechers) {
-      try {
-        _productsDataSkechers = loadJSON<TestProduct>('products-skechers', paths.json);
-      } catch {
-        logger.warn('Failed to load products from JSON, trying CSV');
-        _productsDataSkechers = loadCSV<TestProduct>('products-skechers', paths.csv);
-      }
-    }
-    return new DataProvider<TestProduct>(_productsDataSkechers, strategy);
+  return new DataProvider<TestProduct>(loadProductData(site), strategy);
+}
+
+/**
+ * Get product data provider using the full 8-site ID (e.g. 'platypus-au', 'vans-nz').
+ * Throws if siteId is not in the supported set.
+ */
+export function getProductProviderForSite(
+  siteId: string,
+  strategy: DataRotationStrategy = 'random'
+): DataProvider<TestProduct> {
+  const key = SITE_TO_PRODUCT_KEY[siteId];
+  if (!key) {
+    const valid = Object.keys(SITE_TO_PRODUCT_KEY).join(', ');
+    throw new Error(`No product data configured for site '${siteId}'. Valid: ${valid}`);
   }
+  return getProductProvider(key, strategy);
 }
 
 /**
  * Get address data provider
- * 
- * @param strategy - Data rotation strategy
  */
 export function getAddressProvider(strategy: DataRotationStrategy = 'random'): DataProvider<TestAddress> {
   if (!_addressesData) {
