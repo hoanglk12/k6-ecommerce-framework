@@ -46,8 +46,8 @@ const logger = createLogger('LoadTest');
 
 /**
  * k6 Options for Load Test - PDP Only
- * 
- * Stages:
+ *
+ * Scenario stages (pdp_browse):
  * 1. Ramp-up: 0 -> 50 VUs over 2 minutes
  * 2. Average load: 50 VUs for 5 minutes (~200 req/min)
  * 3. Ramp to peak: 50 -> 100 VUs over 2 minutes
@@ -55,36 +55,42 @@ const logger = createLogger('LoadTest');
  * 5. Ramp-down: 100 -> 0 VUs over 2 minutes
  */
 export const options: Options = {
-  stages: [
-    { duration: '2m', target: 50 },   // Ramp-up
-    { duration: '5m', target: 50 },   // Average load
-    { duration: '2m', target: 100 },  // Ramp to peak
-    { duration: '5m', target: 100 },  // Peak load
-    { duration: '2m', target: 0 },    // Ramp-down
-  ],
-  
+  scenarios: {
+    pdp_browse: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '2m', target: 50 },   // Ramp-up
+        { duration: '5m', target: 50 },   // Average load
+        { duration: '2m', target: 100 },  // Ramp to peak
+        { duration: '5m', target: 100 },  // Peak load
+        { duration: '2m', target: 0 },    // Ramp-down
+      ],
+      gracefulRampDown: '30s',
+    },
+  },
+
   // Performance thresholds
   thresholds: {
     // HTTP metrics
     'http_req_duration': ['p(95)<800', 'p(99)<2000'],
-    'http_req_failed': ['rate<0.01'],
+    'http_req_failed': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'http_req_waiting': ['p(95)<600'],
-    
+
     // GraphQL metrics
-    'graphql_errors': ['rate<0.01'],
+    'graphql_errors': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
-    
+
     // Scenario metrics — sourced from customThresholds for consistency
     'scenario_pdp_success': customThresholds['scenario_pdp_success'],
     'scenario_pdp_duration': customThresholds['scenario_pdp_duration'],
   },
-  
+
   // Tags
   tags: {
     testType: 'load',
     scenario: 'pdp',
   },
-  
+
   // Connection settings
   noConnectionReuse: false,
   userAgent: 'k6-load-test-pdp/1.0',

@@ -43,13 +43,15 @@ Simulated users that run your script in a loop. They are concurrent but not brow
 
 ### Checks & Thresholds
 
-- **Check**: Boolean assertion (like an assert). Doesn't fail the test, just reports pass/fail % at end.
-- **Threshold**: Pass/Fail criteria for the CI pipeline.
+- **Check**: Boolean assertion that reports pass/fail % in the end-of-test summary. Does not stop the test. Place `check()` calls at the scenario or test layer — not inside library functions — so labels carry scenario context.
+- **Threshold**: Pass/Fail criteria for the CI pipeline. Use the object form on error-rate thresholds so k6 aborts early instead of running for the full duration against a broken system.
 
 ```javascript
 export const options = {
   thresholds: {
-    http_req_duration: ["p(95)<500"], // 95% of requests must complete below 500ms
+    http_req_duration: ['p(95)<500'],
+    // abortOnFail stops the run early; delayAbortEval ignores ramp-up noise
+    http_req_failed: [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
   },
 };
 ```
@@ -58,12 +60,14 @@ export const options = {
 
 **Do**:
 
+- **Use the scenarios API**: Always define `scenarios: { ... }` in options rather than top-level `stages`. The `stages` shorthand locks you to a single journey; `scenarios` supports multiple concurrent journeys with independent executors, VU pools, and thresholds.
+- **abortOnFail on error-rate thresholds**: Pair error-rate and failure-rate thresholds with `{ abortOnFail: true, delayAbortEval: '30s' }` to stop the test early when the system is clearly failing.
 - **Modularize**: Split logic into folders. k6 supports ES modules (`import { ... } from './utils.js'`).
-- **Use Scenarios**: Mix different patterns (ramping up, constant arrival rate) in one test.
-- **Correlate specific data**: Ensure you are not just hitting cache. Use dynamic data (random IDs).
+- **Correlate specific data**: Use `SharedArray` for test data loaded once at init context. Index by `exec.scenario.iterationInTest % data.length` (not by VU ID, which is non-monotonic under ramping).
 
 **Don't**:
 
+- **Don't call check() inside libraries**: `check()` labels appear in the summary with no scenario context. Keep checks in scenario/test files where labels can be meaningful.
 - **Don't treat it like a browser**: Standard k6 `http` does not parse HTML or execute JS on the page. It just hits endpoints. Use `k6-browser` module if you strictly need browser rendering (but it's heavier).
 
 ## References

@@ -48,8 +48,8 @@ const logger = createLogger('PLPLoadTest');
 
 /**
  * k6 Options for PLP Load Test
- * 
- * Stages:
+ *
+ * Scenario stages (plp_browse):
  * 1. Ramp-up: 0 → 50 VUs over 2 min
  * 2. Average load: 50 VUs for 5 min  (~200 req/min)
  * 3. Ramp to peak: 50 → 100 VUs over 2 min
@@ -57,22 +57,28 @@ const logger = createLogger('PLPLoadTest');
  * 5. Ramp-down: 100 → 0 VUs over 2 min
  */
 export const options: Options = {
-  stages: [
-    { duration: '2m', target: 50 },
-    { duration: '5m', target: 50 },
-    { duration: '2m', target: 100 },
-    { duration: '5m', target: 100 },
-    { duration: '2m', target: 0 },
-  ],
+  scenarios: {
+    plp_browse: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '2m', target: 50 },
+        { duration: '5m', target: 50 },
+        { duration: '2m', target: 100 },
+        { duration: '5m', target: 100 },
+        { duration: '2m', target: 0 },
+      ],
+      gracefulRampDown: '30s',
+    },
+  },
 
   thresholds: {
     // HTTP metrics
     'http_req_duration': ['p(95)<800', 'p(99)<2000'],
-    'http_req_failed': ['rate<0.01'],
+    'http_req_failed': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'http_req_waiting': ['p(95)<600'],
 
     // GraphQL metrics
-    'graphql_errors': ['rate<0.01'],
+    'graphql_errors': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
 
     // PLP-specific metrics — sourced from customThresholds for consistency

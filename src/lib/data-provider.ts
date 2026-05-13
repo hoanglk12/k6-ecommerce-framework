@@ -172,8 +172,7 @@ export class DataProvider<T> {
     }
 
     try {
-      const vuId = exec.vu.idInTest;
-      const index = (vuId - 1) % this.data.length;
+      const index = exec.scenario.iterationInTest % this.data.length;
       return this.data[index];
     } catch {
       // Fallback to sequential if VU context not available

@@ -71,7 +71,7 @@ const logger = createLogger('VansPlaceOrderTest');
 /**
  * k6 Options – conservative VU count to avoid flooding staging with orders.
  *
- * Stages:
+ * Scenario stages (guest_checkout):
  *  1. Warm-up   :  0 →  5 VUs over  1 min
  *  2. Steady    :  5 VUs for  8 min  (~5–10 orders/min)
  *  3. Ramp-down :  5 →  0 VUs over  1 min
@@ -79,19 +79,25 @@ const logger = createLogger('VansPlaceOrderTest');
  * Total runtime ≈ 10 minutes.
  */
 export const options: Options = {
-  stages: [
-    { duration: '1m', target: 5 },   // warm-up
-    { duration: '8m', target: 5 },   // steady state
-    { duration: '1m', target: 0 },   // ramp-down
-  ],
+  scenarios: {
+    guest_checkout: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '1m', target: 5 },   // warm-up
+        { duration: '8m', target: 5 },   // steady state
+        { duration: '1m', target: 0 },   // ramp-down
+      ],
+      gracefulRampDown: '30s',
+    },
+  },
 
   thresholds: {
     // HTTP — staging servers are slower than production; thresholds reflect observed staging latency
     'http_req_duration': ['p(95)<7000', 'p(99)<12000'],
-    'http_req_failed':   ['rate<0.05'],
+    'http_req_failed':   [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '30s' }],
 
     // GraphQL
-    'graphql_errors':             ['rate<0.05'],
+    'graphql_errors':             [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '30s' }],
     'graphql_request_duration':   ['p(95)<7000'],
 
     // Place-order specific
