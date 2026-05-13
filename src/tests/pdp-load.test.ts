@@ -5,10 +5,10 @@
  * Product Detail Page GraphQL query using a guaranteed arrival-rate executor.
  *
  * Usage:
- *   k6 run dist/tests/load.test.js
- *   k6 run --out dashboard dist/tests/load.test.js
- *   k6 run --env SITE=platypus-au dist/tests/load.test.js
- *   k6 run --env SITE=skechers-au dist/tests/load.test.js
+ *   k6 run dist/tests/pdp-load.test.js
+ *   k6 run --out dashboard dist/tests/pdp-load.test.js
+ *   k6 run --env SITE=platypus-au dist/tests/pdp-load.test.js
+ *   k6 run --env SITE=skechers-au dist/tests/pdp-load.test.js
  */
 
 import { check, fail, group } from 'k6';

@@ -51,7 +51,7 @@ k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/vans-place-order.te
 
 | Test file | Scenario | Sites |
 |---|---|---|
-| `tests/load.test.js` | PDP (Product Detail Page) GraphQL query | All 8 |
+| `tests/pdp-load.test.js` | PDP (Product Detail Page) GraphQL query | All 8 |
 | `tests/plp-load.test.js` | PLP (Product Listing Page) category query | All 8 |
 | `tests/vans-place-order.test.js` | Full 9-step guest checkout end-to-end | vans-au, vans-nz |
 
@@ -129,11 +129,11 @@ npm install && npm run build
 
 # PowerShell quick smoke
 docker run --rm -v "${PWD}:/app" -e SITE=platypus-au grafana/k6 run \
-  -e QUICK_TEST=true /app/dist/tests/load.test.js
+  -e QUICK_TEST=true /app/dist/tests/pdp-load.test.js
 
 # bash/zsh
 docker run --rm -v "$(pwd):/app" -e SITE=platypus-au grafana/k6 run \
-  -e QUICK_TEST=true /app/dist/tests/load.test.js
+  -e QUICK_TEST=true /app/dist/tests/pdp-load.test.js
 ```
 
 ---
@@ -174,7 +174,7 @@ k6-ecommerce-framework/
 │   │   ├── login.ts                   # Customer token authentication
 │   │   └── index.ts
 │   ├── tests/
-│   │   ├── load.test.ts               # PDP load test — all 8 sites
+│   │   ├── pdp-load.test.ts           # PDP load test — all 8 sites
 │   │   ├── plp-load.test.ts           # PLP load test — all 8 sites
 │   │   └── vans-place-order.test.ts   # Guest checkout — vans-au, vans-nz
 │   └── types/
@@ -210,7 +210,7 @@ npm run lint           # ESLint
 npm run test:quick
 
 # Any site
-k6 run -e SITE=skechers-au -e ENVIRONMENT=staging -e QUICK_TEST=true dist/tests/load.test.js
+k6 run -e SITE=skechers-au -e ENVIRONMENT=staging -e QUICK_TEST=true dist/tests/pdp-load.test.js
 ```
 
 `QUICK_TEST=true` swaps the 16-minute arrival-rate profile for a `constant-arrival-rate` that runs for 30 seconds at 5 req/min. Use it to verify connectivity and data before committing to a full run.
@@ -237,7 +237,7 @@ npm run test:load:skechers-au:prod
 # ... etc. — same pattern for all sites
 
 # Custom
-k6 run -e SITE=platypus-nz -e ENVIRONMENT=staging dist/tests/load.test.js
+k6 run -e SITE=platypus-nz -e ENVIRONMENT=staging dist/tests/pdp-load.test.js
 ```
 
 > **Note:** The npm scripts include `--vus` and `--duration` flags. These are **silently ignored** by k6 when `scenarios` is defined in the test file. The execution profile is fully controlled by the `scenarios` block. See [Troubleshooting](#--vus-and---duration-flags-have-no-effect).
@@ -272,7 +272,7 @@ k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true -e PAYMENT_METHOD=free dist/te
 npm run dashboard
 
 # Per-site with dashboard
-k6 run --out web-dashboard -e SITE=platypus-au dist/tests/load.test.js
+k6 run --out web-dashboard -e SITE=platypus-au dist/tests/pdp-load.test.js
 ```
 
 ### Dry run
@@ -292,7 +292,7 @@ npm run dry-run
 |---|---|---|
 | `SITE` | `platypus-au` | Target site ID (see [Site Reference](#site-reference)) |
 | `ENVIRONMENT` | `staging` | `staging` or `production` |
-| `QUICK_TEST` | `false` | `true` → 30s smoke profile (5 req/min, 2 VUs) in load.test |
+| `QUICK_TEST` | `false` | `true` → 30s smoke profile (5 req/min, 2 VUs) in pdp-load.test |
 | `DRY_RUN` | `false` | Skip mutations; GraphQL queries still run |
 | `ENABLE_PLACE_ORDER` | `false` | Must be `true` for vans-place-order to place orders |
 | `PRODUCTION_CONFIRMED` | `false` | Required to run order mutations against production |
@@ -347,7 +347,7 @@ The store code is derived automatically from the locale suffix: `en_AU` → `au`
 
 ## Test Files
 
-### `load.test.ts` — PDP load test
+### `pdp-load.test.ts` — PDP load test
 
 Validates the `products(filter: { sku: { eq: $sku } })` GraphQL query at scale. Product SKUs are loaded from the appropriate `data/products-*.json` file via `DataProvider`/`SharedArray`.
 
@@ -356,8 +356,8 @@ Validates the `products(filter: { sku: { eq: $sku } })` GraphQL query at scale. 
 **Quick mode:** `QUICK_TEST=true` → `constant-arrival-rate` at 5 req/min for 30 s
 
 ```bash
-k6 run -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/load.test.js
-k6 run -e SITE=platypus-au -e ENVIRONMENT=staging -e QUICK_TEST=true dist/tests/load.test.js
+k6 run -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/pdp-load.test.js
+k6 run -e SITE=platypus-au -e ENVIRONMENT=staging -e QUICK_TEST=true dist/tests/pdp-load.test.js
 ```
 
 The `setup()` function calls `fail()` before VUs start if the selected site's product file contains `PLACEHOLDER-SKU` (currently: drmartens-au, drmartens-nz).
@@ -374,7 +374,7 @@ The `setup()` function calls `fail()` before VUs start if the selected site's pr
 
 Validates the category listing query: `categoryList(filters: { url_path: ... })` followed by a product page query. Each VU picks a unique category using `(vuId * 7 + iteration) % categoryCount` to avoid cache bias.
 
-**Executor:** `ramping-arrival-rate` — same profile as load.test  
+**Executor:** `ramping-arrival-rate` — same profile as pdp-load.test  
 **Data:** Category URL paths are inline per site (20 categories each), covering all 8 sites
 
 ```bash
@@ -595,7 +595,7 @@ npm run build
 
 ### Placeholder fast-fail
 
-`load.test.ts` `setup()` calls `fail()` immediately if the selected site's product file contains any `PLACEHOLDER-SKU` entry. The test aborts before VUs start rather than silently skipping iterations.
+`pdp-load.test.ts` `setup()` calls `fail()` immediately if the selected site's product file contains any `PLACEHOLDER-SKU` entry. The test aborts before VUs start rather than silently skipping iterations.
 
 ---
 
@@ -734,7 +734,7 @@ k6 run \
   -e ENVIRONMENT=production \
   -e PRODUCTION_CONFIRMED=true \
   -e QUICK_TEST=true \
-  dist/tests/load.test.js
+  dist/tests/pdp-load.test.js
 ```
 
 ### What requires explicit sign-off
@@ -757,7 +757,7 @@ k6 run \
 
 When `scenarios` is defined in the exported `options` object, k6 **silently ignores** `--vus`, `--duration`, and `--iterations` CLI flags. The execution profile is fully controlled by the `scenarios` block in the test file.
 
-To run a shorter test, use `QUICK_TEST=true` (load.test only) or temporarily edit the `stages` array in the test file before building.
+To run a shorter test, use `QUICK_TEST=true` (pdp-load.test only) or temporarily edit the `stages` array in the test file before building.
 
 ### `dropped_iterations` warning during the run
 

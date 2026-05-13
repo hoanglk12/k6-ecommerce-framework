@@ -118,7 +118,7 @@ export K6_CLOUD_PROJECT_ID=your_project_id
 # Run test on cloud
 npm run test:cloud
 # or
-k6 cloud dist/tests/load.test.js
+k6 cloud dist/tests/pdp-load.test.js
 ```
 
 ### Cloud Configuration
@@ -221,7 +221,7 @@ sudo apt-get install k6
 npm run build
 
 # Basic execution
-k6 run dist/tests/load.test.js
+k6 run dist/tests/pdp-load.test.js
 
 # With environment variables
 k6 run \
@@ -229,10 +229,10 @@ k6 run \
   --env ENVIRONMENT=staging \
   --vus 10 \
   --duration 5m \
-  dist/tests/load.test.js
+  dist/tests/pdp-load.test.js
 
 # With JSON output
-k6 run --out json=results.json dist/tests/load.test.js
+k6 run --out json=results.json dist/tests/pdp-load.test.js
 
 # With dashboard (web UI)
 k6 run --out dashboard dist/tests/smoke.test.js
@@ -308,10 +308,10 @@ PRODUCTION_CONFIRMED=true
 ```bash
 # Load environment file
 export $(cat .env.staging | xargs)
-k6 run dist/tests/load.test.js
+k6 run dist/tests/pdp-load.test.js
 
 # Or inline
-env $(cat .env.staging | xargs) k6 run dist/tests/load.test.js
+env $(cat .env.staging | xargs) k6 run dist/tests/pdp-load.test.js
 ```
 
 ---
@@ -370,7 +370,7 @@ cloud-test:
       run: |
         k6 cloud \
           --env SITE=${{ inputs.site }} \
-          dist/tests/load.test.js
+          dist/tests/pdp-load.test.js
       env:
         K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
 ```

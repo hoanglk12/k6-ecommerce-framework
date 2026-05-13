@@ -27,7 +27,7 @@ npm run dry-run                          # Single iteration, no API mutations
 npm run dashboard                        # k6 web dashboard at localhost:5665
 
 # Custom run (after build)
-k6 run --env SITE=skechers-nz --env ENVIRONMENT=staging dist/load.test.js
+k6 run --env SITE=skechers-nz --env ENVIRONMENT=staging dist/tests/pdp-load.test.js
 ```
 
 Naming convention for per-site scripts: `test:load:{site}-{country}` and `test:load:{site}-{country}:prod`.

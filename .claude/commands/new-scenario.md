@@ -21,7 +21,7 @@ Arguments: $ARGUMENTS
 
 3. **Register in `src/scenarios/index.ts`** — add the export.
 
-4. **Wire into a test file** — ask the user which test file to integrate with (or create a new one). If creating a new test file, follow the pattern in `src/tests/load.test.ts`: `setup()`, `default()`, `teardown()`, module-level `GraphQLClient`, and k6 `options` with VU stages and thresholds.
+4. **Wire into a test file** — ask the user which test file to integrate with (or create a new one). If creating a new test file, follow the pattern in `src/tests/pdp-load.test.ts`: `setup()`, `default()`, `teardown()`, module-level `GraphQLClient`, and k6 `options` with VU stages and thresholds.
 
 5. **Add test data** if the scenario needs product SKUs, categories, or addresses — check `src/data/` for existing files and reuse where possible.
 

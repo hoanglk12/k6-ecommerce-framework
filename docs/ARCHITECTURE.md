@@ -8,7 +8,7 @@ This document describes the architectural decisions and design patterns used in 
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                           Test Execution Layer                          │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐   │
-│  │ smoke.test  │  │ load.test   │  │ stress.test │  │ soak.test   │   │
+│  │ smoke.test  │  │pdp-load.test│  │ stress.test │  │ soak.test   │   │
 │  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘   │
 └─────────┼────────────────┼────────────────┼────────────────┼──────────┘
           │                │                │                │
