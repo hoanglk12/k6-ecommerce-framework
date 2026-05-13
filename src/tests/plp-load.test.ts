@@ -75,11 +75,11 @@ export const options: Options = {
   thresholds: {
     // HTTP metrics
     'http_req_duration': ['p(95)<800', 'p(99)<2000'],
-    'http_req_failed': ['rate<0.01'],
+    'http_req_failed': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'http_req_waiting': ['p(95)<600'],
 
     // GraphQL metrics
-    'graphql_errors': ['rate<0.01'],
+    'graphql_errors': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
 
     // PLP-specific metrics — sourced from customThresholds for consistency

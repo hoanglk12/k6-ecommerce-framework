@@ -26,19 +26,27 @@ import { Rate, Trend } from 'k6/metrics';
 const errorRate = new Rate('errors');
 const customTrend = new Trend('custom_duration');
 
-// Test configuration
+// Test configuration — use the scenarios API, not the stages shorthand
 export const options = {
-  stages: [
-    { duration: '2m', target: 10 },  // Ramp up to 10 users
-    { duration: '5m', target: 10 },  // Stay at 10 users
-    { duration: '2m', target: 20 },  // Ramp up to 20 users
-    { duration: '5m', target: 20 },  // Stay at 20 users
-    { duration: '2m', target: 0 },   // Ramp down to 0
-  ],
+  scenarios: {
+    browse: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '2m', target: 10 },  // Ramp up to 10 users
+        { duration: '5m', target: 10 },  // Stay at 10 users
+        { duration: '2m', target: 20 },  // Ramp up to 20 users
+        { duration: '5m', target: 20 },  // Stay at 20 users
+        { duration: '2m', target: 0 },   // Ramp down to 0
+      ],
+      gracefulRampDown: '30s',
+    },
+  },
   thresholds: {
-    http_req_duration: ['p(95)<500'],  // 95% of requests under 500ms
-    http_req_failed: ['rate<0.1'],     // Error rate under 10%
-    errors: ['rate<0.1'],
+    http_req_duration: ['p(95)<500'],
+    // abortOnFail stops the test early instead of hammering a failing system;
+    // delayAbortEval gives 30s of ramp-up noise before the rule is enforced.
+    http_req_failed: [{ threshold: 'rate<0.1', abortOnFail: true, delayAbortEval: '30s' }],
+    errors: [{ threshold: 'rate<0.1', abortOnFail: true, delayAbortEval: '30s' }],
   },
 };
 
@@ -88,18 +96,26 @@ export function teardown(data) {
 
 ## Test Scenario Patterns
 
+Always use the `scenarios` API — not the top-level `stages` shorthand. The `scenarios` API supports multiple concurrent journeys, per-scenario thresholds, and explicit executor configuration. The shorthand locks you to a single journey and a single executor.
+
 ### Load Test (Normal Traffic)
 
 ```javascript
 export const options = {
-  stages: [
-    { duration: '5m', target: 50 },   // Ramp up
-    { duration: '30m', target: 50 },  // Steady state
-    { duration: '5m', target: 0 },    // Ramp down
-  ],
+  scenarios: {
+    steady_load: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '5m', target: 50 },   // Ramp up
+        { duration: '30m', target: 50 },  // Steady state
+        { duration: '5m', target: 0 },    // Ramp down
+      ],
+      gracefulRampDown: '30s',
+    },
+  },
   thresholds: {
     http_req_duration: ['p(95)<200', 'p(99)<500'],
-    http_req_failed: ['rate<0.01'],
+    http_req_failed: [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
   },
 };
 ```
@@ -108,16 +124,25 @@ export const options = {
 
 ```javascript
 export const options = {
-  stages: [
-    { duration: '2m', target: 100 },
-    { duration: '5m', target: 100 },
-    { duration: '2m', target: 200 },
-    { duration: '5m', target: 200 },
-    { duration: '2m', target: 300 },  // Beyond normal capacity
-    { duration: '5m', target: 300 },
-    { duration: '10m', target: 400 }, // Breaking point
-    { duration: '2m', target: 0 },
-  ],
+  scenarios: {
+    stress: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '2m', target: 100 },
+        { duration: '5m', target: 100 },
+        { duration: '2m', target: 200 },
+        { duration: '5m', target: 200 },
+        { duration: '2m', target: 300 },  // Beyond normal capacity
+        { duration: '5m', target: 300 },
+        { duration: '10m', target: 400 }, // Breaking point
+        { duration: '2m', target: 0 },
+      ],
+      gracefulRampDown: '30s',
+    },
+  },
+  thresholds: {
+    http_req_failed: [{ threshold: 'rate<0.20', abortOnFail: true, delayAbortEval: '30s' }],
+  },
 };
 ```
 
@@ -125,11 +150,17 @@ export const options = {
 
 ```javascript
 export const options = {
-  stages: [
-    { duration: '10s', target: 100 },  // Quick ramp-up
-    { duration: '1m', target: 100 },   // Stay at peak
-    { duration: '10s', target: 0 },    // Quick ramp-down
-  ],
+  scenarios: {
+    spike: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '10s', target: 100 },  // Quick ramp-up
+        { duration: '1m', target: 100 },   // Stay at peak
+        { duration: '10s', target: 0 },    // Quick ramp-down
+      ],
+      gracefulRampDown: '10s',
+    },
+  },
 };
 ```
 
@@ -137,11 +168,17 @@ export const options = {
 
 ```javascript
 export const options = {
-  stages: [
-    { duration: '5m', target: 50 },
-    { duration: '4h', target: 50 },   // Run for 4 hours
-    { duration: '5m', target: 0 },
-  ],
+  scenarios: {
+    soak: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '5m', target: 50 },
+        { duration: '4h', target: 50 },   // Run for 4 hours
+        { duration: '5m', target: 0 },
+      ],
+      gracefulRampDown: '30s',
+    },
+  },
 };
 ```
 
@@ -149,15 +186,58 @@ export const options = {
 
 ```javascript
 export const options = {
-  executor: 'ramping-arrival-rate',
-  stages: [
-    { duration: '2m', target: 100 },
-    { duration: '2m', target: 200 },
-    { duration: '2m', target: 300 },
-    { duration: '2m', target: 400 },
-    { duration: '2m', target: 500 },
-    // Continue until system breaks
-  ],
+  scenarios: {
+    breakpoint: {
+      executor: 'ramping-arrival-rate',
+      startRate: 0,
+      timeUnit: '1m',
+      preAllocatedVUs: 50,
+      maxVUs: 500,
+      stages: [
+        { duration: '2m', target: 100 },
+        { duration: '2m', target: 200 },
+        { duration: '2m', target: 300 },
+        { duration: '2m', target: 400 },
+        { duration: '2m', target: 500 },
+        // Continue until system breaks
+      ],
+    },
+  },
+};
+```
+
+### Mixed-Journey Realistic Load
+
+Model realistic traffic with multiple concurrent user journeys in one test:
+
+```javascript
+export const options = {
+  scenarios: {
+    pdp_browse: {
+      executor: 'ramping-arrival-rate',
+      startRate: 0,
+      timeUnit: '1m',
+      preAllocatedVUs: 50,
+      maxVUs: 150,
+      stages: [{ duration: '10m', target: 350 }], // 350 req/min
+    },
+    plp_browse: {
+      executor: 'constant-arrival-rate',
+      rate: 100,
+      timeUnit: '1m',
+      preAllocatedVUs: 10,
+      duration: '10m',
+    },
+    guest_checkout: {
+      executor: 'constant-arrival-rate',
+      rate: 10,
+      timeUnit: '1m',
+      preAllocatedVUs: 5,
+      duration: '10m',
+      startTime: '2m', // start after ramp-up
+      exec: 'checkoutScenario', // named export in the test file
+    },
+  },
 };
 ```
 
@@ -405,11 +485,13 @@ export default function() {
 | `vus` | Active virtual users | N/A |
 | `iterations` | Completed iterations | N/A |
 
-## Лучшие практики
+## Best Practices
 
-1. **Realistic think time** — добавляйте `sleep()` между запросами
-2. **Gradual ramp-up** — избегайте мгновенной нагрузки
-3. **SharedArray for data** — экономит память при больших датасетах
-4. **Meaningful thresholds** — определяйте SLO заранее
-5. **Tags for segmentation** — группируйте метрики по endpoint/feature
-6. **Monitor load generator** — убедитесь, что k6 не bottleneck
+1. **Use the scenarios API** — never use the top-level `stages` shorthand; `scenarios` enables multiple journeys, explicit executor choice, and per-scenario thresholds.
+2. **abortOnFail on error-rate thresholds** — always pair error-rate thresholds with `{ abortOnFail: true, delayAbortEval: '30s' }` so k6 stops instead of hammering a failing system.
+3. **check() at the call site** — never call `check()` inside library/utility functions; checks belong in scenario or test files where the label can carry scenario context (e.g., `'PDP — product detail has stock status'`).
+4. **Data index by iterationInTest** — when slicing SharedArray data per-VU, use `exec.scenario.iterationInTest % data.length`, not `exec.vu.idInTest - 1` (VU IDs are non-monotonic under ramping).
+5. **SharedArray for all test data** — load data once at init context via `SharedArray`; never load inside `default()`.
+6. **Realistic think time** — add `sleep()` between requests to model real user pacing.
+7. **Tags for segmentation** — tag every request with `site`, `scenario`, and `operation` to enable Grafana filtering.
+8. **check() labels are your debugging signal** — labels appear verbatim in the end-of-test summary; make them descriptive: `'PDP load — product SKU matches'` not `'has sku'`.

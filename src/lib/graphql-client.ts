@@ -10,7 +10,7 @@
  */
 
 import http, { RefinedResponse, ResponseType } from 'k6/http';
-import { check, fail, sleep } from 'k6';
+import { fail, sleep } from 'k6';
 import { Rate, Trend, Counter } from 'k6/metrics';
 import {
   GraphQLRequest,
@@ -437,11 +437,7 @@ export function checkGraphQLResponse<T>(
 ): boolean {
   const hasErrors = response.errors && response.errors.length > 0;
   const hasData = response.data !== undefined && response.data !== null;
-
-  const success = check(response, {
-    'GraphQL response has no errors': () => !hasErrors,
-    'GraphQL response has data': () => hasData,
-  });
+  const success = !hasErrors && hasData;
 
   if (!success && failOnError) {
     const errorMessage = response.errors

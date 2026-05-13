@@ -74,15 +74,13 @@ export const options: Options = {
       ],
     },
   },
-
   thresholds: {
     'http_req_duration': ['p(95)<800', 'p(99)<2000'],
-    'http_req_failed': ['rate<0.01'],
+    'http_req_failed': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'http_req_waiting': ['p(95)<600'],
 
-    'graphql_errors': ['rate<0.01'],
+    'graphql_errors': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
     'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
-
     'scenario_pdp_success': customThresholds['scenario_pdp_success'],
     'scenario_pdp_duration': customThresholds['scenario_pdp_duration'],
   },

@@ -9,10 +9,10 @@ Arguments: $ARGUMENTS
 Extract from `$ARGUMENTS`:
 - **site** — one of `platypus-au`, `platypus-nz`, `skechers-au`, `skechers-nz`, `drmartens-au`, `drmartens-nz`, `vans-au`, `vans-nz`. Default: `platypus-au`
 - **environment** — `staging` or `production`. Default: `staging`
-- **vus** — integer VU count. Default: `5` (keep low unless user explicitly requests higher)
-- **duration** — k6 duration string (e.g. `2m`, `30s`). Default: `2m`
-- **test** — test file base name without `.js` (e.g. `load`, `vans-place-order`). Default: `load`
+- **test** — test file base name without `.js` (e.g. `load`, `plp-load`, `vans-place-order`). Default: `load`
 - **dashboard** — include `--out web-dashboard` flag if user mentions "dashboard". Default: off
+
+> **Note**: do NOT pass `--vus` or `--duration` on the command line. All test files use the k6 `scenarios` API, which defines VU counts and stage durations inside the script. CLI `--vus`/`--duration` flags are ignored when `scenarios` is present in options.
 
 ## Steps
 
@@ -24,8 +24,6 @@ Extract from `$ARGUMENTS`:
 
 ```
 k6 run \
-  --vus <vus> \
-  --duration <duration> \
   [--out web-dashboard] \
   -e SITE=<site> \
   -e ENVIRONMENT=<environment> \
@@ -38,7 +36,7 @@ For the `vans-place-order` test, also append `-e ENABLE_PLACE_ORDER=true` if the
 
 ## Examples
 
-- "run platypus-au" → 5 VUs, 2m, staging, load test
-- "run skechers-nz production 50 VUs 5m" → 50 VUs, 5m, production (confirm first)
+- "run platypus-au" → staging, load test
+- "run skechers-nz production" → production (confirm first), load test
 - "run vans-au place-order with dashboard" → vans-place-order test, web dashboard enabled
 - "dry run drmartens-au" → build then `npm run dry-run` with `-e SITE=drmartens-au`

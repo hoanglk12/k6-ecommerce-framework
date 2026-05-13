@@ -98,10 +98,10 @@ export const options: Options = {
   thresholds: {
     // HTTP — staging servers are slower than production; thresholds reflect observed staging latency
     'http_req_duration': ['p(95)<7000', 'p(99)<12000'],
-    'http_req_failed':   ['rate<0.05'],
+    'http_req_failed':   [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '30s' }],
 
     // GraphQL
-    'graphql_errors':             ['rate<0.05'],
+    'graphql_errors':             [{ threshold: 'rate<0.05', abortOnFail: true, delayAbortEval: '30s' }],
     'graphql_request_duration':   ['p(95)<7000'],
 
     // Place-order specific
