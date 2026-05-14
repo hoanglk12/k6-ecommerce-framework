@@ -1,9 +1,108 @@
 {
-  "description": "Dr Martens products — PLACEHOLDER. Run product discovery before use.",
+  "description": "Real products from Dr Martens staging environment — IN_STOCK only",
   "site": "drmartens",
-  "note": "Run product discovery to populate real SKUs: k6 run --env SITE=drmartens-au dist/discover-products.js",
-  "lastUpdated": "2026-05-12",
+  "note": "Verified IN_STOCK in both AU (stag-drmartens-au.accentgra.com) and NZ (stag-drmartens-nz.accentgra.com) staging stores.",
+  "lastUpdated": "2026-05-14",
   "data": [
-    { "id": "drm-001", "sku": "PLACEHOLDER-SKU", "productType": "configurable" }
+    {
+      "id": "drm-001",
+      "sku": "11822006.BSM",
+      "urlKey": "1460-smooth-11822006-bsm",
+      "name": "1460 Smooth",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-002",
+      "sku": "11838002.BSM",
+      "urlKey": "1461-smooth-11838002-bsm",
+      "name": "1461 Smooth",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-003",
+      "sku": "15265001.BSM",
+      "urlKey": "jadon-15265001-bsm",
+      "name": "Jadon",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-004",
+      "sku": "14345001.BSM",
+      "urlKey": "1461-mono-14345001-bsm",
+      "name": "1461 Mono",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-005",
+      "sku": "11822203.GCH",
+      "urlKey": "1460-crazy-horse-11822203-gch",
+      "name": "1460 Crazy Horse",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-006",
+      "sku": "25978207.GCH",
+      "urlKey": "chelsea-boot-crazy-horse-25978207-gch",
+      "name": "Chelsea Boot Crazy Horse",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-007",
+      "sku": "22209001.BLK",
+      "urlKey": "adrian-smooth-22209001-blk",
+      "name": "Adrian Smooth",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-008",
+      "sku": "24687001.BLK",
+      "urlKey": "2976-quad-24687001-blk",
+      "name": "2976 Quad",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-009",
+      "sku": "11822002.BNPPA",
+      "urlKey": "1460-nappa-11822002-bnppa",
+      "name": "1460 Nappa",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    },
+    {
+      "id": "drm-010",
+      "sku": "13512006.BLK",
+      "urlKey": "1460-pascal-13512006-blk",
+      "name": "1460 Pascal",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 100, "max": 500 }
+    }
   ]
 }

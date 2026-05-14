@@ -1,148 +1,108 @@
 {
-  "description": "Real products from Platypus Shoes staging environment",
+  "description": "Real products from Platypus Shoes staging environment — IN_STOCK only",
   "site": "platypus",
-  "note": "Products discovered from staging GraphQL API. Note: Most products are OUT_OF_STOCK but valid for API/performance testing.",
-  "lastUpdated": "2026-02-10T09:36:00.000Z",
+  "note": "Verified IN_STOCK in both AU (stag-platypus-au.accentgra.com) and NZ (stag-platypus-nz.accentgra.com) staging stores.",
+  "lastUpdated": "2026-05-14",
   "data": [
     {
       "id": "prod-001",
-      "sku": "ADYS400073-062.BLK",
-      "urlKey": "mens-cure-shoes-adys400073-062-blk",
-      "name": "Mens Cure Shoes",
+      "sku": "19166.BLK",
+      "urlKey": "ct-all-star-lo-19166-blk",
+      "name": "CT All Star Lo",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-002",
-      "sku": "ADYS400073-XKRK.BLK",
-      "urlKey": "mens-cure-shoes-adys400073-xkrk-blk",
-      "name": "Mens Cure Shoes",
+      "sku": "19160.BLK",
+      "urlKey": "ct-all-star-hi-19160-blk",
+      "name": "CT All Star Hi",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-003",
-      "sku": "ADYS400073-111.WHT",
-      "urlKey": "mens-cure-shoes-adys400073-111-wht",
-      "name": "Mens Cure Shoes",
+      "sku": "17652.OPTWHT",
+      "urlKey": "chuck-taylor-all-star-lo-17652-optwht",
+      "name": "Chuck Taylor All Star Lo",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-004",
-      "sku": "ADYS400073-HLC.WHT",
-      "urlKey": "mens-cure-shoes-adys400073-hlc-wht",
-      "name": "Mens Cure Shoes",
+      "sku": "17650.OPTWHT",
+      "urlKey": "ct-all-star-hi-17650-optwht",
+      "name": "CT All Star Hi",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-005",
-      "sku": "302361WNW.WHT",
-      "urlKey": "mens-net-shoes-302361wnw-wht",
-      "name": "Mens Net Shoes",
+      "sku": "564984.WHT",
+      "urlKey": "womens-ct-all-star-dainty-low-564984-wht",
+      "name": "Womens CT All Star Dainty Low",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-006",
-      "sku": "26422322.PNK",
-      "urlKey": "1461-patent-leather-oxford-shoes-26422322-pnk",
-      "name": "1461 Patent Leather Oxford Shoes",
+      "sku": "15265001.BSM",
+      "urlKey": "jadon-15265001-bsm",
+      "name": "Jadon",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-007",
-      "sku": "300660XKSK.BLK",
-      "urlKey": "mens-pure-shoes-300660xksk-blk",
-      "name": "Mens Pure Shoes",
+      "sku": "14345001.BSM",
+      "urlKey": "1461-mono-14345001-bsm",
+      "name": "1461 Mono",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-008",
-      "sku": "300660XKWS.BLK",
-      "urlKey": "mens-pure-shoes-300660xkws-blk",
-      "name": "Mens Pure Shoes",
+      "sku": "13512006.BLK",
+      "urlKey": "1460-pascal-virginia-13512006-blk",
+      "name": "1460 Pascal Virginia",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-009",
-      "sku": "27875001.BLK",
-      "urlKey": "1460-bex-squared-toe-leather-shoes-27875001-blk",
-      "name": "1460 Bex Squared Toe Leather Shoes ",
+      "sku": "11822006.BSM",
+      "urlKey": "1460-smooth-11822006-bsm",
+      "name": "1460 Smooth",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-010",
-      "sku": "ADYS400094XKWR.BLK",
-      "urlKey": "mens-pure-shoes-adys400094xkwr-blk",
-      "name": "Mens Pure Shoes ",
+      "sku": "11822002.BNPPA",
+      "urlKey": "1460-nappa-11822002-bnppa",
+      "name": "1460 Nappa",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "stockStatus": "OUT_OF_STOCK",
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     }
   ]
 }

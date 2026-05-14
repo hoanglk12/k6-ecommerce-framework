@@ -1,15 +1,72 @@
 {
-  "description": "Vans AU products for load and checkout testing",
+  "description": "Vans AU products for load and checkout testing — IN_STOCK only",
   "site": "vans-au",
-  "lastUpdated": "2026-05-12",
+  "note": "Verified IN_STOCK on stag-vans-au.accentgra.com staging store.",
+  "lastUpdated": "2026-05-14",
   "data": [
-    { "id": "vans-au-001", "sku": "VN000CR5FS8.WHT", "productType": "configurable" },
-    { "id": "vans-au-002", "sku": "VN-0EE3BLK.BLK",  "productType": "configurable" },
-    { "id": "vans-au-003", "sku": "VN-0EE3W00.WHT",  "productType": "configurable" },
-    { "id": "vans-au-004", "sku": "VN-0EYEBWW.BKW",  "productType": "configurable" },
-    { "id": "vans-au-005", "sku": "VN-0D3HW00.WHT",  "productType": "configurable" },
-    { "id": "vans-au-006", "sku": "VNA38HBP0S.BLK",  "productType": "configurable" },
-    { "id": "vans-au-007", "sku": "VN000D83CCZ.WHT", "productType": "configurable" },
-    { "id": "vans-au-008", "sku": "VNA4UUK6BT.BLK",  "productType": "configurable" }
+    {
+      "id": "vans-au-001",
+      "sku": "VN000CR5FS8.WHT",
+      "urlKey": "old-skool-vn000cr5fs8-wht",
+      "name": "Old Skool",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    },
+    {
+      "id": "vans-au-002",
+      "sku": "VN-0EE3BLK.BLK",
+      "urlKey": "authentic-vn-0ee3blk-blk",
+      "name": "Authentic",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    },
+    {
+      "id": "vans-au-003",
+      "sku": "VN-0EE3W00.WHT",
+      "urlKey": "authentic-vn-0ee3w00-wht",
+      "name": "Authentic",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    },
+    {
+      "id": "vans-au-004",
+      "sku": "VN-0EYEBWW.BKW",
+      "urlKey": "classic-slip-on-vn-0eyebww-bkw",
+      "name": "Classic Slip-On",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    },
+    {
+      "id": "vans-au-005",
+      "sku": "VN-0D3HW00.WHT",
+      "urlKey": "old-skool-vn-0d3hw00-wht",
+      "name": "Old Skool",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    },
+    {
+      "id": "vans-au-006",
+      "sku": "VNA38HBP0S.BLK",
+      "urlKey": "kids-old-skool-vna38hbp0s-blk",
+      "name": "Kids Old Skool",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    },
+    {
+      "id": "vans-au-007",
+      "sku": "VN000D83CCZ.WHT",
+      "urlKey": "super-lowpro-vn000d83ccz-wht",
+      "name": "Super Lowpro",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    },
+    {
+      "id": "vans-au-008",
+      "sku": "VNA4UUK6BT.BLK",
+      "urlKey": "sk8-low-vna4uuk6bt-blk",
+      "name": "Sk8-Low",
+      "productType": "configurable",
+      "stockStatus": "IN_STOCK"
+    }
   ]
 }

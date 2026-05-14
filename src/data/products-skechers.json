@@ -1,73 +1,108 @@
 {
-  "description": "Real products from Skechers Australia staging environment",
+  "description": "Real products from Skechers staging environment — IN_STOCK only",
   "site": "skechers",
-  "note": "Products discovered from staging GraphQL API - IN_STOCK items only",
-  "lastUpdated": "2026-02-10T09:36:00.000Z",
+  "note": "Verified IN_STOCK in both AU (stag-skechers-au.accentgra.com) and NZ (stag-skechers-nz.accentgra.com) staging stores. Previous socks SKUs (114343-*, 101584-*, 101590-*, 101585-*, 101589-*) were NOT_FOUND.",
+  "lastUpdated": "2026-05-14",
   "data": [
     {
       "id": "prod-001",
-      "sku": "114343-101.101",
-      "urlKey": "3-pack-low-cut-socks-fits-us-5-9-5-shoe-114343-101-101",
-      "name": "3pk Low Cut Socks",
+      "sku": "216200.BBK",
+      "urlKey": "skechers-gowalk-6-ovra-216200-bbk",
+      "name": "Skechers GOwalk 6 Ovra",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-002",
-      "sku": "101584-102.102",
-      "urlKey": "3-pack-microfibre-liner-socks-fits-us-5-9-5-shoe-101584-102-102",
-      "name": "3pk Microfibre Liner Socks",
+      "sku": "124569.BBK",
+      "urlKey": "skechers-slip-ins-gowalk-6-fabulous-view-124569-bbk",
+      "name": "Skechers Slip-Ins: GOwalk 6 - Fabulous View",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-003",
-      "sku": "101590-001.001",
-      "urlKey": "3-pack-superlow-liner-socks-fits-us-6-12-shoe-101590-001-001",
-      "name": "3pk Superlow Liner Socks",
+      "sku": "52458.BBK",
+      "urlKey": "uno-stand-on-air-52458-bbk",
+      "name": "Uno - Stand On Air",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-004",
-      "sku": "101585-001.001",
-      "urlKey": "3-pack-sport-cushion-liner-socks-fits-us-5-9-5-shoe-101585-001-001",
-      "name": "3pk Sport Cushion Liner Socks",
+      "sku": "232452.NVY",
+      "urlKey": "skechers-slip-ins-ultra-flex-3-0-right-away-232452-nvy",
+      "name": "Skechers Slip-Ins: Ultra Flex 3.0 - Right Away",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     },
     {
       "id": "prod-005",
-      "sku": "101589-001.001",
-      "urlKey": "3-pack-mesh-no-show-liner-socks-fits-us-6-12-shoe-101589-001-001",
-      "name": "3pk Mesh No Show Liner Socks",
+      "sku": "52649.BBK",
+      "urlKey": "elite-flex-wasick-52649-bbk",
+      "name": "Elite Flex - Wasick",
       "productType": "configurable",
       "categoryPath": "shoes",
-      "quantity": 1,
-      "expectedPrice": {
-        "min": 50,
-        "max": 300
-      }
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
+    },
+    {
+      "id": "prod-006",
+      "sku": "77071.BLK",
+      "urlKey": "work-relaxed-fit-flex-advantage-sr-bronwood-77071-blk",
+      "name": "Work Relaxed Fit: Flex Advantage SR - Bronwood",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
+    },
+    {
+      "id": "prod-007",
+      "sku": "76551.BLK",
+      "urlKey": "work-relaxed-fit-eldred-sr-76551-blk",
+      "name": "Work: Relaxed Fit - Eldred SR",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
+    },
+    {
+      "id": "prod-008",
+      "sku": "232452.BBK",
+      "urlKey": "skechers-slip-ins-ultra-flex-3-0-right-away-232452-bbk",
+      "name": "Skechers Slip-Ins: Ultra Flex 3.0 - Right Away",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
+    },
+    {
+      "id": "prod-009",
+      "sku": "149057.BBK",
+      "urlKey": "skechers-arch-fit-big-appeal-149057-bbk",
+      "name": "Skechers Arch Fit - Big Appeal",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
+    },
+    {
+      "id": "prod-010",
+      "sku": "124508.BBK",
+      "urlKey": "skechers-gowalk-6-big-splash-124508-bbk",
+      "name": "Skechers GOwalk 6 - Big Splash",
+      "productType": "configurable",
+      "categoryPath": "shoes",
+      "stockStatus": "IN_STOCK",
+      "expectedPrice": { "min": 50, "max": 300 }
     }
   ]
 }
