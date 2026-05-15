@@ -491,11 +491,11 @@ scenarios: {
     <div class="finding">
       <div class="finding-header">
         <span class="finding-num">M2</span>
-        <span class="finding-title">DataProvider only supports 2 of 8 sites</span>
-        <span class="pill pill-medium">Medium</span>
+        <span class="finding-title">DataProvider only supports 2 of 8 sites — <em>Fixed</em></span>
+        <span class="pill pill-low">Fixed</span>
       </div>
       <div class="finding-body">
-        <p><code>getProductProvider()</code> accepts only <code>'platypus' | 'skechers'</code>. The <code>DATA_PATHS</code> map does not include Dr Martens or Vans, and their <code>data/products-*.json</code> files — which do exist on disk — are inaccessible through the DataProvider API. Any new scenario targeting these sites cannot use the framework's data layer.</p>
+        <p><strong>Resolved.</strong> <code>data-provider.ts</code> now exports <code>ProductSite</code> covering all five data keys (<code>'platypus' | 'skechers' | 'drmartens' | 'vans-au' | 'vans-nz'</code>) with a <code>SITE_TO_PRODUCT_KEY</code> map for all 8 site IDs. <code>getProductProviderForSite(siteId)</code> accepts any of the 8 site IDs and throws a descriptive error for unknown values.</p>
       </div>
     </div>
 
@@ -640,9 +640,9 @@ scenarios: {
           </tr>
           <tr>
             <td>M2</td>
-            <td>DataProvider covers only 2 of 8 sites (platypus, skechers)</td>
-            <td>data-provider.ts:27</td>
-            <td><span class="pill pill-medium">Medium</span></td>
+            <td>DataProvider covers only 2 of 8 sites (platypus, skechers) — <strong>Fixed</strong></td>
+            <td>data-provider.ts</td>
+            <td><span class="pill pill-low">Fixed</span></td>
           </tr>
           <tr>
             <td>M3</td>

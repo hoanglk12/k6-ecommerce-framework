@@ -6,8 +6,7 @@
  */
 
 import { SharedArray } from 'k6/data';
-// @ts-expect-error - k6 remote module import
-import papaparse from 'https://jslib.k6.io/papaparse/5.1.1/index.js';
+import papaparse from './vendor/papaparse.js';
 import exec from 'k6/execution';
 import { 
   TestUser, 
@@ -277,6 +276,12 @@ const _productCache: Partial<Record<ProductSite, TestProduct[]>> = {};
 let _usersData: TestUser[] | null = null;
 let _addressesData: TestAddress[] | null = null;
 
+// Provider-instance cache — keyed by strategy so callers always get the same
+// DataProvider object regardless of how many times the factory is invoked.
+// This preserves sequential currentIndex and unique usedIndices across calls.
+const _userProviders: Partial<Record<DataRotationStrategy, DataProvider<TestUser>>> = {};
+const _addressProviders: Partial<Record<DataRotationStrategy, DataProvider<TestAddress>>> = {};
+
 function loadProductData(key: ProductSite): TestProduct[] {
   if (!_productCache[key]) {
     const paths = DATA_PATHS.products[key];
@@ -297,9 +302,12 @@ function loadProductData(key: ProductSite): TestProduct[] {
 }
 
 /**
- * Get user data provider
+ * Get user data provider.
+ * Returns the same DataProvider instance for a given strategy so that
+ * sequential currentIndex and unique usedIndices are preserved across calls.
  */
 export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): DataProvider<TestUser> {
+  if (_userProviders[strategy]) return _userProviders[strategy]!;
   if (!_usersData) {
     try {
       _usersData = loadJSON<TestUser>('users', DATA_PATHS.users.json);
@@ -308,7 +316,8 @@ export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): 
       _usersData = loadCSV<TestUser>('users', DATA_PATHS.users.csv);
     }
   }
-  return new DataProvider<TestUser>(_usersData, strategy);
+  _userProviders[strategy] = new DataProvider<TestUser>(_usersData, strategy);
+  return _userProviders[strategy]!;
 }
 
 /**
@@ -339,9 +348,12 @@ export function getProductProviderForSite(
 }
 
 /**
- * Get address data provider
+ * Get address data provider.
+ * Returns the same DataProvider instance for a given strategy so that
+ * sequential currentIndex and unique usedIndices are preserved across calls.
  */
 export function getAddressProvider(strategy: DataRotationStrategy = 'random'): DataProvider<TestAddress> {
+  if (_addressProviders[strategy]) return _addressProviders[strategy]!;
   if (!_addressesData) {
     try {
       _addressesData = loadJSON<TestAddress>('addresses', DATA_PATHS.addresses.json);
@@ -350,7 +362,8 @@ export function getAddressProvider(strategy: DataRotationStrategy = 'random'): D
       _addressesData = loadCSV<TestAddress>('addresses', DATA_PATHS.addresses.csv);
     }
   }
-  return new DataProvider<TestAddress>(_addressesData, strategy);
+  _addressProviders[strategy] = new DataProvider<TestAddress>(_addressesData, strategy);
+  return _addressProviders[strategy]!;
 }
 
 // ============================================================================

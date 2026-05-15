@@ -54,8 +54,19 @@ const logger = createLogger('PLPLoadTest');
  * slow — arrival-rate keeps the load constant so latency degradation is
  * visible in metrics rather than hidden behind VU starvation.
  */
+const isSmokeTest = __ENV.SMOKE_TEST === 'true';
+
 export const options: Options = {
-  scenarios: {
+  scenarios: isSmokeTest ? {
+    // 1 VU × 1 iteration — real API call, all assertions enabled, no think time.
+    // Use in CI as a smoke gate before committing to the full 16-minute run.
+    plp_smoke: {
+      executor: 'per-vu-iterations',
+      vus: 1,
+      iterations: 1,
+      maxDuration: '30s',
+    },
+  } : {
     plp_load: {
       executor: 'ramping-arrival-rate',
       startRate: 0,
@@ -401,8 +412,7 @@ export default function (data: SetupData): void {
     }
   });
 
-  // Simulate user browsing / scrolling through listing
-  thinkTime(envConfig);
+  if (!isSmokeTest) thinkTime(envConfig);
 }
 
 // ============================================================================

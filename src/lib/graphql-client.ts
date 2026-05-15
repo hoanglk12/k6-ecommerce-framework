@@ -20,7 +20,7 @@ import {
   SiteConfig,
   RetryConfig,
 } from '../types';
-import { Logger } from './logger';
+import { Logger, createLogger } from './logger';
 import { recordTimingMetrics } from './metrics';
 
 // ============================================================================
@@ -93,12 +93,7 @@ export class GraphQLClient {
       ...options.headers,
     };
 
-    this.logger = new Logger({
-      level: 'info',
-      timestamps: true,
-      includeVU: true,
-      prettyPrint: false,
-    });
+    this.logger = createLogger('GraphQLClient');
   }
 
   /**

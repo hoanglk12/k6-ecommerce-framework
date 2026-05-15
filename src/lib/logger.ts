@@ -33,8 +33,12 @@ export class Logger {
   private readonly prefix: string;
 
   constructor(config: Partial<LoggerConfig> = {}, prefix = '') {
+    // Respect DEBUG env var when no explicit level is passed (fixes M4: GraphQLClient logger)
+    const defaultLevel: LogLevel = (typeof __ENV !== 'undefined' && __ENV.DEBUG === 'true')
+      ? 'debug'
+      : 'info';
     this.config = {
-      level: config.level ?? 'info',
+      level: config.level ?? defaultLevel,
       timestamps: config.timestamps ?? true,
       includeVU: config.includeVU ?? true,
       prettyPrint: config.prettyPrint ?? false,

@@ -11,7 +11,10 @@
       "Bash(curl -s -X POST https://stag-platypus-au.accentgra.com/graphql -H 'Content-Type: application/json' -H 'Origin: https://stag-platypus-au.accentgra.com' --max-time 30 -d '{\"query\":\"query { products\\(filter: { category_id: { eq: \\\\\"2\\\\\" } }, pageSize: 20, sort: { name: ASC }\\) { items { sku name url_key stock_status __typename } total_count } }\"}')",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(i['sku'], i['stock_status'], i['url_key']\\) for i in d.get\\('data',{}\\).get\\('products',{}\\).get\\('items',[]\\)]\")",
       "Bash(timeout 15 k6 run -e SITE=skechers-nz -e ENVIRONMENT=staging dist/tests/place-order.test.js)",
-      "Bash(echo \"--- exit $? ---\")"
+      "Bash(echo \"--- exit $? ---\")",
+      "Bash(mkdir -p \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\")",
+      "Bash(curl -sL \"https://jslib.k6.io/k6-utils/1.4.0/index.js\" -o \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\\\\k6-utils.js\")",
+      "Bash(curl -sL \"https://jslib.k6.io/papaparse/5.1.1/index.js\" -o \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\\\\papaparse.js\")"
     ]
   }
 }

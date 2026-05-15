@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>k6 Load Test — Scenario Gap Analysis &amp; Suggestions</title>
+<style>
+  :root {
+    --brand:    #7c3aed;
+    --brand-lt: #ede9fe;
+    --green:    #16a34a;
+    --green-lt: #dcfce7;
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --red:      #dc2626;
+    --red-lt:   #fee2e2;
+    --slate:    #475569;
+    --slate-lt: #f8fafc;
+    --border:   #e2e8f0;
+    --text:     #1e293b;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         font-size: 15px; line-height: 1.6; color: var(--text); background: #f1f5f9; }
+
+  /* ── Layout ── */
+  header { background: var(--brand); color: #fff; padding: 2rem 2.5rem; }
+  header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -.3px; }
+  header p  { opacity: .8; margin-top: .3rem; font-size: .9rem; }
+  main { max-width: 1060px; margin: 2rem auto; padding: 0 1.5rem 4rem; }
+
+  section { background: #fff; border: 1px solid var(--border); border-radius: 10px;
+            padding: 1.8rem 2rem; margin-bottom: 1.6rem; }
+  section h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem;
+               padding-bottom: .5rem; border-bottom: 2px solid var(--brand-lt); }
+  section h3 { font-size: 1rem; font-weight: 700; margin: 1.4rem 0 .5rem; }
+  p  { margin-bottom: .75rem; }
+  ul { padding-left: 1.3rem; margin-bottom: .75rem; }
+  li { margin-bottom: .3rem; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; margin-bottom: .5rem; }
+  th    { background: var(--slate-lt); text-align: left; padding: .5rem .75rem;
+          border: 1px solid var(--border); font-weight: 600; color: var(--slate); }
+  td    { padding: .45rem .75rem; border: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* ── Badges ── */
+  .badge { display: inline-block; border-radius: 4px; font-size: .75rem;
+           font-weight: 700; padding: .15rem .55rem; white-space: nowrap; }
+  .live  { background: var(--green-lt);  color: var(--green); }
+  .warn  { background: var(--amber-lt);  color: var(--amber); }
+  .miss  { background: var(--red-lt);    color: var(--red);   }
+  .p1    { background: #fce7f3; color: #be185d; }
+  .p2    { background: var(--brand-lt);  color: var(--brand); }
+  .p3    { background: var(--amber-lt);  color: var(--amber); }
+  .p4    { background: var(--slate-lt);  color: var(--slate); }
+
+  /* ── Scenario cards ── */
+  .card  { border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.4rem;
+           margin-bottom: 1.2rem; }
+  .card-header { display: flex; align-items: center; gap: .7rem; margin-bottom: .7rem; }
+  .card-title  { font-weight: 700; font-size: 1rem; }
+  .card-sub    { font-size: .82rem; color: var(--slate); font-family: 'SFMono-Regular', Consolas, monospace; }
+
+  .tag { display: inline-block; background: var(--slate-lt); color: var(--slate);
+         border-radius: 4px; font-size: .75rem; padding: .1rem .45rem;
+         font-family: 'SFMono-Regular', Consolas, monospace; }
+  .check::before { content: "✅ "; }
+  .cross::before { content: "🔲 "; }
+
+  /* ── Code blocks ── */
+  pre  { background: #1e293b; color: #e2e8f0; border-radius: 6px;
+         padding: .9rem 1.1rem; font-size: .82rem; overflow-x: auto;
+         font-family: 'SFMono-Regular', Consolas, monospace; margin-bottom: .75rem; }
+
+  /* ── Priority order steps ── */
+  ol.steps { counter-reset: step; list-style: none; padding: 0; }
+  ol.steps li { counter-increment: step; display: flex; gap: .9rem;
+                align-items: flex-start; padding: .6rem 0;
+                border-bottom: 1px solid var(--border); }
+  ol.steps li:last-child { border-bottom: none; }
+  ol.steps li::before { content: counter(step); min-width: 1.6rem; height: 1.6rem;
+                        background: var(--brand); color: #fff; border-radius: 50%;
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: .78rem; font-weight: 700; flex-shrink: 0; margin-top: .1rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>k6 Load Test — Scenario Gap Analysis &amp; Suggestions</h1>
+  <p>Framework: k6-ecommerce-framework &nbsp;·&nbsp; Generated: 2026-05-15 &nbsp;·&nbsp; 8 sites: PLA / SKX / DRM / VAN × AU / NZ</p>
+</header>
+
+<main>
+
+<!-- ═══════════════════════════════ COVERAGE MAP ════════════════════════════ -->
+<section>
+  <h2>Current Coverage Map</h2>
+  <p>Three test files are live. Several metrics and one scenario module exist in the codebase but have no runnable test file yet.</p>
+  <table>
+    <thead>
+      <tr><th>Scenario module</th><th>Test file</th><th>Executor</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">src/scenarios/pdp.ts</span></td>
+        <td><span class="tag">pdp-load.test.ts</span></td>
+        <td>ramping-arrival-rate</td>
+        <td><span class="badge live">✅ live</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag">src/scenarios/plp.ts</span></td>
+        <td><span class="tag">plp-load.test.ts</span></td>
+        <td>ramping-arrival-rate</td>
+        <td><span class="badge live">✅ live</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag">src/scenarios/place-order.ts</span></td>
+        <td><span class="tag">place-order.test.ts</span></td>
+        <td>ramping-arrival-rate</td>
+        <td><span class="badge live">✅ live</span></td>
+      </tr>
+      <tr>
+        <td><span class="tag">src/scenarios/login.ts</span></td>
+        <td><em>none</em></td>
+        <td>—</td>
+        <td><span class="badge warn">⚠️ scenario exists, no test</span></td>
+      </tr>
+      <tr>
+        <td><em>search, cart, journey, CMS</em></td>
+        <td><em>none</em></td>
+        <td>—</td>
+        <td><span class="badge miss">❌ not implemented</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Metrics registered but never recorded</h3>
+  <p>These are already defined in <span class="tag">src/lib/metrics.ts</span> but no running test file emits them:</p>
+  <p>
+    <span class="tag">scenario_login_*</span> &nbsp;
+    <span class="tag">scenario_add_to_cart_*</span> &nbsp;
+    <span class="tag">scenario_checkout_*</span> &nbsp;
+    <span class="tag">business_cart_value</span> &nbsp;
+    <span class="tag">business_cart_items</span> &nbsp;
+    <span class="tag">business_conversion_rate</span> &nbsp;
+    <span class="tag">business_cart_abandonment</span>
+  </p>
+</section>
+
+<!-- ══════════════════════════════ SCENARIO CARDS ═══════════════════════════ -->
+<section>
+  <h2>Suggested Scenarios</h2>
+
+  <!-- ── 1. Auth Checkout ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="badge p1">P1 — Highest</span>
+      <span class="card-title">Authenticated Customer Checkout</span>
+      <span class="card-sub">auth-checkout.test.ts</span>
+    </div>
+    <p><strong>Why this matters:</strong> Registered-customer checkout is a completely different Magento code path from guest checkout. It requires:</p>
+    <ul>
+      <li>A customer token (from <code>generateCustomerToken</code> mutation) — adds server-side session + cache pressure</li>
+      <li>A customer cart (bearer-token-scoped), not a guest masked-ID cart</li>
+      <li>Access to saved addresses, loyalty/store-credit, saved payment methods</li>
+    </ul>
+    <p>Guest checkout currently passes does <strong>not</strong> guarantee registered-customer checkout will hold under load — they hit different Magento code paths entirely.</p>
+
+    <h3>What already exists in the framework</h3>
+    <table>
+      <tr><th>Asset</th><th>Path</th><th>Ready?</th></tr>
+      <tr><td>Login scenario module</td><td><span class="tag">src/scenarios/login.ts</span></td><td><span class="badge live">✅ yes</span></td></tr>
+      <tr><td>Test user credentials</td><td><span class="tag">src/data/users.json</span></td><td><span class="badge live">✅ yes</span></td></tr>
+      <tr><td>Login / checkout metrics</td><td><span class="tag">src/lib/metrics.ts</span></td><td><span class="badge live">✅ yes</span></td></tr>
+      <tr><td>AuthToken / AuthSession types</td><td><span class="tag">src/types/index.ts</span></td><td><span class="badge live">✅ yes</span></td></tr>
+      <tr><td>Test file</td><td>—</td><td><span class="badge miss">❌ missing</span></td></tr>
+    </table>
+
+    <h3>What to build</h3>
+    <p><span class="tag">src/tests/auth-checkout.test.ts</span> — <code>ramping-arrival-rate</code>, 5 orders/min steady, chains <code>loginScenario()</code> → checkout with bearer-token header injection. Reads customers via <code>getUserProvider()</code>.</p>
+  </div>
+
+  <!-- ── 2. Search ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="badge p2">P2 — High</span>
+      <span class="card-title">Search / SRP (Search Results Page)</span>
+      <span class="card-sub">search-load.test.ts</span>
+    </div>
+    <p><strong>Why this matters:</strong> Search is the highest-traffic read path on footwear/apparel sites during sales and promotions:</p>
+    <ul>
+      <li><code>products(search: "...")</code> is routed through <strong>Elasticsearch/OpenSearch</strong>, completely bypassing Varnish full-page cache — a cache miss here is unavoidable</li>
+      <li>A spike on "sale" or "white sneakers" during a promotion can collapse the search tier while PDP and PLP remain healthy (false-green on current dashboards)</li>
+      <li>SCENARIOS.md already identifies search as a key customer entry point — it just has no test coverage yet</li>
+    </ul>
+
+    <h3>What to build</h3>
+    <ul>
+      <li><span class="tag">src/scenarios/search.ts</span> — wraps <code>products(search: "...", pageSize: N)</code>, records <code>search_query_time</code> (Trend) and <code>search_results_returned</code> (Rate)</li>
+      <li><span class="tag">src/data/search-terms.json</span> — curated realistic terms per brand (e.g. <code>["boots", "sale", "white sneakers", "size 10"]</code>)</li>
+      <li><span class="tag">src/tests/search-load.test.ts</span> — ramping-arrival-rate, high throughput matching PDP/PLP profile (200 → 500 req/min)</li>
+    </ul>
+  </div>
+
+  <!-- ── 3. Mixed Journey ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="badge p2">P2 — High</span>
+      <span class="card-title">Realistic Mixed User Journey</span>
+      <span class="card-sub">journey-load.test.ts</span>
+    </div>
+    <p><strong>Why this matters:</strong> All current tests are single-scenario silos. Real traffic is always mixed concurrently, which produces different behaviour:</p>
+    <ul>
+      <li>PDP + PLP together stress Varnish/Redis with <em>competing</em> cache key sets</li>
+      <li>Simultaneous browse and checkout stresses both read replicas and the write DB at the same time</li>
+      <li>Cache-stampede effects only appear under blended load, not isolated load</li>
+    </ul>
+    <p>SCENARIOS.md already documents the recommended traffic split: <strong>62.5% browse (PDP/PLP) · 25% cart/add · 12.5% checkout</strong>. A test file implementing this already serves as the most realistic regression check before a production release.</p>
+
+    <h3>What to build</h3>
+    <p><span class="tag">src/tests/journey-load.test.ts</span> — uses k6's multi-scenario <code>options.scenarios</code> to run three named scenarios concurrently in the documented proportions. <strong>Zero new scenario code needed</strong> — reuses existing <code>pdpScenario()</code>, <code>plpScenario()</code>, and <code>placeOrderGuestScenario()</code>.</p>
+    <pre>scenarios: {
+  browse_pdp:     { executor: 'ramping-arrival-rate', ... },  // 62.5%
+  browse_plp:     { executor: 'ramping-arrival-rate', ... },  //  25%
+  guest_checkout: { executor: 'ramping-arrival-rate', ... },  // 12.5%
+}</pre>
+  </div>
+
+  <!-- ── 4. Cart Abandonment ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="badge p3">P3 — Medium</span>
+      <span class="card-title">Cart / Add-to-Cart Abandonment</span>
+      <span class="card-sub">cart-load.test.ts</span>
+    </div>
+    <p><strong>Why this matters:</strong> Cart operations are a common Magento bottleneck that is hidden by the current test suite:</p>
+    <ul>
+      <li>Every cart mutation acquires a row-level DB lock on Magento's <code>quote</code> table — high add-to-cart concurrency causes lock contention even when checkout completion rate is low</li>
+      <li>Over 70% of real carts are never completed — so this load exists in production <em>independently</em> of checkout load</li>
+      <li>Currently, add-to-cart only appears as steps 1–3 of <code>place-order.test.ts</code>, which runs at just 5 orders/min — far below realistic abandonment volume</li>
+    </ul>
+    <p>Metrics <span class="tag">scenario_add_to_cart_*</span>, <span class="tag">business_cart_value</span>, and <span class="tag">business_cart_abandonment</span> are already registered but never recorded.</p>
+
+    <h3>What to build</h3>
+    <p><span class="tag">src/tests/cart-load.test.ts</span> — extracts and invokes only steps 1–3 of the place-order flow (create guest cart → add item → query cart total). No order placement. Higher throughput than <code>place-order.test.ts</code> to model realistic abandonment volume.</p>
+  </div>
+
+  <!-- ── 5. CMS/Homepage ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="badge p4">P4 — Lower / Smoke</span>
+      <span class="card-title">Homepage / CMS</span>
+      <span class="card-sub">cms-load.test.ts</span>
+    </div>
+    <p><strong>Why this matters:</strong> The homepage is the entry point for all direct and campaign traffic and exercises a different infrastructure layer:</p>
+    <ul>
+      <li><code>storeConfig</code> query (config cache) + <code>cmsPage(identifier: "home")</code> (Varnish/FPC) + navigation menu (category-tree cache)</li>
+      <li>These are the fastest-to-serve requests but also the first to fail during a <strong>thundering-herd cache miss</strong> (e.g. after a cache flush before a promotion)</li>
+      <li>Useful as a lightweight smoke / infrastructure baseline before running heavier scenarios</li>
+    </ul>
+
+    <h3>What to build</h3>
+    <ul>
+      <li><span class="tag">src/scenarios/cms.ts</span> — <code>storeConfig</code> + <code>cmsPage</code> + category-tree queries</li>
+      <li><span class="tag">src/tests/cms-load.test.ts</span> — high throughput (these should serve &lt;50 ms from cache); useful as smoke baseline</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════ SUMMARY TABLE ════════════════════════════ -->
+<section>
+  <h2>Summary Table</h2>
+  <table>
+    <thead>
+      <tr><th>Scenario</th><th>New scenario file?</th><th>New data file?</th><th>Reuses existing</th><th>Priority</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Authenticated checkout</strong></td>
+        <td><span class="badge live">No — uses login.ts</span></td>
+        <td><span class="badge live">No — users.json exists</span></td>
+        <td>login.ts + checkout + users</td>
+        <td><span class="badge p1">P1</span></td>
+      </tr>
+      <tr>
+        <td><strong>Search / SRP</strong></td>
+        <td><span class="badge miss">Yes — search.ts</span></td>
+        <td><span class="badge miss">Yes — search-terms.json</span></td>
+        <td>GraphQL client, metrics</td>
+        <td><span class="badge p2">P2</span></td>
+      </tr>
+      <tr>
+        <td><strong>Mixed journey</strong></td>
+        <td><span class="badge live">No</span></td>
+        <td><span class="badge live">No</span></td>
+        <td>All 3 existing scenarios</td>
+        <td><span class="badge p2">P2</span></td>
+      </tr>
+      <tr>
+        <td><strong>Cart abandonment</strong></td>
+        <td><span class="badge live">No — reuse place-order steps</span></td>
+        <td><span class="badge live">No</span></td>
+        <td>place-order steps 1–3</td>
+        <td><span class="badge p3">P3</span></td>
+      </tr>
+      <tr>
+        <td><strong>Homepage / CMS</strong></td>
+        <td><span class="badge miss">Yes — cms.ts</span></td>
+        <td><span class="badge live">No</span></td>
+        <td>GraphQL client</td>
+        <td><span class="badge p4">P4</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════════════════════════════ IMPLEMENTATION ORDER ═══════════════════════ -->
+<section>
+  <h2>Recommended Implementation Order</h2>
+  <ol class="steps">
+    <li>
+      <div>
+        <strong>Mixed journey</strong> — zero new code; proves k6 multi-scenario in one file; immediate coverage win.
+        <br><span class="tag">src/tests/journey-load.test.ts</span>
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Authenticated checkout</strong> — fills the biggest real-world gap; all scaffolding already exists.
+        <br><span class="tag">src/tests/auth-checkout.test.ts</span>
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Search / SRP</strong> — requires new scenario + data files; high production impact on sale events.
+        <br><span class="tag">src/scenarios/search.ts</span> · <span class="tag">src/data/search-terms.json</span> · <span class="tag">src/tests/search-load.test.ts</span>
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Cart abandonment</strong> — useful complement to place-order; shares steps 1–3.
+        <br><span class="tag">src/tests/cart-load.test.ts</span>
+      </div>
+    </li>
+    <li>
+      <div>
+        <strong>Homepage / CMS</strong> — nice-to-have smoke baseline; lowest effort, lowest urgency.
+        <br><span class="tag">src/scenarios/cms.ts</span> · <span class="tag">src/tests/cms-load.test.ts</span>
+      </div>
+    </li>
+  </ol>
+</section>
+
+<!-- ════════════════════════════ FILES TO CREATE ════════════════════════════ -->
+<section>
+  <h2>Files to Create / Modify</h2>
+  <table>
+    <thead><tr><th>Action</th><th>File</th></tr></thead>
+    <tbody>
+      <tr><td>Create</td><td><span class="tag">src/tests/journey-load.test.ts</span></td></tr>
+      <tr><td>Create</td><td><span class="tag">src/tests/auth-checkout.test.ts</span></td></tr>
+      <tr><td>Create</td><td><span class="tag">src/scenarios/search.ts</span></td></tr>
+      <tr><td>Create</td><td><span class="tag">src/data/search-terms.json</span></td></tr>
+      <tr><td>Create</td><td><span class="tag">src/tests/search-load.test.ts</span></td></tr>
+      <tr><td>Create</td><td><span class="tag">src/tests/cart-load.test.ts</span></td></tr>
+      <tr><td>Create</td><td><span class="tag">src/scenarios/cms.ts</span></td></tr>
+      <tr><td>Create</td><td><span class="tag">src/tests/cms-load.test.ts</span></td></tr>
+      <tr><td>Update</td><td><span class="tag">src/lib/metrics.ts</span> — add search_* and cms_* metrics</td></tr>
+      <tr><td>Update</td><td><span class="tag">README.md</span> — extend test-file table</td></tr>
+      <tr><td>Update</td><td><span class="tag">docs/SCENARIOS.md</span> — document new scenarios</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+</body>
+</html>

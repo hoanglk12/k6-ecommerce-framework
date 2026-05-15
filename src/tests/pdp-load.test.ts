@@ -46,10 +46,20 @@ const logger = createLogger('LoadTest');
 // Set QUICK_TEST=true to run a 30-second smoke pass (2 VUs, 5 req/min).
 // ============================================================================
 
+const isSmokeTest = __ENV.SMOKE_TEST === 'true';
 const isQuickTest = __ENV.QUICK_TEST === 'true';
 
 export const options: Options = {
-  scenarios: isQuickTest ? {
+  scenarios: isSmokeTest ? {
+    // 1 VU × 1 iteration — full real-API assertions, no think time.
+    // Use for CI smoke gate before committing to a 16-minute run.
+    pdp_smoke: {
+      executor: 'per-vu-iterations',
+      vus: 1,
+      iterations: 1,
+      maxDuration: '30s',
+    },
+  } : isQuickTest ? {
     pdp_smoke: {
       executor: 'constant-arrival-rate',
       rate: 5,
@@ -208,7 +218,7 @@ export default function(data: SetupData): void {
     }
   });
 
-  thinkTime(envConfig);
+  if (!isSmokeTest) thinkTime(envConfig);
 }
 
 // ============================================================================

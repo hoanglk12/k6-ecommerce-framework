@@ -35,8 +35,7 @@ import { Options } from 'k6/options';
 import { SharedArray } from 'k6/data';
 import exec from 'k6/execution';
 
-// @ts-expect-error - k6 remote module import
-import { randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+import { randomItem } from '../lib/vendor/k6-utils.js';
 
 import { getProductProviderForSite } from '../lib/data-provider';
 
@@ -75,8 +74,19 @@ const logger = createLogger('PlaceOrderTest');
  *
  * Total runtime ≈ 10 minutes.
  */
+const isSmokeTest = __ENV.SMOKE_TEST === 'true';
+
 export const options: Options = {
-  scenarios: {
+  scenarios: isSmokeTest ? {
+    // 1 VU × 1 iteration — full 9-step checkout, real API calls, no think time.
+    // Requires ENABLE_PLACE_ORDER=true. Use in CI to verify checkout before load runs.
+    place_order_smoke: {
+      executor: 'per-vu-iterations',
+      vus: 1,
+      iterations: 1,
+      maxDuration: '60s',
+    },
+  } : {
     place_order: {
       executor: 'ramping-arrival-rate',
       startRate: 0,
@@ -325,8 +335,7 @@ export default function (data: SetupData): void {
     }
   });
 
-  // Simulate post-order browsing / confirmation page read time
-  thinkTime(envConfig);
+  if (!isSmokeTest) thinkTime(envConfig);
 }
 
 // ============================================================================
