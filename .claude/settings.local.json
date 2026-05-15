@@ -9,7 +9,9 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(curl -s -X POST https://stag-platypus-au.accentgra.com/graphql -H 'Content-Type: application/json' -H 'Origin: https://stag-platypus-au.accentgra.com' --max-time 30 -d '{\"query\":\"query { products\\(filter: { category_id: { eq: \\\\\"2\\\\\" } }, pageSize: 20, sort: { name: ASC }\\) { items { sku name url_key stock_status __typename } total_count } }\"}')",
-      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(i['sku'], i['stock_status'], i['url_key']\\) for i in d.get\\('data',{}\\).get\\('products',{}\\).get\\('items',[]\\)]\")"
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(i['sku'], i['stock_status'], i['url_key']\\) for i in d.get\\('data',{}\\).get\\('products',{}\\).get\\('items',[]\\)]\")",
+      "Bash(timeout 15 k6 run -e SITE=skechers-nz -e ENVIRONMENT=staging dist/tests/place-order.test.js)",
+      "Bash(echo \"--- exit $? ---\")"
     ]
   }
 }

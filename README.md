@@ -38,7 +38,7 @@ npm run test:quick
 npm run test:load:platypus-au
 
 # 4. Vans guest checkout
-k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/vans-place-order.test.js
+k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
 ```
 
 > **Always `npm run build` before running tests.** k6 runs the bundled `dist/` files, not the TypeScript sources.
@@ -53,7 +53,7 @@ k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/vans-place-order.te
 |---|---|---|
 | `tests/pdp-load.test.js` | PDP (Product Detail Page) GraphQL query | All 8 |
 | `tests/plp-load.test.js` | PLP (Product Listing Page) category query | All 8 |
-| `tests/vans-place-order.test.js` | Full 9-step guest checkout end-to-end | vans-au, vans-nz |
+| `tests/place-order.test.js` | Full 9-step guest checkout end-to-end | All 8 sites |
 
 ### Target sites
 
@@ -176,7 +176,7 @@ k6-ecommerce-framework/
 │   ├── tests/
 │   │   ├── pdp-load.test.ts           # PDP load test — all 8 sites
 │   │   ├── plp-load.test.ts           # PLP load test — all 8 sites
-│   │   └── vans-place-order.test.ts   # Guest checkout — vans-au, vans-nz
+│   │   └── place-order.test.ts   # Guest checkout — all 8 sites
 │   └── types/
 │       └── index.ts                   # All TypeScript interfaces
 ├── dist/                              # Webpack output — what k6 actually runs
@@ -249,20 +249,20 @@ k6 run -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/plp-load.test.js
 k6 run -e SITE=vans-nz     -e ENVIRONMENT=staging dist/tests/plp-load.test.js
 ```
 
-### Vans guest checkout
+### Guest checkout (all sites)
 
 ```bash
-# Vans AU — staging
-k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/vans-place-order.test.js
-
-# Vans NZ — staging
-k6 run -e SITE=vans-nz -e ENABLE_PLACE_ORDER=true dist/tests/vans-place-order.test.js
+# Any site — staging
+k6 run -e SITE=platypus-au -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+k6 run -e SITE=skechers-nz -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+k6 run -e SITE=drmartens-au -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+k6 run -e SITE=vans-nz -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
 
 # Dry checkout (no actual orders placed)
-k6 run -e SITE=vans-au -e DRY_RUN=true dist/tests/vans-place-order.test.js
+k6 run -e SITE=platypus-au -e DRY_RUN=true dist/tests/place-order.test.js
 
 # Custom payment method
-k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true -e PAYMENT_METHOD=free dist/tests/vans-place-order.test.js
+k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true -e PAYMENT_METHOD=free dist/tests/place-order.test.js
 ```
 
 ### Web dashboard (real-time)
@@ -294,9 +294,9 @@ npm run dry-run
 | `ENVIRONMENT` | `staging` | `staging` or `production` |
 | `QUICK_TEST` | `false` | `true` → 30s smoke profile (5 req/min, 2 VUs) in pdp-load.test |
 | `DRY_RUN` | `false` | Skip mutations; GraphQL queries still run |
-| `ENABLE_PLACE_ORDER` | `false` | Must be `true` for vans-place-order to place orders |
+| `ENABLE_PLACE_ORDER` | `false` | Must be `true` for place-order to place orders |
 | `PRODUCTION_CONFIRMED` | `false` | Required to run order mutations against production |
-| `PAYMENT_METHOD` | `checkmo` | Magento payment method code for vans-place-order |
+| `PAYMENT_METHOD` | `checkmo` | Magento payment method code for place-order |
 | `DEBUG` | `false` | Verbose client-level logging |
 | `BASE_URL` | _(site default)_ | Override the base URL for the selected site |
 | `GRAPHQL_ENDPOINT` | _(site default)_ | Override the GraphQL endpoint directly |
@@ -388,15 +388,15 @@ k6 run -e SITE=drmartens-au -e ENVIRONMENT=staging dist/tests/plp-load.test.js
 
 ---
 
-### `vans-place-order.test.ts` — Guest checkout (Vans AU/NZ)
+### `place-order.test.ts` — Guest checkout (All 8 sites)
 
-Full 9-step guest checkout flow against Vans staging. Only `vans-au` and `vans-nz` are valid — `setup()` warns if any other site is selected.
+Full 9-step guest checkout flow. Supports all 8 sites (PLA/SKX/DRM/VAN × AU/NZ) — `setup()` warns if an unrecognised site ID is used.
 
 **Executor:** `ramping-arrival-rate` — 5 orders/min steady state, 10 minutes total  
 **Safety:** Iterations do nothing unless `ENABLE_PLACE_ORDER=true`
 
 ```bash
-k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/vans-place-order.test.js
+k6 run -e SITE=<site-id> -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
 ```
 
 #### Checkout steps
@@ -718,7 +718,7 @@ Three independent gates guard production order placement:
 
 ```
 ENVIRONMENT=production    → warns, continues (read-only queries OK)
-ENABLE_PLACE_ORDER=true   → unlocks mutation steps (vans-place-order)
+ENABLE_PLACE_ORDER=true   → unlocks mutation steps (place-order)
 PRODUCTION_CONFIRMED=true → required when ENABLE_PLACE_ORDER=true on production
 
 Missing PRODUCTION_CONFIRMED + ENABLE_PLACE_ORDER=true on production:
@@ -746,7 +746,7 @@ k6 run \
   -e ENVIRONMENT=production \
   -e PRODUCTION_CONFIRMED=true \
   -e ENABLE_PLACE_ORDER=true \
-  dist/tests/vans-place-order.test.js
+  dist/tests/place-order.test.js
 ```
 
 ---

@@ -1,30 +1,26 @@
 /**
- * Load Test – Vans Place Order (Guest Checkout)
+ * Load Test – Place Order (Guest Checkout) — All 8 Sites
  *
- * Covers guest checkout end-to-end for:
- *   • vans-au  (AUD, stag-vans-au.accentgra.com)
- *   • vans-nz  (NZD, stag-vans-nz.accentgra.com)
- *
- * Prerequisite:
- *   Run the product discovery script to populate real Vans SKUs before
- *   running this test:
- *     node discover-products.js --site vans-au
- *     node discover-products.js --site vans-nz
- *   Then replace the PLACEHOLDER-SKU entries in VANS_PRODUCTS below.
+ * Covers guest checkout end-to-end for all supported sites:
+ *   • platypus-au / platypus-nz
+ *   • skechers-au / skechers-nz
+ *   • drmartens-au / drmartens-nz
+ *   • vans-au / vans-nz
  *
  * Usage:
- *   # Vans AU
- *   k6 run --env SITE=vans-au --env ENABLE_PLACE_ORDER=true \
- *          dist/tests/vans-place-order.test.js
+ *   k6 run --env SITE=<site-id> --env ENABLE_PLACE_ORDER=true \
+ *          dist/tests/place-order.test.js
  *
- *   # Vans NZ
- *   k6 run --env SITE=vans-nz --env ENABLE_PLACE_ORDER=true \
- *          dist/tests/vans-place-order.test.js
+ *   # Examples
+ *   k6 run --env SITE=platypus-au --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+ *   k6 run --env SITE=skechers-nz --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+ *   k6 run --env SITE=drmartens-au --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+ *   k6 run --env SITE=vans-nz --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
  *
  *   # Optional overrides
  *   k6 run --env SITE=vans-au --env ENABLE_PLACE_ORDER=true \
  *          --env PAYMENT_METHOD=checkmo --env DRY_RUN=false \
- *          dist/tests/vans-place-order.test.js
+ *          dist/tests/place-order.test.js
  *
  * Safety:
  *   ENABLE_PLACE_ORDER must be explicitly set to "true" or the test will
@@ -64,7 +60,7 @@ import { placeOrderGuestScenario, PlaceOrderGuestInput } from '../scenarios/plac
 // Types
 import { SiteConfig, TestProduct, TestAddress, CheckoutData } from '../types';
 
-const logger = createLogger('VansPlaceOrderTest');
+const logger = createLogger('PlaceOrderTest');
 
 // ============================================================================
 // TEST CONFIGURATION
@@ -81,7 +77,7 @@ const logger = createLogger('VansPlaceOrderTest');
  */
 export const options: Options = {
   scenarios: {
-    vans_place_order: {
+    place_order: {
       executor: 'ramping-arrival-rate',
       startRate: 0,
       timeUnit: '1m',
@@ -125,20 +121,28 @@ export const options: Options = {
   tags: {
     testType:  'load',
     scenario:  'place-order-guest',
-    brand:     'vans',
   },
 
   noConnectionReuse: false,
-  userAgent: 'k6-load-test-vans-place-order/1.0',
+  userAgent: 'k6-load-test-place-order/1.0',
 };
 
 // ============================================================================
 // TEST DATA — product providers created at module scope (init context).
-// SKU lists live in src/data/products-vans-{au,nz}.json.
+// One provider per site; data-provider caches shared underlying arrays so
+// platypus-au/platypus-nz (and similar cross-country pairs) share one load.
 // ============================================================================
 
-const _vansAuProvider = getProductProviderForSite('vans-au', 'random');
-const _vansNzProvider = getProductProviderForSite('vans-nz', 'random');
+const _providers: Record<string, ReturnType<typeof getProductProviderForSite>> = {
+  'platypus-au':  getProductProviderForSite('platypus-au',  'random'),
+  'platypus-nz':  getProductProviderForSite('platypus-nz',  'random'),
+  'skechers-au':  getProductProviderForSite('skechers-au',  'random'),
+  'skechers-nz':  getProductProviderForSite('skechers-nz',  'random'),
+  'drmartens-au': getProductProviderForSite('drmartens-au', 'random'),
+  'drmartens-nz': getProductProviderForSite('drmartens-nz', 'random'),
+  'vans-au':      getProductProviderForSite('vans-au',      'random'),
+  'vans-nz':      getProductProviderForSite('vans-nz',      'random'),
+};
 
 /** Australian test addresses loaded from data file */
 const AU_ADDRESSES = new SharedArray('au-addresses', function () {
@@ -167,9 +171,11 @@ const _client     = new GraphQLClient(_siteConfig);
 // HELPERS
 // ============================================================================
 
-/** Pick a random product for the given Vans site */
+/** Pick a random product for the given site */
 function getRandomProduct(siteId: string): TestProduct {
-  return siteId === 'vans-nz' ? _vansNzProvider.getNext() : _vansAuProvider.getNext();
+  const provider = _providers[siteId];
+  if (!provider) throw new Error(`No product provider configured for site '${siteId}'`);
+  return provider.getNext();
 }
 
 /** Choose the address pool that matches the site's country */
@@ -214,8 +220,15 @@ interface SetupData {
   enablePlaceOrder: boolean;
 }
 
+const SUPPORTED_SITES = [
+  'platypus-au', 'platypus-nz',
+  'skechers-au', 'skechers-nz',
+  'drmartens-au', 'drmartens-nz',
+  'vans-au', 'vans-nz',
+] as const;
+
 export function setup(): SetupData {
-  logger.info('=== Vans Place Order Load Test – Setup ===');
+  logger.info('=== Place Order Load Test – Setup ===');
 
   const siteConfig      = getSiteConfig();
   const envConfig       = getEnvironmentConfig();
@@ -230,9 +243,10 @@ export function setup(): SetupData {
   logger.info(`Dry Run:             ${isDryRun()}`);
 
   // Validate site selection
-  if (!['vans-au', 'vans-nz'].includes(siteConfig.id)) {
-    logger.warn(`⚠️  Site '${siteConfig.id}' is not in [vans-au, vans-nz]. `
-      + `Set --env SITE=vans-au or --env SITE=vans-nz.`);
+  if (!(SUPPORTED_SITES as readonly string[]).includes(siteConfig.id)) {
+    logger.warn(
+      `⚠️  Site '${siteConfig.id}' is not supported. Valid values: ${SUPPORTED_SITES.join(', ')}.`
+    );
   }
 
   if (!enablePlaceOrder) {
@@ -320,7 +334,7 @@ export default function (data: SetupData): void {
 // ============================================================================
 
 export function teardown(data: SetupData): void {
-  logger.info('=== Vans Place Order Load Test – Teardown ===');
+  logger.info('=== Place Order Load Test – Teardown ===');
   logger.info(`Site:        ${data.siteConfig.name}`);
   logger.info(`Test complete. Check Magento order grid for staged test orders.`);
 }

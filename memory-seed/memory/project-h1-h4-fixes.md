@@ -7,7 +7,7 @@ metadata:
 
 Four high-priority issues from `k6-framework-review.html` were fixed on 2026-05-13.
 
-**H1 — Scenarios API adopted** (`load.test.ts`, `plp-load.test.ts`, `vans-place-order.test.ts`)
+**H1 — Scenarios API adopted** (`load.test.ts`, `plp-load.test.ts`, `place-order.test.ts`)
 Top-level `stages:` shorthand replaced with `scenarios: { <name>: { executor, stages, gracefulRampDown } }`. Named scenarios: `pdp_browse`, `plp_browse`, `guest_checkout`.
 
 **Why:** `stages` shorthand locks every test to a single journey. The `scenarios` API enables multiple concurrent journeys, per-scenario thresholds, and explicit executor configuration.
