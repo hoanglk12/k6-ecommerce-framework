@@ -14,7 +14,8 @@
       "Bash(echo \"--- exit $? ---\")",
       "Bash(mkdir -p \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\")",
       "Bash(curl -sL \"https://jslib.k6.io/k6-utils/1.4.0/index.js\" -o \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\\\\k6-utils.js\")",
-      "Bash(curl -sL \"https://jslib.k6.io/papaparse/5.1.1/index.js\" -o \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\\\\papaparse.js\")"
+      "Bash(curl -sL \"https://jslib.k6.io/papaparse/5.1.1/index.js\" -o \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\\\\papaparse.js\")",
+      "Bash(npx eslint *)"
     ]
   }
 }

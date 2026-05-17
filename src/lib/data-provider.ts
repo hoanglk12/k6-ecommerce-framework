@@ -308,7 +308,7 @@ function loadProductData(key: ProductSite): TestProduct[] {
  * sequential currentIndex and unique usedIndices are preserved across calls.
  */
 export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): DataProvider<TestUser> {
-  if (_userProviders[strategy]) return _userProviders[strategy]!;
+  if (_userProviders[strategy]) return _userProviders[strategy];
   if (!_usersData) {
     try {
       _usersData = loadJSON<TestUser>('users', DATA_PATHS.users.json);
@@ -318,7 +318,7 @@ export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): 
     }
   }
   _userProviders[strategy] = new DataProvider<TestUser>(_usersData, strategy);
-  return _userProviders[strategy]!;
+  return _userProviders[strategy];
 }
 
 /**
@@ -332,9 +332,9 @@ export function getProductProvider(
   strategy: DataRotationStrategy = 'random'
 ): DataProvider<TestProduct> {
   const cacheKey = `${site}:${strategy}`;
-  if (_productProviders[cacheKey]) return _productProviders[cacheKey]!;
+  if (_productProviders[cacheKey]) return _productProviders[cacheKey];
   _productProviders[cacheKey] = new DataProvider<TestProduct>(loadProductData(site), strategy);
-  return _productProviders[cacheKey]!;
+  return _productProviders[cacheKey];
 }
 
 /**
@@ -359,7 +359,7 @@ export function getProductProviderForSite(
  * sequential currentIndex and unique usedIndices are preserved across calls.
  */
 export function getAddressProvider(strategy: DataRotationStrategy = 'random'): DataProvider<TestAddress> {
-  if (_addressProviders[strategy]) return _addressProviders[strategy]!;
+  if (_addressProviders[strategy]) return _addressProviders[strategy];
   if (!_addressesData) {
     try {
       _addressesData = loadJSON<TestAddress>('addresses', DATA_PATHS.addresses.json);
@@ -369,7 +369,7 @@ export function getAddressProvider(strategy: DataRotationStrategy = 'random'): D
     }
   }
   _addressProviders[strategy] = new DataProvider<TestAddress>(_addressesData, strategy);
-  return _addressProviders[strategy]!;
+  return _addressProviders[strategy];
 }
 
 // ============================================================================
