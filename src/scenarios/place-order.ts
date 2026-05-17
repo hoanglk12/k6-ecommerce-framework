@@ -30,8 +30,7 @@ import {
   CheckoutData,
 } from '../types';
 
-// @ts-expect-error - k6 remote module import
-import { randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+import { randomItem } from '../lib/vendor/k6-utils.js';
 
 const logger = createLogger('PlaceOrderScenario');
 

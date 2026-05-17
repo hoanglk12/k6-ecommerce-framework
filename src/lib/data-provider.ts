@@ -145,7 +145,8 @@ export class DataProvider<T> {
   private readonly data: T[];
   private readonly strategy: DataRotationStrategy;
   private currentIndex: number = 0;
-  private usedIndices: Set<number> = new Set();
+  private shuffledIndices: number[] | null = null;
+  private shufflePointer: number = 0;
 
   constructor(data: T[], strategy: DataRotationStrategy = 'sequential') {
     this.data = data;
@@ -235,7 +236,8 @@ export class DataProvider<T> {
    */
   reset(): void {
     this.currentIndex = 0;
-    this.usedIndices.clear();
+    this.shuffledIndices = null;
+    this.shufflePointer = 0;
   }
 
   // Private helper methods
@@ -252,18 +254,16 @@ export class DataProvider<T> {
   }
 
   private getUniqueItem(): T {
-    // If all items used, reset
-    if (this.usedIndices.size >= this.data.length) {
-      this.usedIndices.clear();
+    // Rebuild the shuffle deck when exhausted — O(n) Fisher-Yates, O(1) per access
+    if (!this.shuffledIndices || this.shufflePointer >= this.shuffledIndices.length) {
+      this.shuffledIndices = Array.from({ length: this.data.length }, (_, i) => i);
+      for (let i = this.shuffledIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [this.shuffledIndices[i], this.shuffledIndices[j]] = [this.shuffledIndices[j], this.shuffledIndices[i]];
+      }
+      this.shufflePointer = 0;
     }
-
-    let index: number;
-    do {
-      index = Math.floor(Math.random() * this.data.length);
-    } while (this.usedIndices.has(index));
-
-    this.usedIndices.add(index);
-    return this.data[index];
+    return this.data[this.shuffledIndices[this.shufflePointer++]];
   }
 }
 
@@ -276,11 +276,12 @@ const _productCache: Partial<Record<ProductSite, TestProduct[]>> = {};
 let _usersData: TestUser[] | null = null;
 let _addressesData: TestAddress[] | null = null;
 
-// Provider-instance cache — keyed by strategy so callers always get the same
-// DataProvider object regardless of how many times the factory is invoked.
-// This preserves sequential currentIndex and unique usedIndices across calls.
+// Provider-instance cache — keyed by strategy (or site:strategy) so callers always
+// get the same DataProvider object regardless of how many times the factory is invoked.
+// This preserves sequential currentIndex and unique shufflePointer across calls.
 const _userProviders: Partial<Record<DataRotationStrategy, DataProvider<TestUser>>> = {};
 const _addressProviders: Partial<Record<DataRotationStrategy, DataProvider<TestAddress>>> = {};
+const _productProviders: Partial<Record<string, DataProvider<TestProduct>>> = {};
 
 function loadProductData(key: ProductSite): TestProduct[] {
   if (!_productCache[key]) {
@@ -322,13 +323,18 @@ export function getUserProvider(strategy: DataRotationStrategy = 'sequential'): 
 
 /**
  * Get product data provider by product-site key.
+ * Returns the same DataProvider instance for a given site+strategy so that
+ * sequential currentIndex and unique shufflePointer are preserved across calls.
  * For convenience from test files, prefer getProductProviderForSite().
  */
 export function getProductProvider(
   site: ProductSite,
   strategy: DataRotationStrategy = 'random'
 ): DataProvider<TestProduct> {
-  return new DataProvider<TestProduct>(loadProductData(site), strategy);
+  const cacheKey = `${site}:${strategy}`;
+  if (_productProviders[cacheKey]) return _productProviders[cacheKey]!;
+  _productProviders[cacheKey] = new DataProvider<TestProduct>(loadProductData(site), strategy);
+  return _productProviders[cacheKey]!;
 }
 
 /**

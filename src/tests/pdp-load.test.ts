@@ -169,8 +169,8 @@ export function setup(): SetupData {
     const sample = provider.getNext();
     if (sample.sku === 'PLACEHOLDER-SKU') {
       fail(
-        `Site '${siteConfig.id}' has PLACEHOLDER-SKU entries. ` +
-        `Run product discovery first: k6 run --env SITE=${siteConfig.id} dist/discover-products.js`
+        `Site '${siteConfig.id}' has PLACEHOLDER-SKU entries in src/data/products-${siteConfig.id.replace(/-[a-z]{2}$/, '')}.json. ` +
+        `Replace them with real in-stock SKUs from the ${siteConfig.id} storefront before running a load test.`
       );
     }
   }

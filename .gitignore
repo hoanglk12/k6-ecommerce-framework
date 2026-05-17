@@ -31,6 +31,7 @@ npm-debug.log*
 # k6 output files
 *.json.gz
 summary.json
+results/*.json
 
 # Credentials (NEVER commit these)
 credentials.json

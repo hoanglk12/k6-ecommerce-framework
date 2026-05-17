@@ -12,8 +12,7 @@ import { sleep } from 'k6';
 import exec from 'k6/execution';
 import { EnvironmentConfig } from '../types';
 
-// @ts-expect-error - k6 remote module import
-import { randomIntBetween, randomString, randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+import { randomIntBetween, randomString, randomItem } from './vendor/k6-utils.js';
 
 // ============================================================================
 // SLEEP HELPERS
