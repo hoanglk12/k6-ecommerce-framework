@@ -73,8 +73,8 @@ export const options: Options = {
       executor: 'ramping-arrival-rate',
       startRate: 0,
       timeUnit: '1m',
-      preAllocatedVUs: 50,
-      maxVUs: 150,
+      preAllocatedVUs: 20,
+      maxVUs: 80,
       stages: [
         { duration: '2m', target: 200 },  // ramp to 200 req/min
         { duration: '5m', target: 200 },  // average load

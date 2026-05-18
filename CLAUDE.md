@@ -23,7 +23,7 @@ scoop install k6   # Scoop
 
 After a package-manager install, `k6` is on the system PATH and all npm scripts work without further configuration.
 
-### Current machine (Lincoln's workstation)
+### Machines without admin rights (e.g. Lincoln's workstation)
 
 k6 v2.0.0 was manually extracted to `C:\Tools\k6-v2.0.0\k6.exe` and is **not** on the system PATH. Add it for the current shell session before running k6 directly:
 
@@ -35,7 +35,7 @@ $env:PATH += ";C:\Tools\k6-v2.0.0"
 set PATH=%PATH%;C:\Tools\k6-v2.0.0
 ```
 
-> npm scripts that call `k6 run ...` inherit the shell PATH, so you must add k6 to PATH before running `npm run test:*` or `npm run build` → `k6 run ...` manually.
+> This PATH step is only needed on machines where k6 was manually extracted. On machines with admin rights where k6 was installed via winget/choco/scoop, it is already on the system PATH and npm scripts work without any extra setup.
 
 Git is also not on the default PowerShell PATH on this machine:
 
