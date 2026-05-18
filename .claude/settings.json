@@ -15,5 +15,34 @@
       "Bash(k6 run --vus 200*)",
       "Bash(k6 cloud*)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$j = [Console]::In.ReadToEnd() | ConvertFrom-Json; $f = $j.tool_input.file_path; if ($f -match '\\.ts$') { npm run validate }",
+            "shell": "powershell",
+            "timeout": 60,
+            "statusMessage": "Type-checking TypeScript..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$j = [Console]::In.ReadToEnd() | ConvertFrom-Json; $cmd = $j.tool_input.command; if ($cmd -match 'k6' -and $cmd -match 'ENVIRONMENT=production' -and $cmd -notmatch 'PRODUCTION_CONFIRMED=true') { @{hookSpecificOutput=@{hookEventName='PreToolUse';permissionDecision='deny';permissionDecisionReason='Production k6 runs require -e PRODUCTION_CONFIRMED=true'}} | ConvertTo-Json -Compress }",
+            "shell": "powershell",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }
