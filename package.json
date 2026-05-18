@@ -30,6 +30,7 @@
     "test:cloud": "k6 cloud run dist/tests/pdp-load.test.js",
     "test:cloud:platypus-au": "k6 cloud run -e SITE=platypus-au dist/tests/pdp-load.test.js",
     "test:cloud:skechers-au": "k6 cloud run -e SITE=skechers-au dist/tests/pdp-load.test.js",
+    "test:cloud:plp": "k6 cloud run -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/plp-load.test.js",
     "test:quick": "k6 run -e SITE=platypus-au -e ENVIRONMENT=staging -e QUICK_TEST=true dist/tests/pdp-load.test.js",
     "dashboard": "k6 run --out web-dashboard dist/tests/pdp-load.test.js",
     "dashboard:platypus-au": "k6 run --out web-dashboard --vus 50 --duration 5m -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/pdp-load.test.js",

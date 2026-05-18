@@ -73,7 +73,7 @@ export const options: Options = {
       startRate: 0,
       timeUnit: '1m',
       preAllocatedVUs: 50,
-      maxVUs: 150,
+      maxVUs: 100,
       stages: [
         { duration: '2m', target: 200 },  // ramp to 200 req/min
         { duration: '5m', target: 200 },  // average load

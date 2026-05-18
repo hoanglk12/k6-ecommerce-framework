@@ -38,6 +38,9 @@ credentials.json
 secrets.json
 **/secrets/
 
+# Claude Code local settings (may contain personal tokens)
+.claude/settings.local.json
+
 # Temporary files
 tmp/
 temp/

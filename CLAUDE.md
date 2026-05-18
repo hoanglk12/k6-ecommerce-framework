@@ -8,23 +8,40 @@ A TypeScript/k6 load testing framework for Magento 2/Adobe Commerce eCommerce si
 
 ## Runtime
 
-k6 v2.0.0 is installed at `C:\Tools\k6-v2.0.0\k6.exe` and is not on the system PATH by default.
+k6 is a compiled Go binary installed separately from Node/npm.
+
+### New machine setup (admin rights required)
 
 ```powershell
-# PowerShell (Claude Code sessions use this)
+# Install k6 via winget (adds to system PATH automatically — preferred)
+winget install k6
+
+# Alternatives
+choco install k6   # Chocolatey
+scoop install k6   # Scoop
+```
+
+After a package-manager install, `k6` is on the system PATH and all npm scripts work without further configuration.
+
+### Current machine (Lincoln's workstation)
+
+k6 v2.0.0 was manually extracted to `C:\Tools\k6-v2.0.0\k6.exe` and is **not** on the system PATH. Add it for the current shell session before running k6 directly:
+
+```powershell
+# PowerShell
 $env:PATH += ";C:\Tools\k6-v2.0.0"
 
 # cmd
 set PATH=%PATH%;C:\Tools\k6-v2.0.0
 ```
 
-Git is also not on the default PowerShell PATH. Use the full path when needed:
+> npm scripts that call `k6 run ...` inherit the shell PATH, so you must add k6 to PATH before running `npm run test:*` or `npm run build` → `k6 run ...` manually.
+
+Git is also not on the default PowerShell PATH on this machine:
 
 ```powershell
-$git = "C:\Users\Lincoln.Pham\AppData\Local\Programs\Git\cmd\git.exe"
-& $git status
-# Or add to PATH for the session:
 $env:PATH += ";C:\Users\Lincoln.Pham\AppData\Local\Programs\Git\cmd"
+# Or use the full path: & "C:\Users\Lincoln.Pham\AppData\Local\Programs\Git\cmd\git.exe" status
 ```
 
 ## Commands
