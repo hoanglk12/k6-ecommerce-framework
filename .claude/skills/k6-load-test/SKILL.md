@@ -218,7 +218,7 @@ export const options = {
       startRate: 0,
       timeUnit: '1m',
       preAllocatedVUs: 50,
-      maxVUs: 150,
+      maxVUs: 100, // Grafana Cloud account limit: 100 VUs max
       stages: [{ duration: '10m', target: 350 }], // 350 req/min
     },
     plp_browse: {

@@ -9,10 +9,22 @@ A TypeScript/k6 load testing framework for Magento 2/Adobe Commerce eCommerce si
 ## Runtime
 
 k6 v2.0.0 is installed at `C:\Tools\k6-v2.0.0\k6.exe` and is not on the system PATH by default.
-Add it for the current cmd session before running any k6 command:
 
-```cmd
+```powershell
+# PowerShell (Claude Code sessions use this)
+$env:PATH += ";C:\Tools\k6-v2.0.0"
+
+# cmd
 set PATH=%PATH%;C:\Tools\k6-v2.0.0
+```
+
+Git is also not on the default PowerShell PATH. Use the full path when needed:
+
+```powershell
+$git = "C:\Users\Lincoln.Pham\AppData\Local\Programs\Git\cmd\git.exe"
+& $git status
+# Or add to PATH for the session:
+$env:PATH += ";C:\Users\Lincoln.Pham\AppData\Local\Programs\Git\cmd"
 ```
 
 ## Commands
@@ -28,22 +40,46 @@ npm run validate         # TypeScript type check (tsc --noEmit)
 npm run lint             # ESLint TypeScript
 
 # Smoke tests (1 VU × 1 iteration — run after every change)
-npm run test:smoke       # PDP smoke — platypus-au staging
-npm run test:smoke:plp   # PLP smoke — platypus-au staging
+npm run test:smoke            # PDP smoke — platypus-au staging
+npm run test:smoke:plp        # PLP smoke — platypus-au staging
+npm run test:smoke:place-order  # Place-order smoke — platypus-au staging
 
-# Run tests (always build first)
-npm run test:load                        # Default: 200 VUs, 10m (platypus-au staging)
-npm run test:load:platypus-au            # Platypus AU staging
-npm run test:load:platypus-au:prod       # Platypus AU production
+# CI smoke (writes JSON results to results/)
+npm run test:smoke:ci         # PDP smoke with JSON output
+npm run test:smoke:ci:plp     # PLP smoke with JSON output
+
+# Local load tests (always build first)
+npm run test:load:platypus-au            # Platypus AU staging (PDP)
+npm run test:load:platypus-au:prod       # Platypus AU production (PDP)
 npm run test:load:vans-au                # Vans AU staging
 npm run dry-run                          # Single iteration, no API mutations
 npm run dashboard                        # k6 web dashboard at localhost:5665
 
+# Cloud tests (Grafana Cloud — requires auth setup, see below)
+npm run test:cloud:plp                   # PLP load test — platypus-au staging
+npm run test:cloud:platypus-au           # PDP load test — platypus-au staging
+npm run test:cloud:skechers-au           # PDP load test — skechers-au staging
+
 # Custom run (after build)
-k6 run --env SITE=skechers-nz --env ENVIRONMENT=staging dist/tests/pdp-load.test.js
+k6 run -e SITE=skechers-nz -e ENVIRONMENT=staging dist/tests/pdp-load.test.js
 ```
 
 Naming convention for per-site scripts: `test:load:{site}-{country}` and `test:load:{site}-{country}:prod`.
+
+> **Note**: npm scripts with `--vus`/`--duration` flags are legacy shortcuts. All test files use the k6 `scenarios` API which defines VUs and durations inside the script — the CLI flags are ignored when `scenarios` is present.
+
+## k6 Cloud Authentication
+
+Tests run on Grafana Cloud k6 (account: `hoanglk12.grafana.net`, project ID: 4977765). Auth config is saved globally via:
+
+```powershell
+$env:PATH += ";C:\Tools\k6-v2.0.0"
+k6 cloud login -t 354cf5f830ffa2a40bc9057d5ca227e6a40a55d89ee409d6e8f5c1ba460fe910 --stack hoanglk12
+```
+
+This writes config to `%APPDATA%\k6\config.json` and is a **one-time setup per machine**. After that, `k6 cloud run ...` and `npm run test:cloud:*` work without additional flags.
+
+**Account limit**: 100 VUs maximum. Set `maxVUs: 100` in any `ramping-arrival-rate` scenario before uploading to cloud.
 
 ## Architecture
 
@@ -119,6 +155,17 @@ All test data (products, categories, users, addresses) must be loaded via `src/l
 | `getAddressProvider(strategy)` | Shipping addresses |
 
 Category JSON files in `src/data/` follow the naming convention `categories-{brand}.json` for brands where AU/NZ share the same paths (drmartens, vans), and `categories-{brand}-nz.json` where NZ differs (platypus, skechers).
+
+**Category structure varies by brand** — do not assume all brands share the same shape:
+- **Platypus** (`platypus-au`, `platypus-nz`): Organized by **brand** — `adidas`, `converse`, `new-balance`, `dr-martens`, etc. AU and NZ share the same catalog.
+- **Skechers**: Organized by gender — `women`, `men`, `kids`, `sale` (+ subcategories like `women/gowalk`, `men/skech-air`). AU and NZ are identical.
+- **Dr Martens**: Organized by gender — `unisex`, `women`, `men`, `kids`, `sale` (+ subcategories).
+- **Vans**: Organized by gender — `mens`, `womens`, `kids`, `sale` (+ subcategories like `mens/shoes`, `womens/shoes`). AU and NZ share the same catalog.
+
+To discover valid URL paths for a site, query its staging GraphQL endpoint:
+```graphql
+{ categoryList(filters: { parent_id: { in: ["2"] } }) { url_path product_count children { url_path product_count } } }
+```
 
 ### Webpack Bundling
 
