@@ -8,12 +8,13 @@
 import { SharedArray } from 'k6/data';
 import papaparse from './vendor/papaparse.js';
 import exec from 'k6/execution';
-import { 
-  TestUser, 
-  TestProduct, 
-  TestAddress, 
+import {
+  TestUser,
+  TestProduct,
+  TestAddress,
+  TestCategory,
   DataRotationStrategy,
-  CSVParserOptions 
+  CSVParserOptions
 } from '../types';
 import { createLogger } from '../lib/logger';
 
@@ -26,6 +27,15 @@ const logger = createLogger('DataProvider');
 /** Brand key used to look up product data files. vans-au/nz are site-specific
  *  because their product catalogues differ between countries. */
 export type ProductSite = 'platypus' | 'skechers' | 'drmartens' | 'vans-au' | 'vans-nz';
+
+/** Full site ID used to look up category data files. platypus-nz and skechers-nz
+ *  have different category structures from their AU counterparts; drmartens and
+ *  vans share identical categories across AU/NZ. */
+export type CategorySite =
+  | 'platypus-au' | 'platypus-nz'
+  | 'skechers-au' | 'skechers-nz'
+  | 'drmartens-au' | 'drmartens-nz'
+  | 'vans-au' | 'vans-nz';
 
 /** Maps the full 8-character site ID to the product data key. */
 const SITE_TO_PRODUCT_KEY: Record<string, ProductSite> = {
@@ -55,6 +65,16 @@ const DATA_PATHS = {
     csv: '../data/addresses.csv',
     json: '../data/addresses.json',
   },
+  categories: {
+    'platypus-au':  '../data/categories-platypus.json',
+    'platypus-nz':  '../data/categories-platypus-nz.json',
+    'skechers-au':  '../data/categories-skechers.json',
+    'skechers-nz':  '../data/categories-skechers-nz.json',
+    'drmartens-au': '../data/categories-drmartens.json',
+    'drmartens-nz': '../data/categories-drmartens.json',
+    'vans-au':      '../data/categories-vans.json',
+    'vans-nz':      '../data/categories-vans.json',
+  } as Record<CategorySite, string>,
 };
 
 // ============================================================================
@@ -275,6 +295,7 @@ export class DataProvider<T> {
 const _productCache: Partial<Record<ProductSite, TestProduct[]>> = {};
 let _usersData: TestUser[] | null = null;
 let _addressesData: TestAddress[] | null = null;
+const _categoryCache: Partial<Record<CategorySite, TestCategory[]>> = {};
 
 // Provider-instance cache — keyed by strategy (or site:strategy) so callers always
 // get the same DataProvider object regardless of how many times the factory is invoked.
@@ -282,6 +303,7 @@ let _addressesData: TestAddress[] | null = null;
 const _userProviders: Partial<Record<DataRotationStrategy, DataProvider<TestUser>>> = {};
 const _addressProviders: Partial<Record<DataRotationStrategy, DataProvider<TestAddress>>> = {};
 const _productProviders: Partial<Record<string, DataProvider<TestProduct>>> = {};
+const _categoryProviders: Partial<Record<CategorySite, DataProvider<TestCategory>>> = {};
 
 function loadProductData(key: ProductSite): TestProduct[] {
   if (!_productCache[key]) {
@@ -351,6 +373,27 @@ export function getProductProviderForSite(
     throw new Error(`No product data configured for site '${siteId}'. Valid: ${valid}`);
   }
   return getProductProvider(key, strategy);
+}
+
+/**
+ * Get category data provider for a given site ID.
+ * Returns the same DataProvider instance on repeated calls so that
+ * sequential currentIndex is preserved across iterations.
+ * Throws if siteId is not in the supported set.
+ */
+export function getCategoryProvider(siteId: string): DataProvider<TestCategory> {
+  const key = siteId as CategorySite;
+  if (_categoryProviders[key]) return _categoryProviders[key];
+  const path = DATA_PATHS.categories[key];
+  if (!path) {
+    const valid = Object.keys(DATA_PATHS.categories).join(', ');
+    throw new Error(`No category data configured for site '${siteId}'. Valid: ${valid}`);
+  }
+  if (!_categoryCache[key]) {
+    _categoryCache[key] = loadJSON<TestCategory>(`categories-${key}`, path);
+  }
+  _categoryProviders[key] = new DataProvider<TestCategory>(_categoryCache[key], 'sequential');
+  return _categoryProviders[key];
 }
 
 /**

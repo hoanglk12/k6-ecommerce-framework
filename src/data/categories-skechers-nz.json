@@ -1,8 +1,8 @@
 {
-  "description": "Category URL paths for Skechers PLP load testing",
-  "site": "skechers",
+  "description": "Category URL paths for Skechers NZ PLP load testing",
+  "site": "skechers-nz",
   "note": "Real category paths discovered from staging GraphQL API.",
-  "lastUpdated": "2026-02-27T00:00:00.000Z",
+  "lastUpdated": "2026-05-18T00:00:00.000Z",
   "data": [
     { "id": "cat-001", "urlPath": "women", "name": "Women" },
     { "id": "cat-002", "urlPath": "men", "name": "Men" },
@@ -21,8 +21,8 @@
     { "id": "cat-015", "urlPath": "women/skechers-street", "name": "Women Skechers Street" },
     { "id": "cat-016", "urlPath": "women/arch-fit", "name": "Women Arch Fit" },
     { "id": "cat-017", "urlPath": "women/stretch-fit", "name": "Women Stretch Fit" },
-    { "id": "cat-018", "urlPath": "women/uno", "name": "Women Uno" },
-    { "id": "cat-019", "urlPath": "men/uno", "name": "Men Uno" },
-    { "id": "cat-020", "urlPath": "sale/last-pairs", "name": "Sale Last Pairs" }
+    { "id": "cat-018", "urlPath": "kids/light-ups", "name": "Kids Light-Ups" },
+    { "id": "cat-019", "urlPath": "sale/womens", "name": "Sale Womens" },
+    { "id": "cat-020", "urlPath": "sale/mens", "name": "Sale Mens" }
   ]
 }

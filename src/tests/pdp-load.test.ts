@@ -85,14 +85,18 @@ export const options: Options = {
     },
   },
   thresholds: {
-    'http_req_duration': ['p(95)<800', 'p(99)<2000'],
+    // Error and success rates apply under all executors — a smoke failure here is a real failure
     'http_req_failed': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
-    'http_req_waiting': ['p(95)<600'],
-
     'graphql_errors': [{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }],
-    'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
     'scenario_pdp_success': customThresholds['scenario_pdp_success'],
-    'scenario_pdp_duration': customThresholds['scenario_pdp_duration'],
+
+    // Latency thresholds are meaningless for a single cold request — skip during smoke runs
+    ...(isSmokeTest ? {} : {
+      'http_req_duration': ['p(95)<800', 'p(99)<2000'],
+      'http_req_waiting': ['p(95)<600'],
+      'graphql_request_duration': ['p(95)<800', 'p(99)<2000'],
+      'scenario_pdp_duration': customThresholds['scenario_pdp_duration'],
+    }),
   },
 
   tags: {

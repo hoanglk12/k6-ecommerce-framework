@@ -15,7 +15,15 @@
       "Bash(mkdir -p \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\")",
       "Bash(curl -sL \"https://jslib.k6.io/k6-utils/1.4.0/index.js\" -o \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\\\\k6-utils.js\")",
       "Bash(curl -sL \"https://jslib.k6.io/papaparse/5.1.1/index.js\" -o \"E:\\\\OLDDATA\\\\DATA\\\\TESTING\\\\PerformanceTest\\\\k6-ecommerce-framework\\\\src\\\\lib\\\\vendor\\\\papaparse.js\")",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(node -e \"const p = require\\('./package.json'\\); const s = Object.entries\\(p.scripts\\).filter\\(\\([k]\\) => k.includes\\('smoke'\\)\\); s.forEach\\(\\([k,v]\\) => console.log\\(k, ':', v\\)\\)\")",
+      "Bash(npm run *)",
+      "WebSearch",
+      "Bash(export PATH=\"$PATH:/mnt/c/Tools/k6-v2.0.0\")",
+      "Bash(powershell.exe *)",
+      "Skill(context7-mcp)",
+      "Bash(npm show *)",
+      "Bash(node -e \"const v=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const arr=JSON.parse\\(v\\); console.log\\(arr.slice\\(-10\\).join\\('\\\\n'\\)\\)\")"
     ]
   }
 }

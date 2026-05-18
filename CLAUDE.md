@@ -6,6 +6,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A TypeScript/k6 load testing framework for Magento 2/Adobe Commerce eCommerce sites. Targets 8 sites (Platypus, Skechers, Dr Martens, Vans — AU and NZ variants) across staging and production environments.
 
+## Runtime
+
+k6 v2.0.0 is installed at `C:\Tools\k6-v2.0.0\k6.exe` and is not on the system PATH by default.
+Add it for the current cmd session before running any k6 command:
+
+```cmd
+set PATH=%PATH%;C:\Tools\k6-v2.0.0
+```
+
 ## Commands
 
 ```bash
@@ -17,6 +26,10 @@ npm run clean            # Remove dist/
 # Validate before running
 npm run validate         # TypeScript type check (tsc --noEmit)
 npm run lint             # ESLint TypeScript
+
+# Smoke tests (1 VU × 1 iteration — run after every change)
+npm run test:smoke       # PDP smoke — platypus-au staging
+npm run test:smoke:plp   # PLP smoke — platypus-au staging
 
 # Run tests (always build first)
 npm run test:load                        # Default: 200 VUs, 10m (platypus-au staging)
@@ -63,6 +76,8 @@ Every test file in `src/tests/` follows the k6 lifecycle:
 
 Module-level `GraphQLClient` instances are created once per VU (not per iteration) to reuse connections — do not move them inside `default()`.
 
+Module-level `DataProvider` instances (via `getCategoryProvider`, `getProductProviderForSite`, etc.) are also created once per VU — do not move them inside `default()`.
+
 ### Scenario Pattern
 
 Each file in `src/scenarios/` exports a function that accepts a `GraphQLClient` and returns a `ScenarioResult`:
@@ -87,6 +102,23 @@ Scenarios are pure functions — all side effects (metrics, logging) are handled
 ### Custom Metrics
 
 Defined in `src/lib/metrics.ts`. All business KPIs (orders placed, cart value, conversion rate) and per-scenario durations are tracked as k6 `Trend`/`Counter`/`Rate` metrics. Thresholds are set in each test file's `options.thresholds` and differ between staging (lenient) and production (strict).
+
+### Threshold Pattern
+
+Error-rate and success-rate thresholds always apply. Latency thresholds are wrapped in `...(isSmokeTest ? {} : { ... })` so they are skipped during smoke runs — a single cold request to staging will always breach latency SLOs and is not a meaningful signal.
+
+### Data Provider Pattern
+
+All test data (products, categories, users, addresses) must be loaded via `src/lib/data-provider.ts` using `SharedArray` — never declare test data as inline arrays in test files. Each data type has a factory function:
+
+| Factory | Data |
+|---|---|
+| `getCategoryProvider(siteId)` | Category URL paths per site |
+| `getProductProviderForSite(siteId)` | Product SKUs per brand |
+| `getUserProvider(strategy)` | Test user credentials |
+| `getAddressProvider(strategy)` | Shipping addresses |
+
+Category JSON files in `src/data/` follow the naming convention `categories-{brand}.json` for brands where AU/NZ share the same paths (drmartens, vans), and `categories-{brand}-nz.json` where NZ differs (platypus, skechers).
 
 ### Webpack Bundling
 
