@@ -8,12 +8,12 @@
  * Even 404 / empty categories are counted as viewed pages.
  * 
  * Usage:
- *   k6 run dist/tests/plp-load.test.js
- *   k6 run --env SITE=platypus-au dist/tests/plp-load.test.js
- *   k6 run --env SITE=skechers-au dist/tests/plp-load.test.js
- *   k6 run --env SITE=drmartens-au dist/tests/plp-load.test.js
- *   k6 run --env SITE=vans-nz dist/tests/plp-load.test.js
- *   k6 run --out dashboard dist/tests/plp-load.test.js
+ *   k6 run src/tests/plp-load.test.ts
+ *   k6 run --env SITE=platypus-au src/tests/plp-load.test.ts
+ *   k6 run --env SITE=skechers-au src/tests/plp-load.test.ts
+ *   k6 run --env SITE=drmartens-au src/tests/plp-load.test.ts
+ *   k6 run --env SITE=vans-nz src/tests/plp-load.test.ts
+ *   k6 run --out dashboard src/tests/plp-load.test.ts
  */
 
 import { check, group } from 'k6';
@@ -21,11 +21,11 @@ import { Options } from 'k6/options';
 import exec from 'k6/execution';
 
 // Framework modules
-import { GraphQLClient } from '../lib/graphql-client';
-import { createLogger } from '../lib/logger';
-import { thinkTime } from '../lib/utils';
-import { customThresholds } from '../lib/metrics';
-import { getCategoryProvider } from '../lib/data-provider';
+import { GraphQLClient } from '../lib/graphql-client.ts';
+import { createLogger } from '../lib/logger.ts';
+import { thinkTime } from '../lib/utils.ts';
+import { customThresholds } from '../lib/metrics.ts';
+import { getCategoryProvider } from '../lib/data-provider.ts';
 
 // Configuration
 import {
@@ -33,13 +33,13 @@ import {
   getEnvironmentConfig,
   isDryRun,
   isProduction,
-} from '../config';
+} from '../config/index.ts';
 
 // Scenario
-import { plpScenario } from '../scenarios/plp';
+import { plpScenario } from '../scenarios/plp.ts';
 
 // Types
-import { SiteConfig } from '../types';
+import { SiteConfig } from '../types/index.ts';
 
 const logger = createLogger('PLPLoadTest');
 

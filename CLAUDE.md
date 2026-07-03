@@ -46,12 +46,9 @@ $env:PATH += ";C:\Users\Lincoln.Pham\AppData\Local\Programs\Git\cmd"
 
 ## Commands
 
-```bash
-# Build
-npm run build            # Webpack production bundle → dist/
-npm run build:watch      # Watch mode
-npm run clean            # Remove dist/
+k6 (v0.57+, this repo targets v1.3.0) runs TypeScript test files directly — there is no build step. `npm run build`/`clean`/`prepare` do not exist; test files execute straight from `src/tests/*.test.ts`.
 
+```bash
 # Validate before running
 npm run validate         # TypeScript type check (tsc --noEmit)
 npm run lint             # ESLint TypeScript
@@ -60,15 +57,17 @@ npm run lint             # ESLint TypeScript
 npm run test:smoke            # PDP smoke — platypus-au staging
 npm run test:smoke:plp        # PLP smoke — platypus-au staging
 npm run test:smoke:place-order  # Place-order smoke — platypus-au staging
+npm run test:smoke:mixed        # Mixed-journey smoke (PDP + PLP) — platypus-au staging
 
 # CI smoke (writes JSON results to results/)
 npm run test:smoke:ci         # PDP smoke with JSON output
 npm run test:smoke:ci:plp     # PLP smoke with JSON output
 
-# Local load tests (always build first)
+# Local load tests (no build needed — runs src/tests/*.test.ts directly)
 npm run test:load:platypus-au            # Platypus AU staging (PDP)
 npm run test:load:platypus-au:prod       # Platypus AU production (PDP)
 npm run test:load:vans-au                # Vans AU staging
+npm run test:load:platypus-au:mixed      # Mixed-journey (70% PDP / 20% PLP / 10% checkout)
 npm run dry-run                          # Single iteration, no API mutations
 npm run dashboard                        # k6 web dashboard at localhost:5665
 
@@ -77,13 +76,15 @@ npm run test:cloud:plp                   # PLP load test — platypus-au staging
 npm run test:cloud:platypus-au           # PDP load test — platypus-au staging
 npm run test:cloud:skechers-au           # PDP load test — skechers-au staging
 
-# Custom run (after build)
-k6 run -e SITE=skechers-nz -e ENVIRONMENT=staging dist/tests/pdp-load.test.js
+# Custom run
+k6 run -e SITE=skechers-nz -e ENVIRONMENT=staging src/tests/pdp-load.test.ts
 ```
 
 Naming convention for per-site scripts: `test:load:{site}-{country}` and `test:load:{site}-{country}:prod`.
 
 > **Note**: npm scripts with `--vus`/`--duration` flags are legacy shortcuts. All test files use the k6 `scenarios` API which defines VUs and durations inside the script — the CLI flags are ignored when `scenarios` is present.
+
+> **Note**: local load-test scripts write structured results to `results/{site}-{scenario}[-prod].json` via `--out json=...` (gitignored — for local trend inspection, not committed baselines). Cloud scripts don't need this since Grafana Cloud already tracks results.
 
 ## k6 Cloud Authentication
 
@@ -130,6 +131,8 @@ Every test file in `src/tests/` follows the k6 lifecycle:
 Module-level `GraphQLClient` instances are created once per VU (not per iteration) to reuse connections — do not move them inside `default()`.
 
 Module-level `DataProvider` instances (via `getCategoryProvider`, `getProductProviderForSite`, etc.) are also created once per VU — do not move them inside `default()`.
+
+`src/tests/mixed-journey.test.ts` is the exception to the single-`default()` pattern: it models a realistic 70% PDP / 20% PLP / 10% guest-checkout traffic mix by giving each `scenarios` entry its own `exec: 'fnName'` (`pdpBrowse`, `plpBrowse`, `guestCheckout`) instead of routing through one shared `default()`. The `guest_checkout` scenario is only registered in `options.scenarios` when `ENABLE_PLACE_ORDER=true` (checked in the init-context `options` block, not inside the exec function) — each iteration places a real staging order, so it must stay opt-in.
 
 ### Scenario Pattern
 
@@ -184,9 +187,14 @@ To discover valid URL paths for a site, query its staging GraphQL endpoint:
 { categoryList(filters: { parent_id: { in: ["2"] } }) { url_path product_count children { url_path product_count } } }
 ```
 
-### Webpack Bundling
+### Native TypeScript Execution (no bundler)
 
-`webpack.config.js` creates one bundle per `src/tests/*.ts` file. Data files (`src/data/`) and config JSONs are copied to `dist/` via `CopyWebpackPlugin` — this is why `dist/` must be populated before running k6. Path aliases (`@lib`, `@config`, `@scenarios`, etc.) are resolved by webpack, not Node.js.
+k6 (v0.57+) runs `.ts` files directly — there is no webpack/Babel build step and no `dist/` output. Two things follow from that:
+
+- **Relative imports must include explicit extensions.** k6's module resolver does not auto-append `.ts` or resolve a directory to its `index.ts` the way webpack/Node do. Write `from '../lib/logger.ts'` and `from '../config/index.ts'`, not `from '../lib/logger'` or `from '../config'`. `tsconfig.json` sets `allowImportingTsExtensions: true` + `noEmit: true` to make `tsc --noEmit` accept this.
+- **No path aliases.** `@lib`, `@config`, `@scenarios`, etc. were never actually resolvable without a bundler and are not used anywhere in `src/` — use relative imports only.
+
+Data files (`src/data/`) and config JSONs (`src/config/environments/`) are read directly from `src/` via `open('../data/....json')` — nothing needs to be copied anywhere before running k6.
 
 ## Adding a New Scenario
 

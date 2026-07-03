@@ -11,8 +11,8 @@ import {
   EnvironmentConfig, 
   EnvironmentType,
   ThresholdConfig 
-} from '../types';
-import { getEnvVar, getEnvBool, getEnvNumber } from '../lib/utils';
+} from '../types/index.ts';
+import { getEnvVar, getEnvBool, getEnvNumber } from '../lib/utils.ts';
 
 // ============================================================================
 // SITE CONFIGURATIONS

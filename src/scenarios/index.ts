@@ -4,6 +4,6 @@
  * Central export point for all test scenarios
  */
 
-export * from './pdp';
-export * from './plp';
-export * from './place-order';
+export * from './pdp.ts';
+export * from './plp.ts';
+export * from './place-order.ts';

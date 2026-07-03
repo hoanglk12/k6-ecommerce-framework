@@ -31,5 +31,5 @@ module.exports = {
     'prefer-const': 'error',
     'no-var': 'error',
   },
-  ignorePatterns: ['dist/', 'node_modules/', 'webpack.config.js', '*.js'],
+  ignorePatterns: ['node_modules/', '*.js'],
 };

@@ -1,8 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build*)",
-      "Bash(npm run clean)",
       "Bash(npm run validate)",
       "Bash(npm run lint)",
       "Bash(npm run dry-run)",

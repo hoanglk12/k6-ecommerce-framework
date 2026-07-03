@@ -19,9 +19,9 @@ import {
   GraphQLClientOptions,
   SiteConfig,
   RetryConfig,
-} from '../types';
-import { Logger, createLogger } from './logger';
-import { recordTimingMetrics } from './metrics';
+} from '../types/index.ts';
+import { Logger, createLogger } from './logger.ts';
+import { recordTimingMetrics } from './metrics.ts';
 
 // ============================================================================
 // CUSTOM METRICS

@@ -118,7 +118,7 @@ export K6_CLOUD_PROJECT_ID=your_project_id
 # Run test on cloud
 npm run test:cloud
 # or
-k6 cloud dist/tests/pdp-load.test.js
+k6 cloud src/tests/pdp-load.test.ts
 ```
 
 ### Cloud Configuration
@@ -216,12 +216,11 @@ sudo apt-get install k6
 
 ### Running Locally
 
-```bash
-# Build first
-npm run build
+k6 (v0.57+) runs TypeScript directly — no build step required.
 
+```bash
 # Basic execution
-k6 run dist/tests/pdp-load.test.js
+k6 run src/tests/pdp-load.test.ts
 
 # With environment variables
 k6 run \
@@ -229,13 +228,13 @@ k6 run \
   --env ENVIRONMENT=staging \
   --vus 10 \
   --duration 5m \
-  dist/tests/pdp-load.test.js
+  src/tests/pdp-load.test.ts
 
 # With JSON output
-k6 run --out json=results.json dist/tests/pdp-load.test.js
+k6 run --out json=results.json src/tests/pdp-load.test.ts
 
 # With dashboard (web UI)
-k6 run --out dashboard dist/tests/smoke.test.js
+k6 run --out dashboard src/tests/smoke.test.ts
 # Open http://localhost:5665
 ```
 
@@ -308,10 +307,10 @@ PRODUCTION_CONFIRMED=true
 ```bash
 # Load environment file
 export $(cat .env.staging | xargs)
-k6 run dist/tests/pdp-load.test.js
+k6 run src/tests/pdp-load.test.ts
 
 # Or inline
-env $(cat .env.staging | xargs) k6 run dist/tests/pdp-load.test.js
+env $(cat .env.staging | xargs) k6 run src/tests/pdp-load.test.ts
 ```
 
 ---
@@ -370,7 +369,7 @@ cloud-test:
       run: |
         k6 cloud \
           --env SITE=${{ inputs.site }} \
-          dist/tests/pdp-load.test.js
+          src/tests/pdp-load.test.ts
       env:
         K6_CLOUD_TOKEN: ${{ secrets.K6_CLOUD_TOKEN }}
 ```
@@ -520,13 +519,13 @@ Example alert conditions:
 
 ```bash
 # Verbose output
-k6 run --verbose dist/tests/smoke.test.js
+k6 run --verbose src/tests/smoke.test.ts
 
 # HTTP debug
-k6 run --http-debug dist/tests/smoke.test.js
+k6 run --http-debug src/tests/smoke.test.ts
 
 # Full debug
-k6 run --http-debug=full dist/tests/smoke.test.js
+k6 run --http-debug=full src/tests/smoke.test.ts
 ```
 
 ### Log Collection

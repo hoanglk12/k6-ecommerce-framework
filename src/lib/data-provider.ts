@@ -15,8 +15,8 @@ import {
   TestCategory,
   DataRotationStrategy,
   CSVParserOptions
-} from '../types';
-import { createLogger } from '../lib/logger';
+} from '../types/index.ts';
+import { createLogger } from '../lib/logger.ts';
 
 const logger = createLogger('DataProvider');
 

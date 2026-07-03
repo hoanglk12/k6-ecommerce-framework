@@ -16,23 +16,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "noUncheckedIndexedAccess": false,
-    "paths": {
-      "@config/*": ["./src/config/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@scenarios/*": ["./src/scenarios/*"],
-      "@data/*": ["./src/data/*"],
-      "@tests/*": ["./src/tests/*"],
-      "@types/*": ["./src/types/*"]
-    },
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["k6"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "reports"]
+  "exclude": ["node_modules", "reports"]
 }

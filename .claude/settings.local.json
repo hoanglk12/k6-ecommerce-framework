@@ -29,7 +29,8 @@
       "Bash(node -e \"const v=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const arr=JSON.parse\\(v\\); console.log\\(arr.slice\\(-10\\).join\\('\\\\n'\\)\\)\")",
       "mcp__context7__resolve-library-id",
       "Skill(update-config)",
-      "PowerShell(Select-String -Path \"C:\\\\Users\\\\LINCOL~1.PHA\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Lincoln-Pham-Documents-AccentGroupDocs-LoadTest-k6-ecommerce-framework\\\\3f57eb68-ba23-4619-b540-370449ce5c92\\\\tasks\\\\bdqshoe6i.output\" -Pattern \"PLPScenario] \\(Starting|PLP scenario completed\\)\" | ForEach-Object { $_.Line } | Select-Object -First 60)"
+      "PowerShell(Select-String -Path \"C:\\\\Users\\\\LINCOL~1.PHA\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Lincoln-Pham-Documents-AccentGroupDocs-LoadTest-k6-ecommerce-framework\\\\3f57eb68-ba23-4619-b540-370449ce5c92\\\\tasks\\\\bdqshoe6i.output\" -Pattern \"PLPScenario] \\(Starting|PLP scenario completed\\)\" | ForEach-Object { $_.Line } | Select-Object -First 60)",
+      "mcp__codebase-memory-mcp__list_projects"
     ]
   }
 }

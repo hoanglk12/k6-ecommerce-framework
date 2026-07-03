@@ -1,6 +1,6 @@
 # Run Test
 
-Build the project and run a k6 load test for a given site. Parses the argument string for site, environment, VU count, duration, and test type.
+Run a k6 load test for a given site. k6 runs TypeScript directly (v0.57+), so there is no build step. Parses the argument string for site, environment, VU count, duration, and test type.
 
 Arguments: $ARGUMENTS
 
@@ -17,7 +17,7 @@ Extract from `$ARGUMENTS`:
 
 ## Steps
 
-1. **Build**: `npm run build` — always build before running. If build fails, stop and show the error.
+1. **Validate first**: `npm run validate` — type-check before running. If it fails, stop and show the error.
 
 2. **Safety check**: if environment is `production`, confirm with the user before proceeding and remind them that `ENABLE_PLACE_ORDER` and `PRODUCTION_CONFIRMED` flags must be set explicitly if placing orders.
 
@@ -29,7 +29,7 @@ k6 run \
   [--out web-dashboard] \
   -e SITE=<site> \
   -e ENVIRONMENT=<environment> \
-  dist/tests/<test>.test.js
+  src/tests/<test>.test.ts
 ```
 
 Cloud mode (requires one-time `k6 cloud login` — see CLAUDE.md for setup):
@@ -37,7 +37,7 @@ Cloud mode (requires one-time `k6 cloud login` — see CLAUDE.md for setup):
 k6 cloud run \
   -e SITE=<site> \
   -e ENVIRONMENT=<environment> \
-  dist/tests/<test>.test.js
+  src/tests/<test>.test.ts
 ```
 
 For the `place-order` test, also append `-e ENABLE_PLACE_ORDER=true` if the user confirmed it, otherwise append `-e DRY_RUN=true`.
@@ -50,4 +50,4 @@ For the `place-order` test, also append `-e ENABLE_PLACE_ORDER=true` if the user
 - "run skechers-nz production" → local, production (confirm first), pdp-load test
 - "run vans-au place-order with dashboard" → local, place-order test, web dashboard enabled
 - "run plp platypus-au cloud" → cloud mode, plp-load test, platypus-au staging
-- "dry run drmartens-au" → build then `npm run dry-run` with `-e SITE=drmartens-au`
+- "dry run drmartens-au" → `npm run dry-run` with `-e SITE=drmartens-au`

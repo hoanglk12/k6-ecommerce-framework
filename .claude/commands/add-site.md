@@ -28,12 +28,12 @@ Collect from `$ARGUMENTS` or ask the user for:
 
 4. **Update `package.json`** — add npm scripts following the naming convention:
    ```
-   "test:load:<site-id>": "k6 run -e SITE=<site-id> -e ENVIRONMENT=staging dist/tests/pdp-load.test.js",
-   "test:load:<site-id>:prod": "k6 run -e SITE=<site-id> -e ENVIRONMENT=production dist/tests/pdp-load.test.js",
-   "test:smoke:<site-id>": "k6 run -e SITE=<site-id> -e ENVIRONMENT=staging -e SMOKE_TEST=true dist/tests/pdp-load.test.js",
-   "dashboard:<site-id>": "k6 run --out web-dashboard -e SITE=<site-id> -e ENVIRONMENT=staging dist/tests/pdp-load.test.js"
+   "test:load:<site-id>": "k6 run -e SITE=<site-id> -e ENVIRONMENT=staging --out json=results/<site-id>-pdp.json src/tests/pdp-load.test.ts",
+   "test:load:<site-id>:prod": "k6 run -e SITE=<site-id> -e ENVIRONMENT=production --out json=results/<site-id>-pdp-prod.json src/tests/pdp-load.test.ts",
+   "test:smoke:<site-id>": "k6 run -e SITE=<site-id> -e ENVIRONMENT=staging -e SMOKE_TEST=true src/tests/pdp-load.test.ts",
+   "dashboard:<site-id>": "k6 run --out web-dashboard -e SITE=<site-id> -e ENVIRONMENT=staging src/tests/pdp-load.test.ts"
    ```
-   Do not add `--vus` or `--duration` flags — these are ignored when a test file uses the `scenarios` API.
+   Do not add `--vus` or `--duration` flags — these are ignored when a test file uses the `scenarios` API. k6 runs `.ts` files directly (no build step).
 
 5. **Run `npm run validate`** to confirm TypeScript is happy, then show the user what was created and remind them to populate product SKUs in `src/data/products-<brand>.json` before running tests.
 

@@ -2,4 +2,4 @@
  * Configuration Module Exports
  */
 
-export * from './config-manager';
+export * from './config-manager.ts';

@@ -6,14 +6,14 @@
  */
 
 import { Counter, Trend, Rate } from 'k6/metrics';
-import { GraphQLClient, checkGraphQLResponse } from './graphql-client';
-import { createLogger } from './logger';
-import { getSiteConfig } from '../config';
+import { GraphQLClient, checkGraphQLResponse } from './graphql-client.ts';
+import { createLogger } from './logger.ts';
+import { getSiteConfig } from '../config/index.ts';
 import {
   UserCredentials,
   AuthSession,
   SiteConfig,
-} from '../types';
+} from '../types/index.ts';
 
 const logger = createLogger('AuthManager');
 

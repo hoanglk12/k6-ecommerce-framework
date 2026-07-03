@@ -10,9 +10,8 @@
 
 Before following any of the steps below, make sure you have:
 
-- Node.js ≥ 18 and k6 ≥ 0.52 installed.
+- Node.js ≥ 18 and k6 ≥ 0.57 (native TypeScript support) installed.
 - The repository dependencies installed (`npm install`).
-- A compiled bundle ready (`npm run build` or `npx webpack`).
 - A target environment's config set up in `src/config/environments/` (e.g., `staging.json`).
 - Test data files present in `src/data/` (see [Test Data Requirements](#test-data-requirements) for each scenario).
 
@@ -348,23 +347,22 @@ export default function () {
 
 ---
 
-## Step 7 — Build and Run
+## Step 7 — Run
+
+k6 runs TypeScript directly — no build step needed. Remember every new relative import in your test file needs an explicit `.ts` extension (see "Native TypeScript Execution" in `CLAUDE.md`).
 
 ```bash
-# Compile TypeScript to dist/
-npm run build
-
 # Run against the default site (reads SITE env var, falls back to first config)
-k6 run dist/tests/my-test.js
+k6 run src/tests/my-test.ts
 
 # Target a specific site
-k6 run --env SITE=platypus-au dist/tests/my-test.js
+k6 run --env SITE=platypus-au src/tests/my-test.ts
 
 # Dry-run (no HTTP calls made)
-k6 run --env DRY_RUN=true dist/tests/my-test.js
+k6 run --env DRY_RUN=true src/tests/my-test.ts
 
 # Use the k6 web dashboard for live metrics
-k6 run --out dashboard dist/tests/my-test.js
+k6 run --out dashboard src/tests/my-test.ts
 ```
 
 ---
@@ -414,5 +412,5 @@ You are running against a production environment. Set `ENABLE_PLACE_ORDER=true` 
 Enable debug logging to see full request/response pairs:
 
 ```bash
-k6 run --env LOG_LEVEL=debug dist/tests/my-test.js
+k6 run --env LOG_LEVEL=debug src/tests/my-test.ts
 ```

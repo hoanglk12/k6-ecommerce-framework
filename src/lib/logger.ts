@@ -6,7 +6,7 @@
  */
 
 import exec from 'k6/execution';
-import { LoggerConfig } from '../types';
+import { LoggerConfig } from '../types/index.ts';
 
 // ============================================================================
 // LOG LEVELS

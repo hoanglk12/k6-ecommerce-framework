@@ -10,7 +10,7 @@
 
 import { sleep } from 'k6';
 import exec from 'k6/execution';
-import { EnvironmentConfig } from '../types';
+import { EnvironmentConfig } from '../types/index.ts';
 
 import { randomIntBetween, randomString, randomItem } from './vendor/k6-utils.js';
 

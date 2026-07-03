@@ -9,18 +9,18 @@
  *
  * Usage:
  *   k6 run --env SITE=<site-id> --env ENABLE_PLACE_ORDER=true \
- *          dist/tests/place-order.test.js
+ *          src/tests/place-order.test.ts
  *
  *   # Examples
- *   k6 run --env SITE=platypus-au --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
- *   k6 run --env SITE=skechers-nz --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
- *   k6 run --env SITE=drmartens-au --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
- *   k6 run --env SITE=vans-nz --env ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+ *   k6 run --env SITE=platypus-au --env ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
+ *   k6 run --env SITE=skechers-nz --env ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
+ *   k6 run --env SITE=drmartens-au --env ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
+ *   k6 run --env SITE=vans-nz --env ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
  *
  *   # Optional overrides
  *   k6 run --env SITE=vans-au --env ENABLE_PLACE_ORDER=true \
  *          --env PAYMENT_METHOD=checkmo --env DRY_RUN=false \
- *          dist/tests/place-order.test.js
+ *          src/tests/place-order.test.ts
  *
  * Safety:
  *   ENABLE_PLACE_ORDER must be explicitly set to "true" or the test will
@@ -37,13 +37,13 @@ import exec from 'k6/execution';
 
 import { randomItem } from '../lib/vendor/k6-utils.js';
 
-import { getProductProviderForSite } from '../lib/data-provider';
+import { getProductProviderForSite } from '../lib/data-provider.ts';
 
 // Framework modules
-import { GraphQLClient } from '../lib/graphql-client';
-import { createLogger } from '../lib/logger';
-import { thinkTime, getEnvVar, getEnvBool } from '../lib/utils';
-import { customThresholds } from '../lib/metrics';
+import { GraphQLClient } from '../lib/graphql-client.ts';
+import { createLogger } from '../lib/logger.ts';
+import { thinkTime, getEnvVar, getEnvBool } from '../lib/utils.ts';
+import { customThresholds } from '../lib/metrics.ts';
 
 // Configuration
 import {
@@ -51,13 +51,13 @@ import {
   getEnvironmentConfig,
   isDryRun,
   isProduction,
-} from '../config';
+} from '../config/index.ts';
 
 // Scenario
-import { placeOrderGuestScenario, PlaceOrderGuestInput } from '../scenarios/place-order';
+import { placeOrderGuestScenario, PlaceOrderGuestInput } from '../scenarios/place-order.ts';
 
 // Types
-import { SiteConfig, TestProduct, TestAddress, CheckoutData } from '../types';
+import { SiteConfig, TestProduct, TestAddress, CheckoutData } from '../types/index.ts';
 
 const logger = createLogger('PlaceOrderTest');
 

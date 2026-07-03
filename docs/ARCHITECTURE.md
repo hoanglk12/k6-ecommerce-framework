@@ -319,42 +319,34 @@ thresholds: {
 }
 ```
 
-## 🔧 Build Pipeline
+## 🔧 Execution Pipeline
 
-### Webpack Configuration
+### Native TypeScript (no bundler)
+
+k6 (v0.57+) runs `.ts` files directly — there is no webpack/Babel build step and no `dist/` output.
 
 ```
-TypeScript Source
+TypeScript Source (src/tests/*.test.ts)
        │
        ▼
 ┌──────────────┐
-│   ts-loader  │ ──▶ Type checking
-│   + babel    │ ──▶ ES2020 transpilation
+│  k6 native   │ ──▶ Type stripping + ES2020 execution (esbuild under the hood)
+│  TS runtime  │
 └──────────────┘
        │
        ▼
 ┌──────────────┐
-│   Resolve    │ ──▶ Path aliases (@lib, @config, etc.)
-│   Aliases    │
+│   Resolve    │ ──▶ Relative imports only, with explicit extensions
+│   Imports    │     ('../lib/logger.ts', '../config/index.ts')
 └──────────────┘
        │
        ▼
-┌──────────────┐
-│    Output    │ ──▶ dist/tests/*.js
-│              │ ──▶ dist/data/* (copied)
-└──────────────┘
+  Runs directly from src/ — src/data/*.json and
+  src/config/environments/*.json are read in place via open(),
+  nothing is copied anywhere.
 ```
 
-### Path Aliases
-
-| Alias | Path |
-|-------|------|
-| `@config` | `src/config` |
-| `@lib` | `src/lib` |
-| `@scenarios` | `src/scenarios` |
-| `@data` | `src/data` |
-| `@tests` | `src/tests` |
-| `@types` | `src/types` |
+Path aliases (`@lib`, `@config`, `@scenarios`, etc.) were never actually usable without a bundler and are not used anywhere in `src/` — every import is relative, and every relative import to a local `.ts` file (or to a directory's `index.ts`) must include the explicit extension since k6's resolver doesn't infer it.
 
 ## 🔄 Extensibility
 

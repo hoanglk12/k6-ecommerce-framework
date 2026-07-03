@@ -27,9 +27,8 @@ Targets **8 sites** across **2 environments** (staging + production): Platypus, 
 ## Quick Start
 
 ```bash
-# 1. Install dependencies and build
+# 1. Install dependencies
 npm install
-npm run build
 
 # 2. Quick smoke (30s, 2 VUs, platypus-au staging)
 npm run test:quick
@@ -38,10 +37,10 @@ npm run test:quick
 npm run test:load:platypus-au
 
 # 4. Vans guest checkout
-k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
 ```
 
-> **Always `npm run build` before running tests.** k6 runs the bundled `dist/` files, not the TypeScript sources.
+> k6 (v0.57+) runs TypeScript files directly — there is no build step. All commands below run straight from `src/tests/*.test.ts`.
 
 ---
 
@@ -51,9 +50,10 @@ k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
 
 | Test file | Scenario | Sites |
 |---|---|---|
-| `tests/pdp-load.test.js` | PDP (Product Detail Page) GraphQL query | All 8 |
-| `tests/plp-load.test.js` | PLP (Product Listing Page) category query | All 8 |
-| `tests/place-order.test.js` | Full 9-step guest checkout end-to-end | All 8 sites |
+| `src/tests/pdp-load.test.ts` | PDP (Product Detail Page) GraphQL query | All 8 |
+| `src/tests/plp-load.test.ts` | PLP (Product Listing Page) category query | All 8 |
+| `src/tests/place-order.test.ts` | Full 9-step guest checkout end-to-end | All 8 sites |
+| `src/tests/mixed-journey.test.ts` | Realistic mix: 70% PDP / 20% PLP / 10% checkout | All 8 |
 
 ### Target sites
 
@@ -91,7 +91,7 @@ All tests use a `ramping-arrival-rate` executor to guarantee a constant throughp
 ### Prerequisites
 
 - **Node.js 18+**
-- **k6 v0.49+**
+- **k6 v0.57+** (native TypeScript support — no bundler needed; this repo targets v1.3.0)
 
 ```bash
 # Windows (winget)
@@ -119,21 +119,22 @@ sudo apt-get update && sudo apt-get install k6
 git clone <repo-url>
 cd k6-ecommerce-framework
 npm install
-npm run build
 ```
 
 ### Docker (no local k6 required)
 
+Requires a `grafana/k6` image tag with native TypeScript support (k6 v0.57+).
+
 ```bash
-npm install && npm run build
+npm install
 
 # PowerShell quick smoke
 docker run --rm -v "${PWD}:/app" -e SITE=platypus-au grafana/k6 run \
-  -e QUICK_TEST=true /app/dist/tests/pdp-load.test.js
+  -e QUICK_TEST=true /app/src/tests/pdp-load.test.ts
 
 # bash/zsh
 docker run --rm -v "$(pwd):/app" -e SITE=platypus-au grafana/k6 run \
-  -e QUICK_TEST=true /app/dist/tests/pdp-load.test.js
+  -e QUICK_TEST=true /app/src/tests/pdp-load.test.ts
 ```
 
 ---
@@ -176,29 +177,28 @@ k6-ecommerce-framework/
 │   ├── tests/
 │   │   ├── pdp-load.test.ts           # PDP load test — all 8 sites
 │   │   ├── plp-load.test.ts           # PLP load test — all 8 sites
-│   │   └── place-order.test.ts   # Guest checkout — all 8 sites
+│   │   ├── place-order.test.ts        # Guest checkout — all 8 sites
+│   │   └── mixed-journey.test.ts      # 70% PDP / 20% PLP / 10% checkout mix
 │   └── types/
 │       └── index.ts                   # All TypeScript interfaces
-├── dist/                              # Webpack output — what k6 actually runs
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── SCENARIOS.md
 │   ├── DEPLOYMENT.md
 │   └── HOW-TO-IMPLEMENT-SCENARIOS.md
-├── webpack.config.js                  # One bundle per test file in src/tests/
-├── tsconfig.json
+├── tsconfig.json                      # noEmit + allowImportingTsExtensions (k6 runs src/ directly)
 └── package.json
 ```
+
+k6 (v0.57+) runs `src/tests/*.test.ts` directly — there is no bundler and no `dist/` output. Every relative import in `src/` uses an explicit file extension (`'../lib/logger.ts'`, `'../config/index.ts'`) since k6's native resolver doesn't infer them.
 
 ---
 
 ## Running Tests
 
-### Build first
+### Validate before running
 
 ```bash
-npm run build          # Production webpack bundle → dist/
-npm run build:watch    # Watch mode for development
 npm run validate       # TypeScript type-check only (no emit)
 npm run lint           # ESLint
 ```
@@ -210,7 +210,7 @@ npm run lint           # ESLint
 npm run test:quick
 
 # Any site
-k6 run -e SITE=skechers-au -e ENVIRONMENT=staging -e QUICK_TEST=true dist/tests/pdp-load.test.js
+k6 run -e SITE=skechers-au -e ENVIRONMENT=staging -e QUICK_TEST=true src/tests/pdp-load.test.ts
 ```
 
 `QUICK_TEST=true` swaps the 16-minute arrival-rate profile for a `constant-arrival-rate` that runs for 30 seconds at 5 req/min. Use it to verify connectivity and data before committing to a full run.
@@ -237,7 +237,7 @@ npm run test:load:skechers-au:prod
 # ... etc. — same pattern for all sites
 
 # Custom
-k6 run -e SITE=platypus-nz -e ENVIRONMENT=staging dist/tests/pdp-load.test.js
+k6 run -e SITE=platypus-nz -e ENVIRONMENT=staging src/tests/pdp-load.test.ts
 ```
 
 > **Note:** The npm scripts include `--vus` and `--duration` flags. These are **silently ignored** by k6 when `scenarios` is defined in the test file. The execution profile is fully controlled by the `scenarios` block. See [Troubleshooting](#--vus-and---duration-flags-have-no-effect).
@@ -245,24 +245,24 @@ k6 run -e SITE=platypus-nz -e ENVIRONMENT=staging dist/tests/pdp-load.test.js
 ### PLP load test
 
 ```bash
-k6 run -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/plp-load.test.js
-k6 run -e SITE=vans-nz     -e ENVIRONMENT=staging dist/tests/plp-load.test.js
+k6 run -e SITE=platypus-au -e ENVIRONMENT=staging src/tests/plp-load.test.ts
+k6 run -e SITE=vans-nz     -e ENVIRONMENT=staging src/tests/plp-load.test.ts
 ```
 
 ### Guest checkout (all sites)
 
 ```bash
 # Any site — staging
-k6 run -e SITE=platypus-au -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
-k6 run -e SITE=skechers-nz -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
-k6 run -e SITE=drmartens-au -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
-k6 run -e SITE=vans-nz -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+k6 run -e SITE=platypus-au -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
+k6 run -e SITE=skechers-nz -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
+k6 run -e SITE=drmartens-au -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
+k6 run -e SITE=vans-nz -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
 
 # Dry checkout (no actual orders placed)
-k6 run -e SITE=platypus-au -e DRY_RUN=true dist/tests/place-order.test.js
+k6 run -e SITE=platypus-au -e DRY_RUN=true src/tests/place-order.test.ts
 
 # Custom payment method
-k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true -e PAYMENT_METHOD=free dist/tests/place-order.test.js
+k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true -e PAYMENT_METHOD=free src/tests/place-order.test.ts
 ```
 
 ### Web dashboard (real-time)
@@ -272,7 +272,7 @@ k6 run -e SITE=vans-au -e ENABLE_PLACE_ORDER=true -e PAYMENT_METHOD=free dist/te
 npm run dashboard
 
 # Per-site with dashboard
-k6 run --out web-dashboard -e SITE=platypus-au dist/tests/pdp-load.test.js
+k6 run --out web-dashboard -e SITE=platypus-au src/tests/pdp-load.test.ts
 ```
 
 ### Dry run
@@ -356,8 +356,8 @@ Validates the `products(filter: { sku: { eq: $sku } })` GraphQL query at scale. 
 **Quick mode:** `QUICK_TEST=true` → `constant-arrival-rate` at 5 req/min for 30 s
 
 ```bash
-k6 run -e SITE=platypus-au -e ENVIRONMENT=staging dist/tests/pdp-load.test.js
-k6 run -e SITE=platypus-au -e ENVIRONMENT=staging -e QUICK_TEST=true dist/tests/pdp-load.test.js
+k6 run -e SITE=platypus-au -e ENVIRONMENT=staging src/tests/pdp-load.test.ts
+k6 run -e SITE=platypus-au -e ENVIRONMENT=staging -e QUICK_TEST=true src/tests/pdp-load.test.ts
 ```
 
 The `setup()` function calls `fail()` before VUs start if the selected site's product file contains `PLACEHOLDER-SKU` (currently: drmartens-au, drmartens-nz).
@@ -378,7 +378,7 @@ Validates the category listing query: `categoryList(filters: { url_path: ... })`
 **Data:** Category URL paths are inline per site (20 categories each), covering all 8 sites
 
 ```bash
-k6 run -e SITE=drmartens-au -e ENVIRONMENT=staging dist/tests/plp-load.test.js
+k6 run -e SITE=drmartens-au -e ENVIRONMENT=staging src/tests/plp-load.test.ts
 ```
 
 **Thresholds:**
@@ -396,7 +396,7 @@ Full 9-step guest checkout flow. Supports all 8 sites (PLA/SKX/DRM/VAN × AU/NZ)
 **Safety:** Iterations do nothing unless `ENABLE_PLACE_ORDER=true`
 
 ```bash
-k6 run -e SITE=<site-id> -e ENABLE_PLACE_ORDER=true dist/tests/place-order.test.js
+k6 run -e SITE=<site-id> -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
 ```
 
 #### Checkout steps
@@ -586,11 +586,10 @@ export function teardown(data)  — single VU, runs once after all VUs stop
 ### Refreshing SKUs
 
 ```bash
-# Discover products for a site (requires discover-products.js in dist/)
-k6 run --env SITE=platypus-au dist/discover-products.js
+# Discover products for a site (requires a discover-products.ts script)
+k6 run --env SITE=platypus-au src/discover-products.ts
 
-# Update src/data/products-platypus.json with results, then rebuild
-npm run build
+# Update src/data/products-platypus.json with results — no rebuild needed
 ```
 
 ### Placeholder fast-fail
@@ -665,9 +664,9 @@ See `docs/HOW-TO-IMPLEMENT-SCENARIOS.md` for the complete walkthrough.
 **1. Create `src/scenarios/my-scenario.ts`:**
 
 ```typescript
-import { GraphQLClient } from '../lib/graphql-client';
-import { recordScenarioMetrics } from '../lib/metrics';
-import { SiteConfig, ScenarioResult } from '../types';
+import { GraphQLClient } from '../lib/graphql-client.ts';
+import { recordScenarioMetrics } from '../lib/metrics.ts';
+import { SiteConfig, ScenarioResult } from '../types/index.ts';
 
 const MY_QUERY = `query MyQuery($sku: String!) { ... }`;
 
@@ -734,7 +733,7 @@ k6 run \
   -e ENVIRONMENT=production \
   -e PRODUCTION_CONFIRMED=true \
   -e QUICK_TEST=true \
-  dist/tests/pdp-load.test.js
+  src/tests/pdp-load.test.ts
 ```
 
 ### What requires explicit sign-off
@@ -746,7 +745,7 @@ k6 run \
   -e ENVIRONMENT=production \
   -e PRODUCTION_CONFIRMED=true \
   -e ENABLE_PLACE_ORDER=true \
-  dist/tests/place-order.test.js
+  src/tests/place-order.test.ts
 ```
 
 ---
@@ -773,15 +772,11 @@ The arrival-rate executor tried to fire more iterations than there were free VUs
 ERRO  Site 'drmartens-au' has PLACEHOLDER-SKU entries.
 ```
 
-`setup()` calls `fail()` before VUs start. Run product discovery for that site to populate `src/data/products-drmartens.json`, then `npm run build`.
+`setup()` calls `fail()` before VUs start. Run product discovery for that site to populate `src/data/products-drmartens.json`.
 
 ### Products found: 0% / "Product not found" (HTTP 200)
 
-The SKU exists in the JSON data file but has been removed from the staging catalog (out of stock or delisted). HTTP is healthy — the data file needs refreshing. Run product discovery and rebuild.
-
-### Remote jslib import failures in CI
-
-`papaparse` and `k6-utils` are fetched from `jslib.k6.io` at runtime. In air-gapped or cache-cold CI environments the test will fail before starting. Pre-warm the cache with `test:quick` while network is available, or vendor the libraries into `src/lib/vendor/` and update imports.
+The SKU exists in the JSON data file but has been removed from the staging catalog (out of stock or delisted). HTTP is healthy — the data file needs refreshing. Run product discovery to refresh it.
 
 ### `graphql_request_duration` exceeds threshold but `http_req_duration` passes
 
@@ -802,11 +797,9 @@ Staging servers are deliberately slower than production. Thresholds in `staging.
 ```bash
 npm run validate          # TypeScript type-check (no emit)
 npm run lint              # ESLint
-npm run build             # Webpack production bundle
-npm run build:watch       # Watch mode
 
 # Full pre-commit check
-npm run validate && npm run lint && npm run build && npm run test:quick
+npm run validate && npm run lint && npm run test:quick
 ```
 
 ### Adding a new site
@@ -815,7 +808,6 @@ npm run validate && npm run lint && npm run build && npm run test:quick
 2. Add both staging and production URLs to `environments/staging.json` and `environments/production.json`
 3. Create `src/data/products-{brand}.json` (placeholder is fine — add real SKUs via discovery)
 4. Add the new key to `DATA_PATHS` and `SITE_TO_PRODUCT_KEY` in `src/lib/data-provider.ts`
-5. Add category paths to the `CATEGORIES` map in `plp-load.test.ts`
+5. Add category paths to the appropriate `categories-*.json` file
 6. Add `SiteIdentifier` value to `src/types/index.ts`
 7. Add npm scripts in `package.json`: `test:load:{site}-{country}` and `test:load:{site}-{country}:prod`
-8. `npm run build`

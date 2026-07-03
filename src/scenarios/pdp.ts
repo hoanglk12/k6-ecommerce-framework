@@ -7,17 +7,17 @@
 
 import { check, group } from 'k6';
 import { Trend, Rate } from 'k6/metrics';
-import { GraphQLClient, checkGraphQLResponse } from '../lib/graphql-client';
-import { createLogger } from '../lib/logger';
-import { measureTime } from '../lib/utils';
-import { recordScenarioMetrics } from '../lib/metrics';
-import { getSiteConfig, isDryRun } from '../config';
+import { GraphQLClient, checkGraphQLResponse } from '../lib/graphql-client.ts';
+import { createLogger } from '../lib/logger.ts';
+import { measureTime } from '../lib/utils.ts';
+import { recordScenarioMetrics } from '../lib/metrics.ts';
+import { getSiteConfig, isDryRun } from '../config/index.ts';
 import { 
   ProductData, 
   Product, 
   SiteConfig, 
   ScenarioResult
-} from '../types';
+} from '../types/index.ts';
 
 const logger = createLogger('PDPScenario');
 

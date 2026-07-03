@@ -5,10 +5,10 @@
  * Product Detail Page GraphQL query using a guaranteed arrival-rate executor.
  *
  * Usage:
- *   k6 run dist/tests/pdp-load.test.js
- *   k6 run --out dashboard dist/tests/pdp-load.test.js
- *   k6 run --env SITE=platypus-au dist/tests/pdp-load.test.js
- *   k6 run --env SITE=skechers-au dist/tests/pdp-load.test.js
+ *   k6 run src/tests/pdp-load.test.ts
+ *   k6 run --out dashboard src/tests/pdp-load.test.ts
+ *   k6 run --env SITE=platypus-au src/tests/pdp-load.test.ts
+ *   k6 run --env SITE=skechers-au src/tests/pdp-load.test.ts
  */
 
 import { check, fail, group } from 'k6';
@@ -16,11 +16,11 @@ import { Options } from 'k6/options';
 import exec from 'k6/execution';
 
 // Import framework modules
-import { GraphQLClient } from '../lib/graphql-client';
-import { createLogger } from '../lib/logger';
-import { thinkTime } from '../lib/utils';
-import { customThresholds } from '../lib/metrics';
-import { getProductProviderForSite, DataProvider } from '../lib/data-provider';
+import { GraphQLClient } from '../lib/graphql-client.ts';
+import { createLogger } from '../lib/logger.ts';
+import { thinkTime } from '../lib/utils.ts';
+import { customThresholds } from '../lib/metrics.ts';
+import { getProductProviderForSite, DataProvider } from '../lib/data-provider.ts';
 
 // Import configuration
 import {
@@ -28,13 +28,13 @@ import {
   getEnvironmentConfig,
   isDryRun,
   isProduction,
-} from '../config';
+} from '../config/index.ts';
 
 // Import scenarios
-import { pdpScenario } from '../scenarios/pdp';
+import { pdpScenario } from '../scenarios/pdp.ts';
 
 // Import types
-import { TestProduct, SiteConfig } from '../types';
+import { TestProduct, SiteConfig } from '../types/index.ts';
 
 const logger = createLogger('LoadTest');
 
