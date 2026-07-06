@@ -30,7 +30,10 @@
       "mcp__context7__resolve-library-id",
       "Skill(update-config)",
       "PowerShell(Select-String -Path \"C:\\\\Users\\\\LINCOL~1.PHA\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Lincoln-Pham-Documents-AccentGroupDocs-LoadTest-k6-ecommerce-framework\\\\3f57eb68-ba23-4619-b540-370449ce5c92\\\\tasks\\\\bdqshoe6i.output\" -Pattern \"PLPScenario] \\(Starting|PLP scenario completed\\)\" | ForEach-Object { $_.Line } | Select-Object -First 60)",
-      "mcp__codebase-memory-mcp__list_projects"
+      "mcp__codebase-memory-mcp__list_projects",
+      "mcp__codebase-memory-mcp__index_repository",
+      "Skill(artifact-design)",
+      "Artifact"
     ]
   }
 }

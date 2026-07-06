@@ -68,6 +68,8 @@ npm run test:load:platypus-au            # Platypus AU staging (PDP)
 npm run test:load:platypus-au:prod       # Platypus AU production (PDP)
 npm run test:load:vans-au                # Vans AU staging
 npm run test:load:platypus-au:mixed      # Mixed-journey (70% PDP / 20% PLP / 10% checkout)
+npm run test:load:platypus-au:plp        # PLP load test
+npm run test:load:platypus-au:place-order # Place-order load test (requires ENABLE_PLACE_ORDER=true, baked into script)
 npm run dry-run                          # Single iteration, no API mutations
 npm run dashboard                        # k6 web dashboard at localhost:5665
 
@@ -80,7 +82,7 @@ npm run test:cloud:skechers-au           # PDP load test — skechers-au staging
 k6 run -e SITE=skechers-nz -e ENVIRONMENT=staging src/tests/pdp-load.test.ts
 ```
 
-Naming convention for per-site scripts: `test:load:{site}-{country}` and `test:load:{site}-{country}:prod`.
+Naming convention for per-site scripts: `test:load:{site}-{country}[:prod|:plp|:place-order|:mixed]`. Every one of the 8 sites has the full family (PDP, PDP-prod, PLP, place-order, mixed) plus matching `test:cloud:*` and `test:smoke:*` variants.
 
 > **Note**: npm scripts with `--vus`/`--duration` flags are legacy shortcuts. All test files use the k6 `scenarios` API which defines VUs and durations inside the script — the CLI flags are ignored when `scenarios` is present.
 
@@ -147,6 +149,14 @@ export async function runPdpScenario(client: GraphQLClient, sku: string): Promis
 
 Scenarios are pure functions — all side effects (metrics, logging) are handled by the caller in the test file.
 
+### Enforced Test-File Conventions
+
+These are hard rules, not style preferences — all three were flagged in a past framework review and are checked in every current test file:
+
+1. **Always use the `scenarios` API**, never top-level `stages:` shorthand. `stages` locks a test to one executor/journey and can't carry per-scenario thresholds.
+2. **Never call `check()` inside `src/lib/` or `src/config/`.** Library functions return a plain boolean/result; `check()` with a contextual label belongs in `src/scenarios/` or `src/tests/` only — a generic check label inside a lib function is untraceable in the k6 summary.
+3. **Use `exec.scenario.iterationInTest` for `SharedArray` data distribution, never `exec.vu.idInTest`.** VU IDs are assigned sequentially and are not reassigned when VUs are destroyed between stages, so `idInTest` can collide across stages under `ramping-vus`/arrival-rate executors.
+
 ### GraphQL Client
 
 `src/lib/graphql-client.ts` wraps k6's `http.post` with:
@@ -162,6 +172,8 @@ Defined in `src/lib/metrics.ts`. All business KPIs (orders placed, cart value, c
 ### Threshold Pattern
 
 Error-rate and success-rate thresholds always apply. Latency thresholds are wrapped in `...(isSmokeTest ? {} : { ... })` so they are skipped during smoke runs — a single cold request to staging will always breach latency SLOs and is not a meaningful signal.
+
+Rate/error thresholds (`http_req_failed`, `graphql_errors`) must use the object form, not a plain string: `[{ threshold: 'rate<0.01', abortOnFail: true, delayAbortEval: '30s' }]`. Without `abortOnFail`, k6 runs the full test duration even when the error rate is already 50% at minute 2. Latency thresholds (`p(95)<X`) stay as plain strings.
 
 ### Data Provider Pattern
 

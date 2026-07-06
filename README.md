@@ -30,8 +30,8 @@ Targets **8 sites** across **2 environments** (staging + production): Platypus, 
 # 1. Install dependencies
 npm install
 
-# 2. Quick smoke (30s, 2 VUs, platypus-au staging)
-npm run test:quick
+# 2. Smoke gate (1 VU x 1 iteration, real API calls) — run after every change
+npm run test:smoke
 
 # 3. Full PDP load test — platypus-au staging
 npm run test:load:platypus-au
@@ -205,15 +205,30 @@ npm run lint           # ESLint
 
 ### Quick / smoke
 
+There are two distinct short-run modes — use `SMOKE_TEST` as the everyday CI gate; `QUICK_TEST` is PDP-only.
+
 ```bash
-# 30-second smoke — 5 req/min, 2 VUs max (QUICK_TEST mode)
+# SMOKE_TEST — 1 VU x 1 iteration, full real-API assertions, run after every change
+npm run test:smoke              # PDP smoke — platypus-au staging
+npm run test:smoke:plp          # PLP smoke
+npm run test:smoke:place-order  # Place-order smoke (requires ENABLE_PLACE_ORDER=true, baked in)
+npm run test:smoke:mixed        # Mixed-journey smoke (PDP + PLP legs)
+npm run test:smoke:mixed:checkout  # Mixed-journey smoke including the checkout leg
+
+# CI variants — same as above but write JSON results to results/
+npm run test:smoke:ci
+npm run test:smoke:ci:plp
+npm run test:smoke:ci:place-order
+npm run test:smoke:ci:mixed
+
+# QUICK_TEST — 30-second smoke, 5 req/min (pdp-load.test.ts only)
 npm run test:quick
 
 # Any site
-k6 run -e SITE=skechers-au -e ENVIRONMENT=staging -e QUICK_TEST=true src/tests/pdp-load.test.ts
+k6 run -e SITE=skechers-au -e ENVIRONMENT=staging -e SMOKE_TEST=true src/tests/pdp-load.test.ts
 ```
 
-`QUICK_TEST=true` swaps the 16-minute arrival-rate profile for a `constant-arrival-rate` that runs for 30 seconds at 5 req/min. Use it to verify connectivity and data before committing to a full run.
+`SMOKE_TEST=true` swaps the full `scenarios` block for a `per-vu-iterations` executor (1 VU, 1 iteration) with latency thresholds skipped — a single cold request will always breach latency SLOs, so only error-rate/success thresholds apply. `QUICK_TEST=true` (pdp-load.test.ts only) instead swaps in a `constant-arrival-rate` executor that runs for 30 seconds at 5 req/min, useful for checking throughput behavior rather than just a single iteration.
 
 ### PDP load test
 
@@ -245,13 +260,21 @@ k6 run -e SITE=platypus-nz -e ENVIRONMENT=staging src/tests/pdp-load.test.ts
 ### PLP load test
 
 ```bash
+npm run test:load:platypus-au:plp
+npm run test:load:vans-nz:plp
+
+# Custom
 k6 run -e SITE=platypus-au -e ENVIRONMENT=staging src/tests/plp-load.test.ts
-k6 run -e SITE=vans-nz     -e ENVIRONMENT=staging src/tests/plp-load.test.ts
+k6 run -e SITE=vans-nz     -e ENVIRONMENT=staging -e SMOKE_TEST=true src/tests/plp-load.test.ts
 ```
 
 ### Guest checkout (all sites)
 
 ```bash
+# npm shortcuts
+npm run test:smoke:place-order              # 1 VU x 1 iteration smoke gate
+npm run test:load:platypus-au:place-order   # Full ~10-minute run (5 orders/min steady)
+
 # Any site — staging
 k6 run -e SITE=platypus-au -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
 k6 run -e SITE=skechers-nz -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.ts
@@ -292,7 +315,8 @@ npm run dry-run
 |---|---|---|
 | `SITE` | `platypus-au` | Target site ID (see [Site Reference](#site-reference)) |
 | `ENVIRONMENT` | `staging` | `staging` or `production` |
-| `QUICK_TEST` | `false` | `true` → 30s smoke profile (5 req/min, 2 VUs) in pdp-load.test |
+| `QUICK_TEST` | `false` | `true` → 30s `constant-arrival-rate` smoke profile (5 req/min) in pdp-load.test only |
+| `SMOKE_TEST` | `false` | `true` → 1 VU × 1 iteration, full real-API assertions, no think time. Supported by all 4 test files — this is the CI smoke gate, distinct from `QUICK_TEST` |
 | `DRY_RUN` | `false` | Skip mutations; GraphQL queries still run |
 | `ENABLE_PLACE_ORDER` | `false` | Must be `true` for place-order to place orders |
 | `PRODUCTION_CONFIRMED` | `false` | Required to run order mutations against production |
@@ -353,6 +377,7 @@ Validates the `products(filter: { sku: { eq: $sku } })` GraphQL query at scale. 
 
 **Executor:** `ramping-arrival-rate`  
 **Profile:** 200 req/min → 500 req/min peak over 16 minutes  
+**Smoke mode:** `SMOKE_TEST=true` → `per-vu-iterations`, 1 VU × 1 iteration  
 **Quick mode:** `QUICK_TEST=true` → `constant-arrival-rate` at 5 req/min for 30 s
 
 ```bash
@@ -372,13 +397,15 @@ The `setup()` function calls `fail()` before VUs start if the selected site's pr
 
 ### `plp-load.test.ts` — PLP load test
 
-Validates the category listing query: `categoryList(filters: { url_path: ... })` followed by a product page query. Each VU picks a unique category using `(vuId * 7 + iteration) % categoryCount` to avoid cache bias.
+Validates the category listing query: `categoryList(filters: { url_path: ... })` followed by a product page query. Each VU pulls its category via `getCategoryProvider(siteId).getByVU()`, which indexes a `SharedArray` using `exec.scenario.iterationInTest % categoryCount` — monotonically increasing across VUs/stages, so no two calls collide even as VUs are recycled under `ramping-arrival-rate`.
 
 **Executor:** `ramping-arrival-rate` — same profile as pdp-load.test  
-**Data:** Category URL paths are inline per site (20 categories each), covering all 8 sites
+**Quick mode:** `SMOKE_TEST=true` → `per-vu-iterations`, 1 VU × 1 iteration  
+**Data:** Category URL paths are loaded per site from `src/data/categories-*.json` via `DataProvider`/`SharedArray` — never inline in the test file
 
 ```bash
 k6 run -e SITE=drmartens-au -e ENVIRONMENT=staging src/tests/plp-load.test.ts
+k6 run -e SITE=drmartens-au -e ENVIRONMENT=staging -e SMOKE_TEST=true src/tests/plp-load.test.ts
 ```
 
 **Thresholds:**
@@ -393,6 +420,7 @@ k6 run -e SITE=drmartens-au -e ENVIRONMENT=staging src/tests/plp-load.test.ts
 Full 9-step guest checkout flow. Supports all 8 sites (PLA/SKX/DRM/VAN × AU/NZ) — `setup()` warns if an unrecognised site ID is used.
 
 **Executor:** `ramping-arrival-rate` — 5 orders/min steady state, 10 minutes total  
+**Smoke mode:** `SMOKE_TEST=true` → `per-vu-iterations`, 1 VU × 1 iteration (still requires `ENABLE_PLACE_ORDER=true` to place an order)  
 **Safety:** Iterations do nothing unless `ENABLE_PLACE_ORDER=true`
 
 ```bash
@@ -424,6 +452,36 @@ k6 run -e SITE=<site-id> -e ENABLE_PLACE_ORDER=true src/tests/place-order.test.t
 - `scenario_place_order_duration` p(95) < 20000ms
 - `place_order_success` rate > 85%
 - `place_order_mutation_time` p(95) < 8000ms (placeOrder is the heaviest step)
+
+---
+
+### `mixed-journey.test.ts` — Realistic traffic mix (70% PDP / 20% PLP / 10% checkout)
+
+The only test file that doesn't use a single shared `default()`. Each journey has its own `scenarios` entry with its own `exec` target (`pdpBrowse`, `plpBrowse`, `guestCheckout`), so k6 dispatches VUs straight to the named function per scenario instead of routing everything through one function.
+
+`guest_checkout` is opt-in: it's only added to `options.scenarios` when `ENABLE_PLACE_ORDER=true` is set (checked in the init-context `options` block, not inside `guestCheckout()` itself) — every iteration places a real staging order, so the mix defaults to browse-only (PDP + PLP) unless explicitly enabled.
+
+**Executors:**
+- `pdp_browse` — `ramping-arrival-rate`, 140→350 req/min (70% of pdp-load.test's profile)
+- `plp_browse` — `ramping-arrival-rate`, 40→100 req/min (20% of plp-load.test's profile)
+- `guest_checkout` — `constant-arrival-rate`, flat 10 orders/min, starts 1 minute in, only registered when `ENABLE_PLACE_ORDER=true`
+
+**Smoke mode:** `SMOKE_TEST=true` → three independent `per-vu-iterations` scenarios (`mixed_pdp_smoke`, `mixed_plp_smoke`, and `mixed_checkout_smoke` if `ENABLE_PLACE_ORDER=true`), each 1 VU × 1 iteration
+
+```bash
+# Browse-only mix (PDP + PLP)
+npm run test:load:platypus-au:mixed
+k6 run -e SITE=platypus-au -e ENVIRONMENT=staging src/tests/mixed-journey.test.ts
+
+# Full mix including guest checkout
+k6 run -e SITE=platypus-au -e ENVIRONMENT=staging -e ENABLE_PLACE_ORDER=true src/tests/mixed-journey.test.ts
+
+# Smoke gate
+npm run test:smoke:mixed             # PDP + PLP legs only
+npm run test:smoke:mixed:checkout    # includes the checkout leg
+```
+
+**Thresholds:** Error-rate thresholds are scoped per k6 scenario via tag filters (e.g. `http_req_failed{scenario:pdp_browse}`) so PDP/PLP stay at the strict 1% error tolerance while checkout gets the same 5% tolerance as `place-order.test.ts`.
 
 ---
 
@@ -810,4 +868,4 @@ npm run validate && npm run lint && npm run test:quick
 4. Add the new key to `DATA_PATHS` and `SITE_TO_PRODUCT_KEY` in `src/lib/data-provider.ts`
 5. Add category paths to the appropriate `categories-*.json` file
 6. Add `SiteIdentifier` value to `src/types/index.ts`
-7. Add npm scripts in `package.json`: `test:load:{site}-{country}` and `test:load:{site}-{country}:prod`
+7. Add npm scripts in `package.json`: `test:load:{site}-{country}[:prod|:plp|:place-order|:mixed]`, plus matching `test:cloud:*` and `test:smoke:*` variants
